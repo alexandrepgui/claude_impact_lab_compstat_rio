@@ -28,18 +28,34 @@ O papel da IA é amplificar a capacidade analítica da equipe — processando s�
 ## 📂 Estrutura do Repositório
 
 ```
-Claude_Impact_Lab_Rio/
-├── dados/                                           # Pasta com todos os datasets
-│   ├── df_ocorrencias_tratado - Extração 1.csv      # Ocorrências criminais
-│   ├── disk_denuncia.csv                            # Disque Denúncia
-│   ├── fatores_urbanos - Extração 1 (1).csv         # Fatores ambientais/urbanos
-│   └── Dicionário de dados.xlsx                     # Dicionário de todos os datasets
-├── relints/                                         # PDFs simulando relatórios de inteligência
-├── sh_area_forca/                                   # Shapefiles das áreas da Força Municipal
-├── Briefing_Hackathon_Desenvolvedores_CompStat.pdf  # Briefing técnico do desafio
-└── LICENSE
+claude_impact_lab_compstat_rio/
+├── dados/                                                        # Datasets principais
+│   ├── cameras_areas_fm.csv                                      # Localização de câmeras nas áreas da FM
+│   ├── df_ocorrencias_tratado - Extração 1.csv                   # Ocorrências criminais
+│   ├── disk_denuncia.csv                                         # Disk Denúncia
+│   ├── fatores_urbanos.csv                                       # Fatores ambientais/urbanos
+│   ├── Dicionário de dados.xlsx                                  # Dicionário de todos os datasets
+│   └── outros dados/                                             # Dados complementares
+│       ├── CPSR_2020_2022_2024.xlsx                              # Censo de Pessoas em Situação de Rua
+│       └── dominio_territorial - Extração 1.csv                  # Domínio territorial (facções)
+├── relints/                                                      # Relatórios de Inteligência (RELINTs)
+│   ├── RI_010_2026_Rodoviaria_Terminal_Gentileza.docx
+│   ├── RI_011_2026_Metro_Botafogo_Sao_Clemente.docx
+│   ├── RI_012_2026_Jardim_de_Alah.docx
+│   ├── RI_013_2026_Campo_Grande_Estacao_Calcadao.docx
+│   ├── RI_014_2026_Rio_Sul.docx
+│   ├── RI_015_2026_Praia_Botafogo_Marques_Abrantes.docx
+│   ├── RI_016_2026_Estacoes_SFX_Afonso_Pena.docx
+│   └── RI_017_2026_Presidente_Vargas_Campo_Santana.docx
+├── sh_area_forca/                                                # Shapefiles das áreas da Força Municipal
+│   ├── areas_forca_municipal.shp
+│   ├── areas_forca_municipal.shx
+│   ├── areas_forca_municipal.dbf
+│   ├── areas_forca_municipal.prj
+│   ├── areas_forca_municipal.cpg
+│   └── areas_forca_municipal.qmd
+├── Briefing_Hackathon_Desenvolvedores_CompStat.pdf               # Briefing técnico do desafio
 ```
-
 ---
 
 ## 📊 Datasets
@@ -103,6 +119,27 @@ A tabela abaixo apresenta os fatores de incidência criminal mapeados pelo CompS
 | | Trânsito | Motocicletas trafegando no passeio | GM-Rio |
 | | Trânsito | Bicicletas trafegando no passeio | GM-Rio |
 
+---
+
+## Outras fontes de dados 
+
+### Domínio Territorial
+**Arquivo:** `dados/outros dados/dominio_territorial - Extração 1.csv`
+
+Mapeamento dos territórios sob influência de organizações criminosas no município do Rio de Janeiro. Contém o nome do território, a facção com domínio sobre a área e a geometria (polígono) correspondente. Esse dado é essencial para contextualizar a dinâmica criminal das áreas analisadas e entender a influência territorial sobre padrões de crime e rotas de fuga.
+
+### Censo de Pessoas em Situação de Rua (PSR)
+**Arquivo:** `dados/outros dados/CPSR_2020_2022_2024.xlsx`
+
+Dados do Censo de Pessoas em Situação de Rua realizado pela Prefeitura do Rio de Janeiro a cada dois anos, temos dados dos anos de 2020, 2022 e 2024. Permite identificar a concentração e evolução da PSR no território ao longo do tempo — um dos fatores de incidência criminal mapeados pelo CompStat, sob responsabilidade da SMAS.
+
+### Central 1746 — Chamados de Serviços Públicos
+**Base pública:** disponível no DataLake da Prefeitura do Rio de Janeiro (BigQuery)
+
+A Central 1746 é o canal oficial de solicitação de serviços públicos da Prefeitura, onde o cidadão registra demandas como iluminação apagada, poda de árvores, buracos, lixo acumulado, entre outros. A base completa desde 2010 está disponível publicamente e pode ser acessada em: `https://console.cloud.google.com/bigquery?project=rj-ssm-dev&ws=!1m6!1m5!4m3!1sdatario!2sadm_central_atendimento_1746!3schamado!23sTREE_NODE_SELECTION`
+
+Esse dataset é especialmente relevante para o CompStat porque os chamados do 1746 funcionam como uma camada adicional de validação dos fatores urbanos de incidência criminal — quando um trecho aparece com alta incidência de roubos, iluminação deficiente no levantamento de campo e múltiplos chamados de "poste apagado" no 1746, a coincidência reforça a priorização da ação.
+
 ### Dicionário de Dados
 **Arquivo:** `Dicionário de dados.xlsx`
 
@@ -118,13 +155,21 @@ Contém PDFs que simulam relatórios de inteligência reais (RELINTs). Esses doc
 
 ---
 
-## 🔒 Nota sobre Segurança
+## 🚀 Desafios Extras
 
-Os dados contidos neste repositório estão disponibilizados exclusivamente para o período do hackathon. **Ao final do evento, este repositório será convertido para privado**, restringindo o acesso público aos dados e ao código.
+Além do desafio principal de geração automatizada dos Relatórios Analíticos de Área, propomos quatro desafios complementares que ampliam a capacidade analítica do CompStat Municipal.
 
----
+### Desafio 1 — Inteligência de Redes Sociais
+Monitorar menções públicas nas redes sociais relacionadas à Força Municipal e a relatos de crimes no território do Rio de Janeiro. A solução deve identificar *onde* os eventos estão sendo reportados (bairro, logradouro, ponto de referência) e *como* ocorrem (padrão, tipo, horário), distinguindo denúncias de comentários gerais e gerando alertas estruturados para integração ao fluxo do CompStat Municipal.
 
-## 📜 Nossos desejos
+### Desafio 2 — Migração do Crime no Território
+Quando operamos com intensidade em um perímetro, as ocorrências tendem a migrar para áreas adjacentes menos monitoradas. A solução deve detectar e antecipar esse deslocamento geográfico da criminalidade, cruzando dados operacionais e de ocorrências para alertar a equipe sobre onde o crime está se deslocando em tempo hábil.
+
+### Desafio 3 — Relatório de Decisão de Permanência Operacional
+Nosso protocolo prevê uma permanência mínima de 90 dias de operação em determinada área. A solução deve apoiar a decisão de permanecer ou sair de uma área, consolidando indicadores de resultado, tendências de ocorrência e comparativos territoriais em um painel de monitoramento que oriente a alocação estratégica dos recursos.
+
+### Desafio 4 — Otimização de Cobertura de Câmeras
+Identificar pontos cegos no território — locais onde há registro de crimes mas ausência de cobertura por câmeras — para orientar a instalação ou remanejamento de equipamentos. A solução deve cruzar dados de ocorrências com o mapa atual de câmeras (CIVITAS/COR) e recomendar os pontos prioritários de expansão da vigilância.
 
 
 

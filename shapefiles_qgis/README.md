@@ -21,6 +21,7 @@ pesadas — só `pyshp`.
 | **`motor_bingo_semanal.py`** | **v2 configurável** — índice "bingo" composto, **zonas recalculadas a cada semana** | `<camada>/*.shp` + `config_pesos.json` | `distribuicao_fm/zonas_semanais.shp`, `visualizacao_semanal.html` |
 | `config_pesos.json` | Pesos editáveis das camadas e categorias do bingo | — | — |
 | **`relatorio_zonas.py`** | Compila um dossiê por zona da **última semana** (insumo p/ IA gerar RELINT) | `distribuicao_fm/zonas_semanais.shp` + `<camada>/*.shp` | `distribuicao_fm/relatorio_zonas_{compacto,rico}.{md,json}` |
+| **`gerar_relatorios_ia.py`** | Gera **1 .docx por zona** no estilo dos `relints/`: mapa + texto IA (Claude Sonnet 4.6) | `relatorio_zonas_compacto.json` + `zonas_semanais.shp` + camadas de pontos + 1 RELINT exemplar | `distribuicao_fm/relatorios_ia/RA_<N>_<local>.{docx,png}` |
 
 > O fluxo recomendado hoje é: rode `gerar_shapefiles.py` uma vez (gera as
 > camadas de pontos) e depois `motor_bingo_semanal.py` toda vez que mudar
@@ -212,7 +213,64 @@ RELINTs em `relints/` — um relatório por polígono.
 
 ---
 
-## 7. Pastas por camada (referência)
+## 7. Geração automática dos RELINTs (.docx) com Claude
+
+`gerar_relatorios_ia.py` fecha o ciclo: pega o `relatorio_zonas_compacto.json`,
+gera **um .docx por zona** no estilo dos arquivos em `relints/`, com:
+
+- um **mapa** Leaflet → screenshot PNG via Edge headless (polígono da zona +
+  pontos amostrados de ocorrências, Disque e fatores urbanos no entorno);
+- um **texto** redigido pelo **Claude Sonnet 4.6** a partir do dossiê + um
+  RELINT real como exemplar de estilo (hard-coded no script).
+
+### Requisitos
+
+```
+pip install anthropic python-docx pyshp
+set ANTHROPIC_API_KEY=sk-ant-...       # sua chave da Anthropic
+```
+
+E ter o **Microsoft Edge** instalado (caminho fixo no topo do script;
+ajuste se estiver em outro path).
+
+### Uso
+
+```
+# Smoke test — só a zona prioritária #1
+python shapefiles_qgis/gerar_relatorios_ia.py
+
+# Todas as 7 zonas da semana
+python shapefiles_qgis/gerar_relatorios_ia.py --max-zonas 10
+
+# Específicas (por zona_id)
+python shapefiles_qgis/gerar_relatorios_ia.py --zonas 1,3,5
+```
+
+Saídas em `distribuicao_fm/relatorios_ia/`:
+
+- `RA_<prio>_<local>.docx` — relatório final (mapa + texto)
+- `RA_<prio>_<local>_mapa.png` — imagem do mapa (também embutida no docx)
+
+### Detalhes da chamada do Claude
+
+- **Modelo**: `claude-sonnet-4-6`, `max_tokens=16000`.
+- **Prompt caching**: o `SYSTEM_PROMPT` inclui o RELINT exemplar e usa
+  `cache_control: ephemeral` — a partir da 2ª zona o exemplar (~6 KB) é lido do
+  cache (~0,1× preço), só o dossiê de cada zona é input novo.
+- **Anti-alucinação**: o system prompt instrui a usar apenas números reais do
+  JSON e a parafrasear (não citar literalmente) os relatos do Disque.
+- **API key**: lida de `ANTHROPIC_API_KEY` (não é hardcoded).
+
+### Trocar o exemplar de estilo
+
+O exemplar usado pelo Claude está em `RELINT_EXEMPLAR` no topo do script —
+um trecho do `relints/RI_017_Presidente_Vargas_Campo_Santana.docx`. Para
+usar outro RELINT como referência, substitua o texto da constante (mantenha
+a estrutura: título / parágrafo / sub-locais com bullets / CONCLUSÃO).
+
+---
+
+## 8. Pastas por camada (referência)
 
 Cada subpasta documenta a fonte e o shapefile gerado:
 
@@ -229,7 +287,7 @@ Cada subpasta documenta a fonte e o shapefile gerado:
 
 ---
 
-## 8. Como animar no QGIS
+## 9. Como animar no QGIS
 
 `distribuicao_fm/zonas_semanais.shp`:
 
@@ -242,7 +300,7 @@ Mesmo procedimento serve para `heatmap_semanal.shp` (v1) usando o campo
 
 ---
 
-## 9. Limites conhecidos
+## 10. Limites conhecidos
 
 - O `local` de cada zona é só o **bairro dominante** (pode cruzar divisas).
 - Camadas estáticas pesam o mesmo em todas as semanas — é o que faz sentido

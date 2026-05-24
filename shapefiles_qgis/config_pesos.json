@@ -1,0 +1,48 @@
+{
+  "_ajuda": "Edite os pesos aqui. 'peso' da camada = importancia no bingo (0 ignora). 'pesos_categoria' = peso por subtipo; o que nao estiver listado usa 'peso_categoria_default'. Depois rode: python motor_bingo_semanal.py",
+
+  "janela_semanas": 8,
+  "grade_m": 250,
+  "cobertura": 0.50,
+  "min_share_zona": 0.01,
+  "n_agentes": 600,
+
+  "camadas": {
+    "ocorrencias": {
+      "ativa": true,
+      "peso": 1.0,
+      "campo_categoria": "desc_delit",
+      "peso_categoria_default": 1.0,
+      "pesos_categoria": {
+        "Roubo a transeunte": 1.0,
+        "Roubo de aparelho celular": 1.0,
+        "Roubo em coletivo": 1.0
+      }
+    },
+
+    "disque": {
+      "ativa": true,
+      "peso": 0.6,
+      "campo_categoria": "tipo_pr",
+      "peso_categoria_default": 1.0,
+      "pesos_categoria": {
+        "ROUBO/FURTO A TRANSEUNTES": 2.0,
+        "ROUBO A MOTORISTAS": 1.5,
+        "ROUBO EM TRANSP COLETIVOS": 1.5,
+        "CONSUMO DE DROGAS": 0.5
+      }
+    },
+
+    "fatores": {
+      "ativa": true,
+      "peso": 0.4,
+      "campo_categoria": "tp_ocorr",
+      "peso_categoria_default": 1.0,
+      "pesos_categoria": {
+        "Área mal iluminada com circulação de pedestres": 2.0,
+        "Vegetação encobrindo iluminação pública": 1.5,
+        "Comércio irregular obstruindo a visibilidade do passeio": 1.5
+      }
+    }
+  }
+}

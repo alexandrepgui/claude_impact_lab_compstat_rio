@@ -22,6 +22,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 UI_ROOT = Path(__file__).resolve().parent
@@ -783,7 +784,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
 
         if clean_path.startswith("/api/relatorios/file/"):
-            name = clean_path[len("/api/relatorios/file/"):]
+            # Filenames may contain non-ASCII (e.g. "Mem de Sá"), so percent-decode
+            # the path segment before looking up the file on disk.
+            name = unquote(clean_path[len("/api/relatorios/file/"):])
             return self._serve_relatorio_file(name)
 
         if clean_path in PAGE_ROUTES or (not clean_path.startswith("/api/") and Path(clean_path).suffix == ""):

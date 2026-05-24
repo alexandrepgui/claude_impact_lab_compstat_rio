@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CompStat Rio Pipeline</title>
-    <link rel="stylesheet" href="/styles.css?v=11" />
+    <link rel="stylesheet" href="/styles.css?v=12" />
   </head>
   <body>
     <div class="app-frame">
@@ -150,15 +150,27 @@
             <button id="relatoriosRefresh" class="ghost" type="button">Atualizar lista</button>
           </section>
 
-          <p class="lab-intro muted">
-            Gerados pelo step 6 (<strong>Load</strong>) do pipeline a partir de <code>zonas_semanais.shp</code> + dossie compacto.
-            Cada zona da ultima semana vira um <code>.docx</code> no estilo dos RELINTs oficiais, com mapa Leaflet
-            renderizado via Playwright e texto gerado por Claude Sonnet 4.6. Configuravel via env
-            <code>PIPELINE_REPORT_MAX_ZONAS</code>.
-          </p>
+          <section class="stage report-stage" aria-label="Relatorios gerados">
+            <div class="stage-header">
+              <div>
+                <p class="kicker">Artefatos do step 6</p>
+                <h2>Documentos prontos</h2>
+              </div>
+              <p id="relatoriosStatus" class="report-status muted">Carregando relatorios...</p>
+            </div>
 
-          <p id="relatoriosStatus" class="muted">Carregando relatorios...</p>
-          <div id="relatoriosGrid" class="relatorios-grid"></div>
+            <div class="report-summary">
+              <p>
+                Gerados pelo step 6 (<strong>Load</strong>) do pipeline a partir de
+                <code>zonas_semanais.shp</code> + dossie compacto. Cada zona da ultima semana vira um
+                <code>.docx</code> no estilo dos RELINTs oficiais, com mapa Leaflet renderizado via
+                Playwright e texto gerado por Claude Sonnet 4.6.
+              </p>
+              <code>PIPELINE_REPORT_MAX_ZONAS</code>
+            </div>
+
+            <div id="relatoriosGrid" class="relatorios-grid"></div>
+          </section>
         </section>
 
         <section class="app-page" data-page-panel="lab" aria-labelledby="lab-title">

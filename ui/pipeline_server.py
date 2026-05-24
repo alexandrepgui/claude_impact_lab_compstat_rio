@@ -25,6 +25,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 UI_ROOT = Path(__file__).resolve().parent
+PAGE_ROUTES = {"/", "/pipeline", "/auditoria", "/relatorio", "/lab"}
 PIPELINE_PYTHON = REPO_ROOT / ".venv" / "bin" / "python"
 CONFIG_PESOS = REPO_ROOT / "shapefiles_qgis" / "config_pesos.json"
 MOTOR_SCRIPT = REPO_ROOT / "shapefiles_qgis" / "motor_bingo_semanal.py"
@@ -327,6 +328,157 @@ def latest_score() -> dict[str, Any] | None:
     return _score_payload(SCORE_JSON)
 
 
+def _step_from_event(event: str) -> str | None:
+    match = re.match(r"(?:step_|s)([1-6])(?:_|$)", event)
+    return match.group(1) if match else None
+
+
+def _parse_ts(value: Any) -> datetime | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def read_json_file(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {"status": "invalid_json", "path": str(path.relative_to(REPO_ROOT))}
+
+
+def count_jsonl(path: Path, limit: int = 4) -> dict[str, Any]:
+    if not path.exists():
+        return {"path": str(path.relative_to(REPO_ROOT)), "exists": False, "count": 0, "sample": []}
+
+    count = 0
+    sample = []
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            count += 1
+            if len(sample) < limit:
+                sample.append(item)
+    return {
+        "path": str(path.relative_to(REPO_ROOT)),
+        "exists": True,
+        "count": count,
+        "sample": sample,
+    }
+
+
+def audit_summary() -> dict[str, Any]:
+    events: list[dict[str, Any]] = []
+    malformed = 0
+    audit_path = pipeline.AUDIT_LOG
+
+    if audit_path.exists():
+        with audit_path.open(encoding="utf-8") as f:
+            for line_no, line in enumerate(f, start=1):
+                raw = line.strip()
+                if not raw:
+                    continue
+                try:
+                    entry = json.loads(raw)
+                except json.JSONDecodeError:
+                    malformed += 1
+                    continue
+                event = str(entry.get("event", "unknown"))
+                level = str(entry.get("level", "INFO")).upper()
+                data = entry.get("data") if isinstance(entry.get("data"), dict) else {}
+                events.append(
+                    {
+                        "line": line_no,
+                        "ts": entry.get("ts"),
+                        "event": event,
+                        "level": level,
+                        "step": _step_from_event(event),
+                        "data": data,
+                    }
+                )
+
+    level_counts = {level: 0 for level in ("INFO", "OK", "WARN", "ERR")}
+    step_counts = {step["id"]: {"total": 0, "ERR": 0, "WARN": 0, "OK": 0, "INFO": 0} for step in pipeline.STEPS}
+    event_counts: dict[str, int] = {}
+    latest_by_step: dict[str, dict[str, Any]] = {}
+    runs: list[dict[str, Any]] = []
+    current_run: dict[str, Any] | None = None
+
+    for entry in events:
+        level = entry["level"] if entry["level"] in level_counts else "INFO"
+        level_counts[level] += 1
+        event_counts[entry["event"]] = event_counts.get(entry["event"], 0) + 1
+
+        step = entry.get("step")
+        if step in step_counts:
+            step_counts[step]["total"] += 1
+            step_counts[step][level] += 1
+            latest_by_step[step] = entry
+
+        if entry["event"] == "pipeline_start":
+            current_run = {
+                "startedAt": entry.get("ts"),
+                "endedAt": None,
+                "status": "running",
+                "steps": entry.get("data", {}).get("steps", []),
+                "levels": {level_name: 0 for level_name in ("INFO", "OK", "WARN", "ERR")},
+                "events": 0,
+                "durationS": None,
+            }
+            runs.append(current_run)
+        if current_run:
+            current_run["events"] += 1
+            current_run["levels"][level] += 1
+            if entry["event"] in {"pipeline_end", "pipeline_end_with_warnings", "pipeline_aborted", "pipeline_aborted_missing_deps"}:
+                current_run["endedAt"] = entry.get("ts")
+                current_run["status"] = "success" if entry["event"] == "pipeline_end" else "attention"
+                started = _parse_ts(current_run["startedAt"])
+                ended = _parse_ts(current_run["endedAt"])
+                if started and ended:
+                    current_run["durationS"] = round((ended - started).total_seconds(), 1)
+                current_run = None
+
+    review_queue = read_json_file(REPO_ROOT / "review_queue.json")
+    pending_items = review_queue.get("pending_items", []) if isinstance(review_queue, dict) else []
+    extracted = count_jsonl(REPO_ROOT / "relato_estruturado.jsonl")
+    recent = events[-80:]
+    recent.reverse()
+    top_events = sorted(event_counts.items(), key=lambda item: (-item[1], item[0]))[:8]
+
+    return {
+        "path": str(audit_path.relative_to(REPO_ROOT)),
+        "exists": audit_path.exists(),
+        "eventCount": len(events),
+        "malformedCount": malformed,
+        "firstTs": events[0]["ts"] if events else None,
+        "lastTs": events[-1]["ts"] if events else None,
+        "levelCounts": level_counts,
+        "stepCounts": step_counts,
+        "latestByStep": latest_by_step,
+        "recentEvents": recent,
+        "topEvents": [{"event": event, "count": count} for event, count in top_events],
+        "runs": runs[-8:][::-1],
+        "reviewQueue": {
+            "path": "review_queue.json",
+            "exists": (REPO_ROOT / "review_queue.json").exists(),
+            "status": review_queue.get("status") if isinstance(review_queue, dict) else None,
+            "generatedAt": review_queue.get("generated_at") if isinstance(review_queue, dict) else None,
+            "pendingCount": len(pending_items) if isinstance(pending_items, list) else 0,
+            "items": pending_items[:8] if isinstance(pending_items, list) else [],
+        },
+        "extractedJsonl": extracted,
+    }
+
+
 def lab_load_config() -> dict[str, Any]:
     if not CONFIG_PESOS.exists():
         raise FileNotFoundError(f"config_pesos.json not found at {CONFIG_PESOS}")
@@ -540,7 +692,8 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
-        if self.path == "/api/pipeline":
+        clean_path = self.path.split("?", 1)[0].split("#", 1)[0]
+        if clean_path == "/api/pipeline":
             self.write_json(
                 {
                     "steps": step_metadata(),
@@ -554,11 +707,15 @@ class Handler(SimpleHTTPRequestHandler):
             )
             return
 
-        if self.path == "/api/runs/current":
+        if clean_path == "/api/runs/current":
             self.write_json({"run": self.current_run()})
             return
 
-        if self.path == "/api/lab/config":
+        if clean_path == "/api/audit":
+            self.write_json(audit_summary())
+            return
+
+        if clean_path == "/api/lab/config":
             try:
                 cfg = lab_load_config()
             except FileNotFoundError as exc:
@@ -578,7 +735,7 @@ class Handler(SimpleHTTPRequestHandler):
             )
             return
 
-        if self.path == "/api/lab/snapshot":
+        if clean_path == "/api/lab/snapshot":
             self.write_json(
                 {
                     "current": _score_payload(SCORE_JSON),
@@ -587,15 +744,15 @@ class Handler(SimpleHTTPRequestHandler):
             )
             return
 
-        if self.path == "/api/relatorios":
+        if clean_path == "/api/relatorios":
             self.write_json({"relatorios": list_relatorios()})
             return
 
-        if self.path.startswith("/api/relatorios/file/"):
-            name = self.path[len("/api/relatorios/file/"):]
+        if clean_path.startswith("/api/relatorios/file/"):
+            name = clean_path[len("/api/relatorios/file/"):]
             return self._serve_relatorio_file(name)
 
-        if self.path == "/":
+        if clean_path in PAGE_ROUTES or (not clean_path.startswith("/api/") and Path(clean_path).suffix == ""):
             self.path = "/index.html"
         return super().do_GET()
 
@@ -696,7 +853,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def translate_path(self, path: str) -> str:
         clean = path.split("?", 1)[0].split("#", 1)[0]
-        if clean == "/":
+        if clean in PAGE_ROUTES or (not clean.startswith("/api/") and Path(clean).suffix == ""):
             clean = "/index.html"
         return str(UI_ROOT / clean.lstrip("/"))
 
@@ -719,14 +876,19 @@ class Handler(SimpleHTTPRequestHandler):
             return json.loads(json.dumps(CURRENT_RUN, ensure_ascii=False)) if CURRENT_RUN else None
 
 
+class ReusableThreadingHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = True
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="CompStat Rio pipeline UI")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
 
-    server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"Pipeline UI: http://{args.host}:{args.port}")
+    server = ReusableThreadingHTTPServer((args.host, args.port), Handler)
+    host, port = server.server_address[:2]
+    print(f"Pipeline UI: http://{host}:{port}", flush=True)
     try:
         server.serve_forever(poll_interval=0.25)
     except KeyboardInterrupt:

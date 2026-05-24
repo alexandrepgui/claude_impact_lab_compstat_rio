@@ -209,25 +209,86 @@
         </div>
       </div>
 
-      <h3>2. Linguagem unificada — schema da "área-snapshot"</h3>
-      <p>A pipeline produz <strong>um registro consolidado por área × período</strong>. Esta é a "base nova" que integra tudo. Estrutura proposta:</p>
+      <h3>2. Linguagem unificada — schema tabular (star schema)</h3>
+      <p>A base consolidada é <strong>uma fact table flat</strong> com PK composta <code>(area_fm_id, grid_cell, periodo)</code>. Cada linha = uma célula de uma área em um período. Colunas são contagens por tipo de ocorrência + métricas derivadas. Qualitativo (dinâmica de LLM, RELINTs) e referência (matriz fator×órgão) entram como <strong>tabelas auxiliares</strong> joinadas por essas chaves.</p>
+
+      <h4>Fact table principal: <code>area_grid_periodo</code></h4>
+      <div class="scroll-x">
       <table>
-        <thead><tr><th>Campo</th><th>Tipo</th><th>Origem</th></tr></thead>
+        <thead><tr><th>Coluna</th><th>Tipo</th><th>PK?</th><th>Origem / cálculo</th></tr></thead>
         <tbody>
-          <tr><td><code>area_fm_id</code></td><td>int</td><td>shapefile <code>fid</code></td></tr>
-          <tr><td><code>area_fm_nome</code></td><td>string</td><td>shapefile <code>nome_subar</code></td></tr>
-          <tr><td><code>periodo</code></td><td>YYYY-MM</td><td>derivado de ocorrências</td></tr>
-          <tr><td><code>mancha_criminal</code></td><td>object</td><td>contagens por tipo + geometrias hot points (df_ocorrencias_tratado)</td></tr>
-          <tr><td><code>dinamica_padroes</code></td><td>list[object]</td><td>extraído via LLM de DD + RELINT (modus, rotas, recepção, horário pico, controle)</td></tr>
-          <tr><td><code>fatores_urbanos_relevantes</code></td><td>list[object]</td><td>fatores_urbanos.csv filtrados pela dinâmica</td></tr>
-          <tr><td><code>cameras_cobertura</code></td><td>object</td><td>cameras_areas_fm.csv + análise de gaps</td></tr>
-          <tr><td><code>contexto_faccional</code></td><td>list[object]</td><td>dominio_territorial intersectado (não pra ação, só pra contexto)</td></tr>
-          <tr><td><code>validacao_1746</code></td><td>object</td><td>(plus) chamados 1746 que reforçam fatores</td></tr>
-          <tr><td><code>bingo_score</code></td><td>float + breakdown</td><td>calculado em P5 após consolidação</td></tr>
-          <tr><td><code>confidence</code></td><td>object</td><td>score por camada — sinaliza onde foi LLM, onde foi humano</td></tr>
-          <tr><td><code>pendencias_revisao</code></td><td>list</td><td>inconsistências não resolvidas (pipeline ainda usa, mas marca)</td></tr>
+          <tr><td><code>area_fm_id</code></td><td>int</td><td>✅</td><td>shapefile <code>fid</code> (2, 9, 10, 11, 12, 14, 19, 20)</td></tr>
+          <tr><td><code>grid_cell</code></td><td>string</td><td>✅</td><td>identificador da célula (H3 res 9 ~150m OU grid lat/long 250m — decisão de time)</td></tr>
+          <tr><td><code>periodo</code></td><td>YYYY-MM ou YYYY-WW</td><td>✅</td><td>derivado de <code>ano</code>+<code>mes</code> de ocorrências (granularidade real do dataset)</td></tr>
+          <tr><td><code>n_roubo_transeunte</code></td><td>int</td><td></td><td>count ocorrências tipo 15 cuja geometria cai na célula no período</td></tr>
+          <tr><td><code>n_roubo_celular</code></td><td>int</td><td></td><td>count ocorrências tipo celular na célula no período</td></tr>
+          <tr><td><code>n_roubo_coletivo</code></td><td>int</td><td></td><td>count ocorrências em coletivo na célula no período</td></tr>
+          <tr><td><code>n_total_ocorrencias</code></td><td>int</td><td></td><td>soma dos 3 acima</td></tr>
+          <tr><td><code>n_denuncia_drogas</code></td><td>int</td><td></td><td>count DD classe SUBSTÂNCIAS ENTORPECENTES (após agregar por id_denuncia)</td></tr>
+          <tr><td><code>n_denuncia_patrimonio</code></td><td>int</td><td></td><td>count DD classe CRIMES CONTRA O PATRIMÔNIO</td></tr>
+          <tr><td><code>n_fatores_comlurb</code></td><td>int</td><td></td><td>count fatores na célula com órgão Comlurb</td></tr>
+          <tr><td><code>n_fatores_rioluz</code></td><td>int</td><td></td><td>count fatores RioLuz</td></tr>
+          <tr><td><code>n_fatores_seop</code></td><td>int</td><td></td><td>count fatores SEOP</td></tr>
+          <tr><td><code>n_fatores_smas</code></td><td>int</td><td></td><td>count fatores SMAS</td></tr>
+          <tr><td><code>n_fatores_seconserva</code></td><td>int</td><td></td><td>count SECONSERVA</td></tr>
+          <tr><td><code>n_fatores_outros</code></td><td>int</td><td></td><td>count CET-Rio + GM-Rio + SMTR somados</td></tr>
+          <tr><td><code>n_cameras</code></td><td>int</td><td></td><td>count câmeras CIVITAS/COR dentro da célula</td></tr>
+          <tr><td><code>has_dinamica_relevante</code></td><td>bool</td><td></td><td>true se LLM extraiu padrão pra área (join com tabela <code>dinamica_padroes</code>)</td></tr>
+          <tr><td><code>periodo_predominante</code></td><td>enum</td><td></td><td>diurno / noturno / madrugada (extraído da dinâmica)</td></tr>
+          <tr><td><code>bingo_score</code></td><td>float [0-1]</td><td></td><td>calculado a partir de (mancha × dinâmica × fator) — fórmula a definir</td></tr>
+          <tr><td><code>confidence</code></td><td>float [0-1]</td><td></td><td>confiança agregada das camadas</td></tr>
+          <tr><td><code>pendencias_revisao</code></td><td>int</td><td></td><td>contador de inconsistências não resolvidas que afetam essa célula</td></tr>
         </tbody>
       </table>
+      </div>
+
+      <h4>Tabelas auxiliares (joinadas por PK ou parte dela)</h4>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>Tabela</th><th>PK</th><th>Conteúdo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>area_fm_meta</code></td>
+            <td>area_fm_id</td>
+            <td>nome, polígono (geometria), RELINT associado (RI_010..RI_017), n_cameras_total</td>
+          </tr>
+          <tr>
+            <td><code>dinamica_padroes</code></td>
+            <td>(area_fm_id, periodo)</td>
+            <td>texto extraído por LLM: modus_operandi, rotas_fuga, pontos_recepcao, horario_pico, controle_territorial. Confidence por campo.</td>
+          </tr>
+          <tr>
+            <td><code>fatores_urbanos_detalhe</code></td>
+            <td>(area_fm_id, grid_cell, fator_id)</td>
+            <td>denormalização do CSV fatores_urbanos: cada fator com lat/long, tipo, órgão, logradouro, observação. Útil pro plano de ação por órgão no .doc.</td>
+          </tr>
+          <tr>
+            <td><code>inconsistencias_log</code></td>
+            <td>(timestamp, rule_id)</td>
+            <td>audit trail: regra, registro afetado, decisão (auto/humano), correção aplicada, confidence.</td>
+          </tr>
+          <tr>
+            <td><code>relint_estruturado</code></td>
+            <td>area_fm_id</td>
+            <td>parse do .docx → estrutura: descrição área, fatores identificados, dinâmica, recomendações. Confidence por seção.</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout warn">
+        <strong>Decisões a fechar antes de implementar:</strong>
+        <ul style="margin-bottom:0">
+          <li><strong>Granularidade do grid</strong>: H3 res 9 (~150m hex) ou grid quadrado 250m? H3 é padrão pra urbano + lib pronta (<code>h3-py</code>), grid quadrado é mais simples.</li>
+          <li><strong>Período</strong>: mensal (YYYY-MM) é seguro dado que <code>data</code>/<code>hora</code> estão vazios no dataset; semanal só se viabilizar.</li>
+          <li><strong>Tipos de ocorrência</strong>: hoje 3 colunas (transeunte/celular/coletivo). Se aparecerem mais subtipos no <code>desc_delito</code>, adicionar coluna ou normalizar.</li>
+          <li><strong>Score BINGO</strong>: fórmula candidata = <code>norm(n_total_ocorrencias) × has_dinamica_relevante × norm(n_fatores_relevantes)</code> com pesos. Validar com mentor.</li>
+        </ul>
+      </div>
+
+      <div class="callout core">
+        <strong>Por que essa estrutura:</strong> SQL/pandas simples, fácil pro mentor + Prefeitura entenderem, time series por célula sai grátis, heatmap visualiza direto. Qualitativo (LLM) vive em tabelas separadas joinadas pela PK — não polui a fact table.
+      </div>
 
       <h3>3. Por fonte — contribuição + tipo de análise</h3>
       <div class="scroll-x">
@@ -565,6 +626,7 @@
           <tr><td>11:30~</td><td>Plano de execução em 4 tracks paralelos (Data Eng, LLM, Output, PM).</td><td>Caminho crítico = LLM extraction de DD (90+ min imprevisível). Pode-se cortar 3-4h em paralelo se cada track for executado por owner dedicado.</td></tr>
           <tr><td>11:30~</td><td>Solution.html podado: removida "Áreas dinâmicas" (já no Pipeline) e Plus 1/Plus 2 expandidos viraram callout único.</td><td>Foco em accionabilidade. Documento de estratégia + execução, não enciclopédia.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
+          <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
         </tbody>

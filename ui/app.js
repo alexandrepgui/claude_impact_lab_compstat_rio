@@ -1,0 +1,269 @@
+const state = {
+  steps: [],
+  run: null,
+  poll: null,
+  lastRunStatus: null,
+};
+
+const els = {
+  navItems: document.querySelectorAll(".nav-item"),
+  pagePanels: document.querySelectorAll(".app-page"),
+  jobs: document.querySelector("#jobs"),
+  deps: document.querySelector("#deps"),
+  runBadge: document.querySelector("#runBadge"),
+  runButton: document.querySelector("#runButton"),
+  stopButton: document.querySelector("#stopButton"),
+  fromStep: document.querySelector("#fromStep"),
+  skipStub: document.querySelector("#skipStub"),
+  dryRun: document.querySelector("#dryRun"),
+  selectedSteps: document.querySelector("#selectedSteps"),
+  scorePanel: document.querySelector("#scorePanel"),
+  console: document.querySelector("#console"),
+  auditLog: document.querySelector("#auditLog"),
+};
+
+function showPage(page) {
+  els.navItems.forEach((item) => {
+    const active = item.dataset.page === page;
+    item.classList.toggle("active", active);
+    if (active) {
+      item.setAttribute("aria-current", "page");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
+
+  els.pagePanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.pagePanel === page);
+  });
+}
+
+function statusLabel(status) {
+  const labels = {
+    queued: "na fila",
+    running: "rodando",
+    success: "ok",
+    failed: "falhou",
+    skipped: "pulado",
+    stopped: "parado",
+    blocked: "bloqueado",
+    planned: "planejado",
+  };
+  return labels[status] || status || "idle";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function selectedIds() {
+  const mode = document.querySelector("input[name='mode']:checked").value;
+  let ids = state.steps.map((step) => step.id);
+  if (mode === "from") {
+    const start = els.fromStep.value;
+    ids = ids.slice(ids.indexOf(start));
+  }
+  if (mode === "only") {
+    ids = Array.from(document.querySelectorAll(".step-check:checked")).map((input) => input.value);
+  }
+  if (els.skipStub.checked) {
+    ids = ids.filter((id) => id !== "3");
+  }
+  return ids;
+}
+
+function renderJobs() {
+  const selected = new Set(selectedIds());
+  const runSteps = state.run?.steps || {};
+
+  els.jobs.innerHTML = state.steps
+    .map((step) => {
+      const runStatus = runSteps[step.id]?.status;
+      const status = runStatus || (selected.has(step.id) ? "queued" : "skipped");
+      const outputs = step.outputs.map((out) => `<code>${out}</code>`).join("");
+      return `
+        <article class="job">
+          <div class="job-id">${step.id}</div>
+          <div>
+            <div class="job-title">
+              <label>
+                <input class="step-check" type="checkbox" value="${step.id}" ${selected.has(step.id) ? "checked" : ""} />
+              </label>
+              <strong>${step.name}</strong>
+              ${step.critical ? '<span class="critical">critico</span>' : ""}
+            </div>
+            <p>${step.hint}</p>
+            <p>Owner: ${step.owner} · Script: ${step.script}</p>
+            <div class="outputs">${outputs}</div>
+          </div>
+          <div class="status ${status}">${statusLabel(status)}</div>
+        </article>
+      `;
+    })
+    .join("");
+
+  document.querySelectorAll(".step-check").forEach((input) => {
+    input.addEventListener("change", () => {
+      document.querySelector("input[name='mode'][value='only']").checked = true;
+      renderAll();
+    });
+  });
+}
+
+function renderSelection() {
+  const ids = selectedIds();
+  els.selectedSteps.innerHTML = ids
+    .map((id) => {
+      const step = state.steps.find((item) => item.id === id);
+      return `<div class="selected-pill"><span>${id}. ${step.name}</span><span>${step.critical ? "critico" : "nao critico"}</span></div>`;
+    })
+    .join("");
+}
+
+function renderRun(run) {
+  state.run = run;
+  const active = ["starting", "running", "stopping"].includes(run?.status);
+  els.runButton.disabled = active;
+  els.stopButton.disabled = !active;
+  els.runBadge.className = `run-badge ${run?.status || ""}`;
+  els.runBadge.textContent = run ? run.status : "sem execucao";
+
+  if (!run?.logs?.length) {
+    els.console.textContent = "Aguardando execucao...";
+  } else {
+    els.console.textContent = run.logs.map((entry) => entry.line).join("\n");
+    els.console.scrollTop = els.console.scrollHeight;
+  }
+}
+
+function renderScore(score) {
+  if (!score?.ranking?.length) {
+    els.scorePanel.innerHTML = `<p class="muted">Ainda sem score_ranking.json.</p>`;
+    return;
+  }
+  const meta = [score.version, score.scoreField, score.total ? `${score.total} linhas` : null]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(" · ");
+  const rows = score.ranking
+    .map((row) => {
+      const label = row.week ? `${row.name} · sem. ${row.week}` : row.name;
+      return `
+        <div class="score-row">
+          <span>#${row.rank}</span>
+          <strong title="${escapeHtml(label)}">${escapeHtml(label)}</strong>
+          <span>${Number(row.score).toFixed(3)}</span>
+        </div>
+      `;
+    })
+    .join("");
+  els.scorePanel.innerHTML = `
+    ${meta ? `<p class="score-meta">${meta}</p>` : ""}
+    ${rows}
+  `;
+}
+
+function renderAll() {
+  renderJobs();
+  renderSelection();
+}
+
+async function loadPipeline() {
+  const response = await fetch("/api/pipeline");
+  const data = await response.json();
+  state.steps = data.steps;
+  renderRun(data.run);
+  renderScore(data.score);
+  els.deps.textContent = `deps: ${Object.keys(data.requiredDeps).join(", ")} · LLM: ${data.llmMode}`;
+  els.auditLog.textContent = data.auditLog;
+  els.fromStep.innerHTML = state.steps.map((step) => `<option value="${step.id}">${step.id}</option>`).join("");
+  renderAll();
+  ensurePolling();
+}
+
+function payloadFromControls() {
+  const mode = document.querySelector("input[name='mode']:checked").value;
+  const payload = {
+    mode,
+    fromStep: els.fromStep.value,
+    dryRun: els.dryRun.checked,
+    skip: els.skipStub.checked ? ["3"] : [],
+  };
+  if (mode === "only") {
+    payload.steps = selectedIds();
+  }
+  return payload;
+}
+
+async function pollRun() {
+  try {
+    const response = await fetch("/api/runs/current");
+    const data = await response.json();
+    const previousStatus = state.lastRunStatus;
+    const nextStatus = data.run?.status || null;
+    const wasActive = ["starting", "running", "stopping"].includes(previousStatus);
+    const isActive = ["starting", "running", "stopping"].includes(nextStatus);
+
+    renderRun(data.run);
+    renderAll();
+    state.lastRunStatus = nextStatus;
+
+    if (wasActive && !isActive) {
+      await refreshScore();
+    }
+  } catch (error) {
+    els.runBadge.className = "run-badge failed";
+    els.runBadge.textContent = "offline";
+  }
+}
+
+async function refreshScore() {
+  const response = await fetch("/api/pipeline");
+  const data = await response.json();
+  renderScore(data.score);
+}
+
+function ensurePolling() {
+  if (state.poll) return;
+  state.poll = setInterval(pollRun, 900);
+}
+
+async function startRun() {
+  const response = await fetch("/api/runs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payloadFromControls()),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    els.console.textContent = data.error || "Erro ao iniciar.";
+    return;
+  }
+  renderRun(data.run);
+  renderAll();
+  state.lastRunStatus = data.run?.status || null;
+  ensurePolling();
+}
+
+async function stopRun() {
+  await fetch("/api/runs/current/stop", { method: "POST" });
+  await pollRun();
+}
+
+document.querySelectorAll("input[name='mode']").forEach((input) => {
+  input.addEventListener("change", renderAll);
+});
+els.fromStep.addEventListener("change", renderAll);
+els.skipStub.addEventListener("change", renderAll);
+els.dryRun.addEventListener("change", renderAll);
+els.runButton.addEventListener("click", startRun);
+els.stopButton.addEventListener("click", stopRun);
+els.navItems.forEach((item) => {
+  item.addEventListener("click", () => showPage(item.dataset.page));
+});
+
+loadPipeline();

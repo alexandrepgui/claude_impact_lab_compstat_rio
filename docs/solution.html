@@ -261,31 +261,7 @@
       </ul>
     </section>
 
-    <section id="dinamica">
-      <h2>Áreas dinâmicas — como tratar</h2>
-      <p>O briefing é explícito: "polígonos não são estáticos... a gente também visa analisar esses dados para eventualmente atualizar esses novos polígonos, porque a gente sabe que o crime pode migrar uma vez que a gente está acionando um componente novo."</p>
-      <div class="grid">
-        <div class="callout">
-          <h3 style="margin-top:0">Onde isso aparece no pipeline</h3>
-          <ul>
-            <li>Polígonos como <strong>input parametrizado</strong>, não constante hardcoded</li>
-            <li>Pipeline reaceita shapefile atualizado sem código novo</li>
-            <li>Score de BINGO recalcula automaticamente quando shapefile muda</li>
-          </ul>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0">Possíveis abordagens (a discutir)</h3>
-          <ul>
-            <li>Detectar migração: ocorrências fora do polígono atual mas adjacentes</li>
-            <li>Sugerir novos polígonos baseado em cluster espacial recente</li>
-            <li>Alerta quando densidade fora-polígono &gt; densidade dentro-polígono</li>
-          </ul>
-          <p class="tbd-marker">Quem decide isso → time. Não escopear sem alinhamento.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="transform-pipeline">
+<section id="transform-pipeline">
       <h2>Pipeline Transform — design detalhado</h2>
       <div class="callout core">
         <p style="margin:0"><strong>Princípio:</strong> pipeline 100% <em>automatizada</em> mas <em>auditável</em> por humanos. Cada passo deixa rastro. Inconsistências viram fila de revisão (auto-resolvida por IA quando seguro · escalada pra humano quando ambígua). Resultado: <strong>base consolidada confiável</strong> sobre a qual o score do BINGO é calculado.</p>
@@ -466,49 +442,26 @@
       </div>
     </section>
 
-    <section id="plus1">
-      <h2><span class="pill plus">Plus 1</span> Detecção de inconsistências + revisão humana</h2>
-      <div class="callout core">
-        <p style="margin:0"><strong>Update:</strong> esta capability deixou de ser "plus opcional" e virou <strong>parte do core Transform pipeline</strong> (passos P2 + P3). Mantida nesta seção como referência mas o conteúdo principal mora em <a href="#transform-pipeline">Pipeline Transform — design detalhado</a>.</p>
-      </div>
-      <p><strong>Problema:</strong> dados têm ruído real (ex.: eixos invertidos em <code>fatores_urbanos.csv</code>, datas vazias em <code>df_ocorrencias_tratado</code>, encoding latin-1 em DD, áreas que aparecem em câmeras mas não no shapefile). Tratar tudo como verdade = recomendação errada.</p>
-      <h3>Forma desejada (parametrizada)</h3>
-      <ul>
-        <li>Regras de validação configuráveis (range geográfico, completude de colunas, consistência cross-source)</li>
-        <li>Score de confiança por registro / por área</li>
-        <li>Quando confiança &lt; threshold → <strong>fila de revisão humana</strong> (não esconder, expor)</li>
-        <li>Operador da prefeitura vê: "X registros precisam revisão antes de virar ação" — decide manter/descartar/corrigir</li>
-      </ul>
-      <h3>Inconsistências já identificadas (data inventory)</h3>
-      <ul>
-        <li>Áreas extras nas câmeras (Lauro Müller 50, Bangu Calçadão 30) sem RELINT ou shapefile</li>
-        <li>Eixos invertidos em <code>fatores_urbanos.csv</code></li>
-        <li>1 denúncia → várias linhas em DD (uma por órgão difundido)</li>
-        <li>Domínio territorial cobre estado inteiro, contamina análise se não filtrar bbox</li>
-      </ul>
-      <div class="callout warn">
-        <strong>Cuidado:</strong> Plus 1 não substitui o core. Inconsistência sem ação não vale. Pense "humano vê problema → resolve em 30s → pipeline continua". Não construir validação que ninguém vai usar.
-      </div>
-    </section>
-
-    <section id="plus2">
-      <h2><span class="pill plus">Plus 2</span> Integração fácil de novas fontes (Twitter/X)</h2>
-      <p><strong>Premissa arquitetural:</strong> tratar fontes como <em>adapters plugáveis</em>. Cada fonte → normalizada para o formato interno → entra no pipeline de BINGO sem mudar lógica central.</p>
-      <h3>Twitter como exemplo concreto</h3>
-      <ul>
-        <li>Alinhado com <strong>Desafio Extra 1</strong> do briefing oficial (Inteligência de Redes Sociais)</li>
-        <li>Twitter/X é interessante porque: timing real, geolocalização aproximada (bairros), narrativa qualitativa que complementa DD/RELINTs</li>
-        <li>Adapter ideal: termos relevantes (FM, nomes de áreas, padrões de roubo) → georreferenciar → enriquecer dinâmica criminal</li>
-      </ul>
-      <h3>Outras fontes possíveis (futuras)</h3>
-      <ul>
-        <li>Central 1746 (BigQuery, já referenciada como camada de validação)</li>
-        <li>Dados climáticos / sensores meteorológicos (correlação clima × crime)</li>
-        <li>Mobilidade urbana (Mobilidade Rio, Uber, BRT) — fluxos de pedestre</li>
-        <li>Eventos (calendário Maracanã, COR Eventos) — picos sazonais</li>
-      </ul>
-      <div class="callout warn">
-        <strong>Não escopar Twitter no day 1 sem core pronto.</strong> Twitter API tem fricção (rate limit, auth), facilmente consome 2-3h. Só entra depois que pelo menos 1 área tem relatório completo end-to-end.
+    <section id="plus-deferred">
+      <h2><span class="pill plus">Plus</span> Features deferidas (pós-core)</h2>
+      <p>Só entram após pelo menos 1 área ter relatório <code>.doc</code> end-to-end. Listadas aqui como roadmap; <strong>não escopear hoje</strong>.</p>
+      <div class="grid">
+        <div class="callout plus">
+          <h3 style="margin-top:0">Detecção de inconsistências + revisão (promovido)</h3>
+          <p>Originalmente era "plus 1". Promovido pro core como passos P2+P3 da pipeline Transform. Detalhe em <a href="#transform-pipeline">Pipeline Transform</a>.</p>
+        </div>
+        <div class="callout plus">
+          <h3 style="margin-top:0">Twitter / X (Desafio Extra 1)</h3>
+          <p>Adapter pra menções públicas → geocoded → dinâmica criminal. Twitter API tem fricção (rate limit, auth) → 2-3h só pra setup. Não tocar antes do core.</p>
+        </div>
+        <div class="callout plus">
+          <h3 style="margin-top:0">1746 BigQuery (validação cruzada)</h3>
+          <p>Como camada de validação de fatores urbanos. Chamados "poste apagado" cross-reference com iluminação deficiente. Plug-in adapter.</p>
+        </div>
+        <div class="callout plus">
+          <h3 style="margin-top:0">Outras fontes públicas</h3>
+          <p>Clima · Mobilidade (Uber, BRT) · Eventos (Maracanã, COR Eventos). Cada um = novo adapter. Tempo &gt;&gt; valor agora.</p>
+        </div>
       </div>
     </section>
 
@@ -524,51 +477,162 @@
       </ul>
     </section>
 
-    <section id="time-input">
-      <h2>Inputs do time <span class="pill tbd">A preencher</span></h2>
-      <p>Atualizar conforme decisões são tomadas. Cada slot tem nome do owner quando for definido.</p>
+    <section id="plano-execucao">
+      <h2>Plano de execução — divisão de trabalho</h2>
+      <div class="callout core">
+        <p style="margin:0"><strong>Caminho crítico:</strong> a <strong>LLM extraction de Disque Denúncia</strong> (P4) é o passo mais imprevisível — pode levar 90+ min de iteração de prompt. <strong>Começar primeiro</strong> em paralelo a tudo. Quem pegar isso libera os outros pra rodar consolidação cedo.</p>
+      </div>
 
-      <h3>Stack técnica</h3>
-      <div class="input-slot">TBD — Python? FastAPI? Streamlit pra UX? Quem decide?</div>
-
-      <h3>Área de demo (1-2 das 8)</h3>
-      <div class="input-slot">TBD — sugestão prévia: RI_017 Pres. Vargas (230 câmeras + narrativa Uruguaiana pronta) ou RI_010 Rodoviária (310 câmeras + alto fluxo). Time decide.</div>
-
-      <h3>Owner por componente</h3>
+      <h3>1. Decisões a tomar AGORA (antes do code)</h3>
       <table>
-        <thead><tr><th>Componente</th><th>Owner</th><th>Status</th></tr></thead>
+        <thead><tr><th style="width:30%">Decisão</th><th>Sugestão / opções</th><th style="width:18%">Owner</th></tr></thead>
         <tbody>
-          <tr><td>Data loading / EDA</td><td>Alexandre (data inventory feito ✓)</td><td><span class="pill good">Iniciado</span></td></tr>
-          <tr><td>Mancha criminal (geo)</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
-          <tr><td>Dinâmica (NLP DD + RELINTs)</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
-          <tr><td>Fatores urbanos (joins)</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
-          <tr><td>BINGO score + .doc output</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
-          <tr><td>UI / demo / vídeo 60s</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
-          <tr><td>PM / scope guard / mentor sync</td><td>Caio</td><td><span class="pill good">Em andamento</span></td></tr>
+          <tr>
+            <td><strong>Stack técnica</strong></td>
+            <td>Python + pandas/geopandas + python-docx + Anthropic SDK. UI mínima: Streamlit (rápido) ou só CLI. Não usar framework pesado.</td>
+            <td class="tbd-marker">Tech lead</td>
+          </tr>
+          <tr>
+            <td><strong>Áreas pro demo</strong></td>
+            <td>1 forte (RI_017 Pres. Vargas — 230 câmeras + narrativa Uruguaiana do README) + idealmente 1 segunda (RI_010 Rodoviária — 310 câmeras + alto fluxo). Pipeline tem que rodar pras 8 mas só validamos 1-2 com cuidado.</td>
+            <td class="tbd-marker">Time</td>
+          </tr>
+          <tr>
+            <td><strong>Threshold de confiança</strong></td>
+            <td>Default 0.6. Abaixo = fila humana. Parametrizável.</td>
+            <td class="tbd-marker">Tech lead</td>
+          </tr>
+          <tr>
+            <td><strong>Modelo Claude default</strong></td>
+            <td>Sonnet (econômico, $70/pessoa não dura com Opus). Opus pontual em prompts críticos.</td>
+            <td>Time</td>
+          </tr>
         </tbody>
       </table>
 
-      <h3>Próximas perguntas pro mentor</h3>
-      <div class="input-slot">TBD — captura aqui depois da próxima sync com Ramon. Já existe lista em <code>project-brief.html</code> seção "Perguntas para o mentor".</div>
+      <h3>2. Tracks paralelos — quem faz o quê</h3>
+      <div class="grid">
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">A</span> Data Engineering</h3>
+          <ul style="margin-bottom:0">
+            <li>P1 Loaders por fonte (encodings/separadores corretos)</li>
+            <li>P1 Normalização canônica (axis fix, CRS WGS84, schema unificado)</li>
+            <li>P2 Rule engine de inconsistências (regras determinísticas)</li>
+            <li>P3 Auto-fix runner</li>
+            <li>P4 Geo-intersect com polígonos FM</li>
+            <li>P5 Area-snapshot builder</li>
+            <li>P5 BINGO score formula</li>
+            <li>P6 Audit log (.jsonl)</li>
+          </ul>
+          <p class="tbd-marker" style="margin-top:.6rem">Owner: Alexandre + 1 (já tem EDA pronto, vantagem de partida)</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">B</span> LLM / AI</h3>
+          <ul style="margin-bottom:0">
+            <li><strong>P4 (CRÍTICO) Extração de padrões de DD</strong> — modus operandi, rotas, recepção, horários a partir de <code>relato_redacted</code></li>
+            <li>P4 Parse semântico de RELINTs (.docx → estrutura)</li>
+            <li>P4 Filtragem de fatores urbanos por relevância dinâmica</li>
+            <li>P2 LLM judgment pra inconsistências ambíguas</li>
+            <li>Prompt engineering + test loop</li>
+          </ul>
+          <p class="tbd-marker" style="margin-top:.6rem">Owner: 1-2 pessoas. Começar P4 DD primeiro.</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">C</span> Output / Load</h3>
+          <ul style="margin-bottom:0">
+            <li>Estudar template <code>.doc</code> do anexo do briefing PDF</li>
+            <li>Definir estrutura do gerador (python-docx)</li>
+            <li>Implementar gerador que recebe area-snapshot → .doc</li>
+            <li>Embutir mapas/gráficos como imagens no .doc</li>
+            <li>UI mínima de revisão humana (P3 da pipeline)</li>
+          </ul>
+          <p class="tbd-marker" style="margin-top:.6rem">Owner: 1 pessoa</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">D</span> PM / Demo</h3>
+          <ul style="margin-bottom:0">
+            <li>Scope guard (cortar features que extrapolam core)</li>
+            <li>Mentor checkpoints (Ramon @ 12:30 e 14:30)</li>
+            <li>README final do repo time (8 campos obrigatórios)</li>
+            <li>Demo script + vídeo 60s</li>
+            <li>Dry-run do pitch (se finalistas)</li>
+            <li>Manter project-brief.html + solution.html atualizados</li>
+          </ul>
+          <p class="tbd-marker" style="margin-top:.6rem">Owner: Caio</p>
+        </div>
+      </div>
 
-      <h3>Riscos abertos</h3>
-      <div class="input-slot">TBD — adicionar conforme aparecem.</div>
-    </section>
-
-    <section id="checkpoints">
-      <h2>Checkpoints sugeridos do dia</h2>
+      <h3>3. Sprints + janelas de tempo</h3>
       <table>
-        <thead><tr><th>Horário</th><th>O que tem que estar de pé</th></tr></thead>
+        <thead><tr><th style="width:18%">Janela</th><th>Sprint</th><th>Critério de pronto</th></tr></thead>
         <tbody>
-          <tr><td>~11:00</td><td>Datasets carregados sem erro. Bounding box / áreas FM intersectadas. EDA completo.</td></tr>
-          <tr><td>~12:30</td><td>Mancha criminal pra 1 área + dinâmica extraída de DD/RELINT pra essa área. Mentor checkpoint c/ Ramon.</td></tr>
-          <tr><td>~14:00</td><td>Fatores filtrados + score BINGO calculado pra 1 área. Saída <code>.doc</code> primeiro draft.</td></tr>
-          <tr><td>~15:00</td><td>Draft do relatório fechado. UI básica funcional. Começar vídeo 60s.</td></tr>
-          <tr><td>~15:45</td><td>Vídeo gravado. README do repo time completo (8 campos obrigatórios). Dry-run.</td></tr>
-          <tr><td><strong>16:00</strong></td><td>Buffer de 15 min. <strong>Push final.</strong></td></tr>
-          <tr><td>16:15</td><td>🔥 Deadline. Não passa.</td></tr>
+          <tr>
+            <td><strong>Agora–12:00</strong></td>
+            <td><strong>Sprint 0 + 1</strong>: Setup + Pipeline P1+P2 + LLM extraction <em>primeiro draft</em></td>
+            <td>
+              • A: Loaders + normalize funcionando pras 5 fontes principais<br>
+              • A: Rule engine c/ 5+ regras detectando inconsistências conhecidas<br>
+              • B: Primeira extração LLM de DD relatos (mesmo que rough)<br>
+              • C: Template .doc parseado + skeleton do gerador<br>
+              • D: Mentor sync c/ Ramon (mostrar abordagem)
+            </td>
+          </tr>
+          <tr>
+            <td><strong>12:00–14:00</strong></td>
+            <td><strong>Sprint 2</strong>: Pipeline P3+P4+P5 completos, primeiro .doc gerado</td>
+            <td>
+              • A: P3 auto-fix + P4 geo-enrichment + P5 area-snapshot pronto<br>
+              • B: Prompts calibrados, extração consistente pra 1 área (RI_017)<br>
+              • C: Gerador .doc produz output preliminar pra RI_017<br>
+              • D: Comparar nosso .doc com RELINT real (RI_017_2026_Presidente_Vargas)
+            </td>
+          </tr>
+          <tr>
+            <td><strong>14:00–15:30</strong></td>
+            <td><strong>Sprint 3</strong>: BINGO score + extensão pra 2ª área + polish</td>
+            <td>
+              • A: BINGO score calculado, sensato vs RELINT ground truth<br>
+              • B: Extender extração pra RI_010 (Rodoviária)<br>
+              • C: .doc polish — figuras, formatação fiel ao template<br>
+              • D: Mentor checkpoint final + vídeo demo 60s
+            </td>
+          </tr>
+          <tr>
+            <td><strong>15:30–16:00</strong></td>
+            <td><strong>Sprint 4</strong>: Lockdown + README + dry-run</td>
+            <td>
+              • D: README do repo time completo (8 campos: nome, membros, tema, resumo, arquitetura, links, vídeo)<br>
+              • Todos: dry-run de execução do README ("clone → roda → produz .doc")<br>
+              • Todos: vídeo 60s revisto<br>
+              • <strong>NÃO adicionar features depois das 15:30</strong>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>16:00–16:15</strong></td>
+            <td><strong>Push final</strong></td>
+            <td>Buffer de 15 min. Push, verificar GitHub, confirmar artefatos visíveis.</td>
+          </tr>
         </tbody>
       </table>
+
+      <h3>4. Dependências entre tasks</h3>
+      <ul>
+        <li><strong>P1 Loaders</strong> → bloqueia <strong>tudo o resto</strong>. Fazer primeiro / em paralelo a B (que pode mockear input).</li>
+        <li><strong>Geo CRS unificado</strong> (em P1) → bloqueia P4 geo-intersect</li>
+        <li><strong>P4 LLM extraction</strong> → bloqueia <strong>P5 consolidate</strong> (dinâmica precisa estar pronta antes do snapshot)</li>
+        <li><strong>P5 area-snapshot</strong> → bloqueia <strong>BINGO score</strong> e <strong>.doc generator</strong></li>
+        <li><strong>Template .doc estudado</strong> → blloqueia gerador (track C pode começar em paralelo)</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Riscos abertos:</strong>
+        <ul style="margin-bottom:0">
+          <li>LLM extraction de DD pode dar resultados ruins → ter fallback (extrair só keywords)</li>
+          <li>RELINTs em <code>Cópia de RI_*</code> — verificar que parse não bate em arquivos duplicados</li>
+          <li>Vídeo demo 60s leva mais tempo que parece (~30 min) → reservar Sprint 4</li>
+          <li>Push final pode bater em hooks/checks do repo — testar push placebo às 15:45</li>
+        </ul>
+      </div>
     </section>
 
     <section id="decision-log">
@@ -584,6 +648,8 @@
           <tr><td>10:50~</td><td>Load reclassificado como crítico (paralelo ao Transform), não "direto".</td><td>O <code>.doc</code> É o produto que a Prefeitura consome — qualidade de Load determina Impacto Real (40 pts). Transform sem Load bom = análise órfã.</td></tr>
           <tr><td>11:00~</td><td>Pipeline Transform desenhada em 6 passos (load→detect→resolve→enrich→consolidate→audit).</td><td>Inconsistências promovidas pro core (não plus). Saída = "área-snapshot" canônica que alimenta o BINGO score.</td></tr>
           <tr><td>11:00~</td><td>Linguagem unificada = registro "área-snapshot" por (área × período).</td><td>Schema único pra todas as camadas — facilita auditoria, reuso, e regeneração quando shapefile muda.</td></tr>
+          <tr><td>11:30~</td><td>Plano de execução em 4 tracks paralelos (Data Eng, LLM, Output, PM).</td><td>Caminho crítico = LLM extraction de DD (90+ min imprevisível). Pode-se cortar 3-4h em paralelo se cada track for executado por owner dedicado.</td></tr>
+          <tr><td>11:30~</td><td>Solution.html podado: removida "Áreas dinâmicas" (já no Pipeline) e Plus 1/Plus 2 expandidos viraram callout único.</td><td>Foco em accionabilidade. Documento de estratégia + execução, não enciclopédia.</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
         </tbody>

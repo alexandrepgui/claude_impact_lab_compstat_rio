@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CompStat Rio — Claude Impact Lab Rio 2026</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" id="hl-light">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" id="hl-dark">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f7f8fb;
+    --surface: #ffffff;
+    --surface-2: #f1f4f8;
+    --text: #172033;
+    --muted: #657286;
+    --line: #d7dee9;
+    --accent: #2563eb;
+    --accent-soft: #e7efff;
+    --code-bg: #f5f7fa;
+    --good: #12805c;
+    --warn: #a16207;
+    --bad: #b42318;
+    --shadow: 0 14px 40px rgba(23, 32, 51, .08);
+    --sidebar: 280px;
+    --radius: 8px;
+    --bingo: #d97706;
+    --bingo-soft: #fef3c7;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f141b;
+    --surface: #151b24;
+    --surface-2: #1d2530;
+    --text: #e7ebf2;
+    --muted: #a8b3c2;
+    --line: #2c3745;
+    --accent: #7aa2ff;
+    --accent-soft: rgba(122, 162, 255, .14);
+    --code-bg: #10161f;
+    --good: #6ee7b7;
+    --warn: #f8d477;
+    --bad: #fca5a5;
+    --shadow: 0 18px 44px rgba(0, 0, 0, .28);
+    --bingo: #fbbf24;
+    --bingo-soft: rgba(251, 191, 36, .14);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.68 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .88em; }
+  code:not(pre code) { background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; color: var(--text); padding: .1rem .34rem; white-space: normal; overflow-wrap: break-word; word-break: normal; }
+  pre { margin: 1rem 0; overflow: auto; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); }
+  pre code.hljs { background: transparent; padding: 1rem 1.1rem; line-height: 1.58; font-size: .84rem; }
+  h1, h2, h3, h4 { line-height: 1.22; letter-spacing: 0; }
+  h1 { margin: 0 0 .65rem; font-size: clamp(2rem, 4vw, 3.55rem); max-width: 980px; }
+  h2 { margin: 3rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: clamp(1.35rem, 2vw, 1.75rem); }
+  h3 { margin: 1.6rem 0 .55rem; font-size: 1.05rem; }
+  p { margin: .75rem 0 1rem; }
+  ul, ol { margin: .5rem 0 1rem; padding-left: 1.4rem; }
+  li { margin: .25rem 0; }
+  blockquote { margin: 1.2rem 0; padding: 1rem 1.25rem; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: var(--radius); font-style: italic; color: var(--text); }
+  blockquote footer { margin-top: .55rem; font-style: normal; font-size: .82rem; color: var(--muted); }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1rem 0 1.25rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); font-size: .9rem; overflow: hidden; }
+  th, td { border-bottom: 1px solid var(--line); padding: .72rem .8rem; text-align: left; vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { background: var(--surface-2); color: var(--muted); font-size: .73rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .page { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+  .sidebar { position: sticky; top: 0; height: 100vh; overflow: auto; border-right: 1px solid var(--line); background: var(--surface); padding: 1.15rem; }
+  .sidebar h2 { margin: 0 0 .8rem; padding: 0; border: 0; font-size: 1rem; }
+  .theme-toggle { width: 100%; margin: .4rem 0 1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); color: var(--text); padding: .55rem .7rem; cursor: pointer; font-size: .85rem; }
+  nav { display: grid; gap: .15rem; }
+  nav a { color: var(--muted); text-decoration: none; border-radius: 6px; padding: .42rem .55rem; font-size: .9rem; }
+  nav a:hover { background: var(--surface-2); color: var(--text); }
+  main { min-width: 0; width: 100%; max-width: 1400px; padding: 2rem clamp(2rem, 4vw, 4rem) 5rem; }
+  .sub { max-width: 760px; color: var(--muted); font-size: 1.05rem; }
+  .card, .callout, .step, .flow-step { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.1rem; min-width: 0; }
+  .callout { border-left: 4px solid var(--accent); }
+  .callout.good { border-left-color: var(--good); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad { border-left-color: var(--bad); }
+  .callout.bingo { border-left-color: var(--bingo); background: var(--bingo-soft); }
+  .grid, .compare, .risk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  .risk-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .flow-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: .85rem; margin: 1rem 0; }
+  .flow-step { position: relative; padding-top: 3.2rem; overflow-wrap: anywhere; }
+  .flow-step::before { content: attr(data-step); position: absolute; top: .85rem; left: .9rem; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 999px; background: var(--accent); color: white; font-weight: 800; font-size: .78rem; }
+  .flow-step h3 { margin: 0 0 .4rem; font-size: .98rem; }
+  .flow-step p { margin: 0; color: var(--muted); font-size: .9rem; }
+  .steps { counter-reset: step; display: grid; gap: .7rem; margin: 1rem 0; }
+  .step { counter-increment: step; display: flex; gap: .7rem; align-items: flex-start; overflow-wrap: break-word; }
+  .step::before { content: counter(step); display: grid; place-items: center; width: 1.65rem; height: 1.65rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: .78rem; font-weight: 750; }
+  .step > * { min-width: 0; flex: 1; }
+  .card h3 { margin-top: 0; }
+  .card .label { display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: .35rem; }
+  .pill { display: inline-block; padding: .15rem .55rem; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .pill.warn { background: rgba(217, 119, 6, .12); border-color: rgba(217, 119, 6, .35); color: var(--warn); }
+  .pill.bad { background: rgba(180, 35, 24, .1); border-color: rgba(180, 35, 24, .35); color: var(--bad); }
+  .pill.good { background: rgba(18, 128, 92, .1); border-color: rgba(18, 128, 92, .35); color: var(--good); }
+  .venn-wrap { display: grid; place-items: center; padding: 1rem 0 1.5rem; }
+  .venn { width: min(100%, 560px); height: auto; }
+  .venn-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; margin-top: 1rem; }
+  .legend-item { display: flex; gap: .55rem; align-items: flex-start; font-size: .88rem; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; margin-top: .25rem; border: 1px solid rgba(0,0,0,.1); }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding-left: 1.7rem; position: relative; }
+  .checklist li::before { content: ""; position: absolute; left: 0; top: .55rem; width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--accent); background: var(--surface); }
+  .meta-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .8rem; margin: 1.2rem 0; }
+  .meta { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; }
+  .meta .k { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .meta .v { font-size: 1.02rem; font-weight: 600; margin-top: .2rem; }
+  footer.page-foot { margin-top: 4rem; padding: 1.5rem 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .86rem; }
+  footer.page-foot strong { color: var(--bad); }
+  @media (max-width: 900px) {
+    .page { display: block; }
+    .sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 1.35rem; }
+    .grid, .grid-4, .compare, .risk-grid, .risk-grid.three { grid-template-columns: 1fr; }
+  }
+  @media print {
+    .sidebar { display: none; }
+    .page { display: block; }
+    main { padding: 0; max-width: 100%; }
+    h2 { break-before: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="sidebar">
+    <h2>CompStat Rio</h2>
+    <button class="theme-toggle" id="theme-toggle" type="button">Alternar tema</button>
+    <nav id="toc"></nav>
+  </aside>
+  <main>
+    <header>
+      <h1>CompStat Rio</h1>
+      <p class="sub">Claude Impact Lab Rio · 2026-05-24 · Segurança Pública · Prefeitura do Rio de Janeiro</p>
+      <div class="meta-bar">
+        <div class="meta"><div class="k">Deadline GitHub</div><div class="v">16:15 (firm)</div></div>
+        <div class="meta"><div class="k">Tema</div><div class="v">Segurança Pública</div></div>
+        <div class="meta"><div class="k">Cliente</div><div class="v">Secretaria-Geral CompStat</div></div>
+        <div class="meta"><div class="k">Time</div><div class="v">Group 14</div></div>
+        <div class="meta"><div class="k">Concentração</div><div class="v">50% crimes / &lt;5% território</div></div>
+      </div>
+    </header>
+
+    <section id="tldr">
+      <h2>TL;DR</h2>
+      <div class="callout">
+        <p><strong>O que é:</strong> CompStat Rio = modelo municipal de gestão da segurança da Prefeitura (inspirado no CompStat NY dos anos 90, mas <em>municipal</em> e multi-órgão, não só policial). Toda terça, alto escalão se reúne para decidir ações sobre <strong>22 polígonos prioritários</strong> (lei da concentração: 50% dos furtos/roubos acontecem em &lt;5% do território). A <strong>Força Municipal</strong> opera nessas áreas desde 15 de março.</p>
+        <p><strong>Problema:</strong> dados ricos (ocorrências, denúncias DZ, relintes, fatores urbanos, rotas da Força) mas o <strong>cruzamento das camadas é manual</strong> → fadiga humana → atrasa decisões.</p>
+        <p><strong>O que entregar:</strong> IA que sobrepõe 3 camadas — <em>mancha</em> ∩ <em>dinâmica</em> ∩ <em>fator urbano relevante</em> — encontra os <strong>"BINGOs"</strong> (coincidências) e gera <strong>resumo executivo + plano de ação por órgão</strong> que substitua o relatório manual atual.</p>
+        <p><strong>Atenção:</strong> polígonos <strong>não são estáticos</strong> — crime migra quando a Força entra, então a solução deve contemplar atualização periódica.</p>
+        <p><strong>Diferencial:</strong> não é "protótipo bonitinho". A prefeitura quer rodar com dados reais e botar em produção. Pense deployable, não demo.</p>
+      </div>
+    </section>
+
+    <section id="citacao">
+      <h2>Em voz da cliente</h2>
+      <blockquote>
+        "A gente tem uma quantidade de dados super relevante, quantitativos e qualitativos, mas a gente tem realmente um déficit de cruzamento. (…) A iluminação só vai ser relevante quando o crime estiver acontecendo à noite. Onde a gente encontra essa coincidência dos três fatores, a gente está chamando de <strong>bingo</strong>, e aonde a gente tem que priorizar como setor público."
+        <footer>— Marilarda "Duda" Duda, Secretaria-Geral do CompStat (briefing 2026-05-24)</footer>
+      </blockquote>
+    </section>
+
+    <section id="bingo">
+      <h2>O conceito do BINGO</h2>
+      <p>BINGO = interseção de três camadas. Onde as três coincidem, a prefeitura prioriza intervenção. Esse é o coração da solução.</p>
+      <div class="venn-wrap">
+        <svg class="venn" viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de Venn das três camadas do BINGO">
+          <defs>
+            <style>
+              .v-circle { mix-blend-mode: multiply; opacity: .55; }
+              html[data-theme="dark"] .v-circle { mix-blend-mode: screen; opacity: .45; }
+              .v-label { font: 700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--text); }
+              .v-sub { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--muted); }
+              .v-bingo { font: 800 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--bingo); letter-spacing: .04em; }
+              .v-bingo-sub { font: 600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--bingo); text-transform: uppercase; letter-spacing: .12em; }
+            </style>
+          </defs>
+          <circle class="v-circle" cx="220" cy="190" r="135" fill="#3b82f6"></circle>
+          <circle class="v-circle" cx="380" cy="190" r="135" fill="#10b981"></circle>
+          <circle class="v-circle" cx="300" cy="320" r="135" fill="#f43f5e"></circle>
+          <text class="v-label" x="100" y="100" text-anchor="middle">Mancha</text>
+          <text class="v-sub" x="100" y="118" text-anchor="middle">criminal</text>
+          <text class="v-label" x="500" y="100" text-anchor="middle">Dinâmica</text>
+          <text class="v-sub" x="500" y="118" text-anchor="middle">criminal</text>
+          <text class="v-label" x="300" y="430" text-anchor="middle">Fator urbano</text>
+          <text class="v-sub" x="300" y="448" text-anchor="middle">relevante</text>
+          <text class="v-bingo" x="300" y="240" text-anchor="middle">BINGO</text>
+          <text class="v-bingo-sub" x="300" y="260" text-anchor="middle">priorizar aqui</text>
+        </svg>
+      </div>
+      <div class="venn-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span><div><strong>Mancha criminal</strong> — onde acontece. Heatmap espacial de ocorrências.</div></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span><div><strong>Dinâmica criminal</strong> — como e quando. Modus operandi, rotas de fuga, pontos de recepção, horário de pico, controle territorial.</div></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f43f5e"></span><div><strong>Fator urbano relevante</strong> — só conta quando se sobrepõe à dinâmica (iluminação importa se o crime é noturno, calçadão importa se é roubo a pé, etc.).</div></div>
+      </div>
+    </section>
+
+    <section id="entregavel">
+      <h2>O entregável — Relatório Analítico de Área <code>.doc</code></h2>
+      <div class="callout bingo">
+        <p style="margin:0"><strong>Formato oficial confirmado:</strong> arquivos <code>.doc</code> (um por área), não dashboard interativo. O briefing PDF traz um <strong>exemplo de Relatório Analítico real</strong> anexado — use como template/ground truth.</p>
+      </div>
+      <p>Hoje a equipe da Duda produz manualmente o relatório que subsidia a reunião de terça. O coração é o resumo executivo que responde <strong>4 perguntas norteadoras</strong>:</p>
+      <div class="grid-4">
+        <article class="card">
+          <span class="label">Pergunta 1</span>
+          <h3>A rota está certa?</h3>
+          <p>A rota da Força Municipal está batendo com o diagnóstico (mancha + dinâmica)? Onde reposicionar?</p>
+        </article>
+        <article class="card">
+          <span class="label">Pergunta 2</span>
+          <h3>O horário está certo?</h3>
+          <p>O horário de patrulhamento bate com o pico criminal? Se a Força sai 22h mas o pico é 2h, há gap.</p>
+        </article>
+        <article class="card">
+          <span class="label">Pergunta 3</span>
+          <h3>Qual o modelo de emprego?</h3>
+          <p><strong>Moto · viatura · a pé.</strong> Quantos agentes por área? 600 agentes para 22 polígonos — áreas mais críticas precisam de mais. Alocação cirúrgica.</p>
+        </article>
+        <article class="card">
+          <span class="label">Pergunta 4</span>
+          <h3>O que cada órgão faz?</h3>
+          <p>Plano por órgão para fatores urbanos: <code>Comlurb</code>=poda · <code>Rio Luz</code>=iluminação · <code>SEOP</code>=comércio irregular / ordenamento público · etc.</p>
+        </article>
+      </div>
+      <h3 style="margin-top:2rem">Outras peças do relatório atual (referência)</h3>
+      <ul>
+        <li><strong>Mapa de calor</strong> sobrepondo mancha criminal + polígono Força + <strong>QMD</strong> (Quadro de Emprego Dirigido = plano operacional atual da Força)</li>
+        <li><strong>Análise temporal</strong> — pico horário, sazonalidade</li>
+        <li><strong>Dinâmica criminal resumida com padrões</strong> (extraída dos relintes + denúncias). Não só resumir — <em>traçar padrões</em>: modus operandi, rotas de fuga, pontos de recepção.</li>
+        <li><strong>Fatores urbanos relevantes</strong> por área (filtrados pelos que importam pra dinâmica)</li>
+        <li><strong>Painel de coincidências (bingo)</strong> com priorização score-driven</li>
+        <li><strong>Plano de ação por órgão</strong> — matriz de responsabilização</li>
+      </ul>
+    </section>
+
+    <section id="exemplos">
+      <h2>Exemplos concretos do briefing</h2>
+      <p>A Duda usou dois exemplos para ilustrar a lógica do BINGO. Vale internalizá-los — eles definem o critério de "relevante".</p>
+      <div class="grid">
+        <div class="callout bad">
+          <h3 style="margin-top:0">❌ Falso bingo (descarta)</h3>
+          <p>Trecho crítico com <strong>iluminação falha</strong>, mas o pico do crime é <strong>meio-dia</strong>.</p>
+          <p>→ Iluminação <strong>NÃO</strong> é prioritária aqui. Não há overlap entre dinâmica (diurno) e fator (noturno). Não vira bingo.</p>
+        </div>
+        <div class="callout bingo">
+          <h3 style="margin-top:0">✅ Bingo verdadeiro (prioriza)</h3>
+          <p>Roubo + ponto de receptação + rua movimentada + tráfego intenso (que esconde a fuga).</p>
+          <p>→ Ações coordenadas:</p>
+          <ul>
+            <li><strong>SEOP</strong> coibir comércio irregular (cortar receptação)</li>
+            <li><strong>Força Municipal</strong> policiamento no trecho crítico</li>
+            <li><strong>Comlurb</strong> poda de árvores (descobrir postes)</li>
+            <li><strong>Rio Luz</strong> restaurar iluminação</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:1rem">
+        <h3 style="margin-top:0">Workflow atual (já parcialmente automatizado)</h3>
+        <p>Plataforma das <strong>subprefeituras</strong> alimenta os fatores urbanos. Subprefeito do centro reporta "poste não funciona" → alerta automático para <strong>Rio Luz</strong> priorizar (porque a área é polígono CompStat). Nossa solução pode plugar nesse pipeline.</p>
+      </div>
+    </section>
+
+    <section id="fluxo">
+      <h2>Fluxo CompStat — onde nossa IA entra</h2>
+      <div class="flow-row">
+        <article class="flow-step" data-step="1"><h3>Diagnóstico</h3><p>Análise dos dados disponíveis (ocorrências, denúncias DZ, relintes, fatores urbanos).</p></article>
+        <article class="flow-step" data-step="2"><h3>Contraponto</h3><p>Comparar diagnóstico com operação atual (rota da Força + ações dos outros órgãos).</p></article>
+        <article class="flow-step" data-step="3"><h3>Priorização</h3><p>Identificar bingos. Matriz de responsabilidade por órgão.</p></article>
+        <article class="flow-step" data-step="4"><h3>Plano de ação</h3><p>Quem faz o quê. Subsidia a reunião de terça do alto escalão.</p></article>
+        <article class="flow-step" data-step="5"><h3>Monitoramento</h3><p>Avaliação periódica + atualização dos polígonos quando crime migra.</p></article>
+      </div>
+      <p><strong>Nossa IA entra do passo 1 ao passo 4</strong> — entrega o relatório base que hoje a equipe da Duda monta à mão. Passo 5 (monitoramento) é dela.</p>
+    </section>
+
+    <section id="criterios">
+      <h2>Critérios de avaliação (oficiais)</h2>
+      <div class="callout bingo">
+        <p style="margin:0"><strong>Critério mestre (40, oficial):</strong> <strong>Impacto Real.</strong> "A prefeitura usaria isso hoje pra gerar impacto real?" Todos os outros critérios passam por essa lente. Fonte: <code>taicor-ai/claude-impact-lab-rio</code>.</p>
+        <p style="margin:.6rem 0 0"><strong>Fórmula oficial:</strong> Nota final = (Impacto Real × 8) + (Produto × 4) + (Engenharia × 4) + (Ideia × 2) + (Apresentação × 2). Cada critério pontuado 1-5. <strong>Máx 100 pontos.</strong></p>
+      </div>
+      <table>
+        <thead>
+          <tr><th style="width:20%">Critério</th><th style="width:8%">Peso</th><th>Pergunta central</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background: var(--bingo-soft)">
+            <td><strong>1. Impacto Real</strong></td>
+            <td><span class="pill" style="background:var(--bingo);color:white;border-color:var(--bingo)">40</span></td>
+            <td>A prefeitura usaria isso hoje para gerar impacto real?</td>
+          </tr>
+          <tr>
+            <td><strong>2. Produto</strong></td>
+            <td><span class="pill">20</span></td>
+            <td>Qual a qualidade do design, da usabilidade e da experiência de uso?</td>
+          </tr>
+          <tr>
+            <td><strong>3. Engenharia</strong></td>
+            <td><span class="pill">20</span></td>
+            <td>Qual a qualidade técnica e sua escalabilidade para produção?</td>
+          </tr>
+          <tr>
+            <td><strong>4. Ideia</strong></td>
+            <td><span class="pill">10</span></td>
+            <td>Esquecendo o produto, quão inovadora e perspicaz é a ideia?</td>
+          </tr>
+          <tr>
+            <td><strong>5. Apresentação</strong></td>
+            <td><span class="pill">10</span></td>
+            <td>O quão bem o protótipo e a história foram apresentados?</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3 style="margin-top:1.8rem">Rubrica 1-5 — o que é "nota 5" em cada critério (mira aqui)</h3>
+      <ul>
+        <li><strong>Impacto Real 5:</strong> "Pronto pra usar como está; geraria impacto relevante imediato."</li>
+        <li><strong>Produto 5:</strong> "Servidor não-técnico opera de primeira, sem treino."</li>
+        <li><strong>Engenharia 5:</strong> "Pronto pra produção; escalável, auditável, generalizável a outros casos."</li>
+        <li><strong>Ideia 5:</strong> "Genuinamente nova; faz repensar o problema; insight raro."</li>
+        <li><strong>Apresentação 5:</strong> "Pitch impecável; demo ao vivo impressiona; honesto sobre hoje vs próximos passos."</li>
+      </ul>
+      <h3 style="margin-top:1.8rem">Implicações operacionais</h3>
+      <ul>
+        <li><strong>Explore o problema antes da solução.</strong> O "óbvio que sai do prompt básico" foi testado pelos organizadores — funciona mas é genérico. Diferencial = ir além.</li>
+        <li><strong>Dados públicos externos são permitidos e bem-vindos</strong> (data.rio, IBGE, etc.) se complementarem a lógica.</li>
+        <li><strong>Solução rodável é obrigatório</strong>: publique online OU README ultra-claro pra rodar local. Jurados abrem cada projeto por ~3 min na triagem.</li>
+        <li>Engenharia conta MUITO mesmo para times PM/produto: "se vai ser refeito pela Prefeitura, perdeu peso".</li>
+      </ul>
+    </section>
+
+    <section id="submissao">
+      <h2>Submissão, regras e finalistas</h2>
+      <div class="callout bad">
+        <h3 style="margin-top:0">⚠️ Regra de desclassificação</h3>
+        <ul>
+          <li><strong>Primeiro commit DEPOIS de 09:30 do dia 24/05.</strong> Evidência de dev anterior = desclassificado.</li>
+          <li>Bibliotecas/frameworks/APIs preexistentes podem ser usados — <strong>a LÓGICA é que tem que ser construída no dia</strong>.</li>
+          <li>Uma submissão por equipe. <strong>Repo público</strong> no GitHub (pode privar depois do evento).</li>
+          <li><strong>16:15 firme</strong>. Depois, desconsiderado.</li>
+        </ul>
+      </div>
+      <div class="grid">
+        <div class="callout">
+          <h3 style="margin-top:0">README obrigatório do projeto</h3>
+          <ul>
+            <li>Nome da equipe</li>
+            <li>Membros da equipe</li>
+            <li>Tema (saúde ou segurança)</li>
+            <li>Resumo da solução</li>
+            <li><strong>Arquitetura / abordagem</strong>: como Claude foi usado pra construir + como ele atua na aplicação</li>
+            <li>Links: URL da app se publicada</li>
+            <li><strong>Vídeo demo de 60s</strong> — obrigatório se app não pública</li>
+          </ul>
+        </div>
+        <div class="callout good">
+          <h3 style="margin-top:0">Pitch final (finalistas)</h3>
+          <ul>
+            <li><strong>Até 3 por problema</strong> (saúde + segurança = até 6 total)</li>
+            <li><strong>17h30</strong> auditório</li>
+            <li><strong>6 minutos FIRME</strong> — corta no tempo, não estoura</li>
+            <li>Mostre dor + demo ao vivo + honesto sobre hoje vs próximos passos</li>
+          </ul>
+        </div>
+        <div class="callout bingo">
+          <h3 style="margin-top:0">Prêmios (time vencedor)</h3>
+          <ul>
+            <li>Ingressos <strong>Rio Web Summit</strong></li>
+            <li><strong>$500 USD</strong> em créditos Anthropic</li>
+            <li>Possível feature nas redes da <strong>Anthropic Global</strong> (visibilidade real)</li>
+          </ul>
+        </div>
+        <div class="callout warn">
+          <h3 style="margin-top:0">Créditos do dia + uso de dados</h3>
+          <ul>
+            <li>$70/pessoa via link Anthropic — queima rápido com Opus</li>
+            <li><strong>Default Sonnet</strong>; Opus pontual em raciocínio crítico</li>
+            <li>Dados externos: ✅ APIs públicas + dados abertos · ❌ scraping de sistemas da cidade</li>
+          </ul>
+        </div>
+      </div>
+      <h3 style="margin-top:1.8rem">Agenda do dia</h3>
+      <table>
+        <thead><tr><th style="width:18%">Horário</th><th>Momento</th></tr></thead>
+        <tbody>
+          <tr><td>8h30</td><td>Boas-vindas + briefing</td></tr>
+          <tr><td><strong>9h30</strong></td><td><strong>Início do hackathon + mentores. 1º commit do time SÓ a partir daqui.</strong></td></tr>
+          <tr><td>12h00</td><td>Almoço (não precisa parar)</td></tr>
+          <tr style="background: var(--bingo-soft)"><td><strong>16h15</strong></td><td><strong>🔥 Hora limite de entrega</strong></td></tr>
+          <tr><td>16h30</td><td>Palestras no auditório</td></tr>
+          <tr><td>17h30</td><td>Apresentação dos finalistas (6 min cada)</td></tr>
+          <tr><td>18h30</td><td>Premiação + encerramento</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="datasets">
+      <h2>Datasets disponibilizados</h2>
+      <p>
+        Repositório oficial: <a href="https://github.com/CompStat-Rio/claude_impact_lab_compstat_rio" target="_blank" rel="noopener"><code>github.com/CompStat-Rio/claude_impact_lab_compstat_rio</code></a>.<br>
+        Clonado localmente em <code>external/compstat-rio/</code>. <strong>Leia <code>Dicionário de dados.xlsx</code> antes de qualquer coisa.</strong>
+      </p>
+      <h3>5 fontes principais</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%">Arquivo</th>
+            <th style="width: 40%">Descrição</th>
+            <th style="width: 32%">Gotcha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>dados/df_ocorrencias_tratado - Extração 1 .csv</code></td>
+            <td><strong>Ocorrências criminais</strong> georreferenciadas. README oficial diz <strong>furto + roubo</strong>; briefing falado disse só roubo. <em>Confirmar com Ramon.</em></td>
+            <td>Tipificação, localização, data/hora. IDs hasheados.</td>
+          </tr>
+          <tr>
+            <td><code>dados/disk_denuncia.csv</code></td>
+            <td><strong>Disque Denúncia</strong> (NGO anônima). <strong>Fonte qualitativa PRINCIPAL</strong> da dinâmica criminal — onde extrair modus operandi, rotas, recepção.</td>
+            <td><span class="pill warn">PII criptografada</span> Não reverter. <strong>≠ 1746</strong> (esse é BigQuery).</td>
+          </tr>
+          <tr>
+            <td><code>relints/*.docx</code></td>
+            <td><strong>8 RELINTs</strong> (.docx) — Relatórios de Inteligência da FM, simulados. Fonte qualitativa secundária. Cada arquivo cobre uma área nomeada (ver seção abaixo).</td>
+            <td>Análise textual é <em>explicitamente desejada</em>. Use como template do que extrair.</td>
+          </tr>
+          <tr>
+            <td><code>dados/fatores_urbanos.csv</code></td>
+            <td><strong>20 fatores ambientais</strong> mapeados em campo. Matriz órgão↔fator está no README.</td>
+            <td>Categorias: trânsito, vegetação, iluminação, obstrução, refúgio, ônibus, pop. rua, drogas.</td>
+          </tr>
+          <tr>
+            <td><code>dados/cameras_areas_fm.csv</code></td>
+            <td><strong>Câmeras de vigilância</strong> nas áreas da FM.</td>
+            <td>Útil pro Desafio 4 (pontos cegos).</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3 style="margin-top:1.6rem">Outras fontes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%">Arquivo / fonte</th>
+            <th style="width: 72%">Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>dados/outros dados/dominio_territorial - Extração 1.csv</code></td>
+            <td>Polígonos das facções (CV/ADA/etc.) — <strong>sensível, cuidado no output</strong>. Use só pra contextualizar dinâmica.</td>
+          </tr>
+          <tr>
+            <td><code>dados/outros dados/CPSR_2020_2022_2024.xlsx</code></td>
+            <td>Censo Pop. Situação de Rua (2020/2022/2024) — sob SMAS. Permite ver evolução.</td>
+          </tr>
+          <tr>
+            <td><code>sh_area_forca/areas_forca_municipal.shp</code></td>
+            <td>Shapefile completo dos polígonos da FM (shp/shx/dbf/prj/cpg/qmd).</td>
+          </tr>
+          <tr>
+            <td><strong>Central 1746</strong> (externa)</td>
+            <td>BigQuery: <code>rj-ssm-dev.adm_central_atendimento_1746.chamado</code>. <strong>≠ Disque Denúncia.</strong> Use como <em>camada de validação</em>: chamados de "poste apagado" reforçam iluminação deficiente.</td>
+          </tr>
+          <tr>
+            <td><code>Briefing_Hackathon_Desenvolvedores_CompStat-2.pdf</code></td>
+            <td>Briefing oficial. <strong>Inclui exemplo de Relatório Analítico real</strong> — template/ground truth pra nosso output.</td>
+          </tr>
+          <tr>
+            <td><code>Dicionário de dados.xlsx</code></td>
+            <td><span class="pill good">LER PRIMEIRO</span> Gates toda a análise.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="areas">
+      <h2>8 áreas com dados completos (RELINTs)</h2>
+      <p>O repo traz <strong>8 RELINTs .docx</strong> — cada um detalhando uma área nomeada da FM. <strong>Pra MVP, escolha 1-2 dessas áreas</strong> com narrativa clara pro demo. Centro e Zona Sul são fortes pra storytelling.</p>
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Área</th><th>Região / contexto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>RI_010</code></td><td>Rodoviária / Terminal Gentileza</td><td>Centro/Porto — alto fluxo, transeuntes vulneráveis</td></tr>
+          <tr><td><code>RI_011</code></td><td>Metrô Botafogo / São Clemente</td><td>Zona Sul — estação + comércio</td></tr>
+          <tr><td><code>RI_012</code></td><td>Jardim de Alah</td><td>Zona Sul (Ipanema/Leblon) — passagem turística</td></tr>
+          <tr><td><code>RI_013</code></td><td>Campo Grande / Estação Calçadão</td><td>Zona Oeste — comércio popular denso</td></tr>
+          <tr><td><code>RI_014</code></td><td>Rio Sul</td><td>Botafogo — shopping + entorno</td></tr>
+          <tr><td><code>RI_015</code></td><td>Praia de Botafogo / Marquês Abrantes</td><td>Zona Sul — corredor comercial</td></tr>
+          <tr><td><code>RI_016</code></td><td>Estações SFX / Afonso Pena</td><td>Tijuca — metrô (Saens Peña)</td></tr>
+          <tr><td><code>RI_017</code></td><td>Presidente Vargas / Campo de Santana</td><td>Centro — exemplo citado no README (Uruguaiana, poda+iluminação)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p style="margin:0"><strong>Sugestão:</strong> RI_017 (Pres. Vargas/Uruguaiana) tem narrativa pronta no README — Comlurb+RioLuz+SEOP+FM trabalhando juntos. Excelente para o demo.</p>
+      </div>
+    </section>
+
+    <section id="desafios-extras">
+      <h2>4 Desafios extras (opcionais)</h2>
+      <p>O README oficial propõe 4 desafios complementares ao principal. Time pode tackle 1 deles em vez/junto. Bem alinhados com o critério "fora-da-caixa".</p>
+      <div class="grid">
+        <div class="card">
+          <span class="label">Desafio 1</span>
+          <h3>Inteligência de Redes Sociais</h3>
+          <p>Monitorar menções públicas sobre FM + crimes. Identificar <em>onde</em> + <em>como</em>. Gerar alertas estruturados pro CompStat.</p>
+        </div>
+        <div class="card">
+          <span class="label">Desafio 2</span>
+          <h3>Migração do Crime no Território</h3>
+          <p>Crime migra quando FM entra em perímetro. Detectar/antecipar deslocamento adjacente. Alerta tempestivo.</p>
+        </div>
+        <div class="card">
+          <span class="label">Desafio 3</span>
+          <h3>Decisão de Permanência (90d)</h3>
+          <p>Protocolo prevê 90 dias mínimo de operação. Painel pra apoiar decisão de permanecer ou sair da área.</p>
+        </div>
+        <div class="card">
+          <span class="label">Desafio 4</span>
+          <h3>Cobertura de Câmeras</h3>
+          <p>Pontos cegos (crime sem câmera). Cruzar com mapa atual (<strong>CIVITAS/COR</strong>). Recomendar instalação/remanejamento.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="constraints">
+      <h2>Constraints e regras</h2>
+      <div class="grid">
+        <div class="callout warn">
+          <h3 style="margin-top:0">Dados</h3>
+          <ul>
+            <li>Apenas <strong>9 polígonos</strong> divulgados (de 22) — sensibilidade.</li>
+            <li><strong>Sem dados de furto</strong> — só roubo (transeunte + celular em coletivos).</li>
+            <li>IDs hasheados, PII criptografada — não reverter.</li>
+            <li>Cuidado ético com Censo Pop. Rua e domínio territorial faccional.</li>
+          </ul>
+        </div>
+        <div class="callout bad">
+          <h3 style="margin-top:0">Solução</h3>
+          <ul>
+            <li><strong>Output = arquivo <code>.doc</code></strong> (Relatório Analítico de Área), não dashboard interativo.</li>
+            <li><strong>Deployable em produção</strong> — não é "protótipo bonitinho no MVP".</li>
+            <li>Análise textual de RELINTs/DD é desejada (qualitativa).</li>
+            <li>Polígonos <strong>podem migrar</strong> — solução não pode hardcode.</li>
+            <li>Output deve responder as 4 norteadoras.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0">Entrega</h3>
+          <ul>
+            <li><strong>GitHub push até 16:15</strong> firm.</li>
+            <li>Repo time (Group 14): <a href="https://github.com/alexandrepgui/claude_impact_lab_compstat_rio" target="_blank" rel="noopener"><code>alexandrepgui/claude_impact_lab_compstat_rio</code></a> — fork do oficial</li>
+            <li>⚠️ Commits novos do time devem ser ≥ 9:30 (regra anti-desclassificação)</li>
+            <li>README claro com problema + como rodar + vídeo 60s</li>
+          </ul>
+        </div>
+        <div class="callout good">
+          <h3 style="margin-top:0">Sensibilidade política</h3>
+          <ul>
+            <li>Comunicar como apoio à decisão municipal — não como vigilância massiva.</li>
+            <li>"Inteligência territorial afinada" + "alocação cirúrgica de recursos" são o framing oficial.</li>
+            <li>Lei da concentração (50% / &lt;5%) é o argumento de eficiência.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="stakeholders">
+      <h2>Stakeholders & mentores</h2>
+      <table>
+        <thead>
+          <tr><th>Pessoa</th><th>Papel</th><th>Como usar</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Marilarda "Duda" Duda</strong></td>
+            <td>Secretaria-Geral do CompStat — apresentou o briefing</td>
+            <td>Visão de produto e impacto. Decisões de framing e priorização.</td>
+          </tr>
+          <tr>
+            <td><strong>Ramon</strong></td>
+            <td>Coordenador de dados · <span class="pill">Mentor</span></td>
+            <td>Perguntas sobre datasets, schema, formato, gotchas.</td>
+          </tr>
+          <tr>
+            <td><strong>João</strong></td>
+            <td>Mentor</td>
+            <td>Disponível durante o dia.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="perguntas-mentor">
+      <h2>Perguntas para o mentor (próxima sync)</h2>
+      <ul class="checklist">
+        <li><strong>Confirmar:</strong> ocorrências têm <strong>furto + roubo</strong> (README) ou só roubo (briefing falado)?</li>
+        <li>Qual das 8 áreas (RI_010-RI_017) você recomenda pro demo? Centro? Zona Sul?</li>
+        <li>O exemplo de Relatório Analítico anexado ao briefing PDF pode ser nosso template/ground truth?</li>
+        <li>O <strong>"score de bingo"</strong> já tem fórmula que vocês usam hoje, ou é livre?</li>
+        <li><strong>1746 via BigQuery</strong> — recomendam usar OU foco no DD que está no repo?</li>
+        <li>Os polígonos das 8 áreas são imutáveis ou podemos sugerir migração?</li>
+        <li>Como tratar sensibilidade ética (domínio faccional, censo pop. rua)?</li>
+        <li>Tackle algum dos 4 desafios extras? Qual o time prefere?</li>
+      </ul>
+      <h3 style="margin-top:1.5rem">Já confirmados (não precisa perguntar)</h3>
+      <ul>
+        <li>✅ <strong>SEOP</strong> é o acrônimo oficial</li>
+        <li>✅ Output = <strong>.doc</strong> (Relatório Analítico de Área), não dashboard</li>
+        <li>✅ Matriz fator urbano × órgão está no README + <code>fatores_urbanos.csv</code></li>
+        <li>✅ Disque Denúncia (DD) é fonte separada do 1746 (1746 = BigQuery externo)</li>
+        <li>✅ RELINTs são <strong>.docx</strong> (8 arquivos, áreas nomeadas)</li>
+        <li>✅ <strong>FM</strong> = Divisão de Elite da Guarda Municipal</li>
+      </ul>
+    </section>
+
+    <section id="proximos-passos">
+      <h2>Próximos passos imediatos</h2>
+      <div class="steps">
+        <div class="step"><div><strong>Acessar repo do Ramon</strong> assim que liberado. Ler <code>dicionário de dados</code> primeiro.</div></div>
+        <div class="step"><div><strong>Alinhar time</strong> (15-30 min) usando este documento. Confirmar entendimento do BINGO.</div></div>
+        <div class="step"><div><strong>Lock MVP slice</strong> até 10:00. Escolher 1-2 das 9 áreas, focar nelas até o fim.</div></div>
+        <div class="step"><div><strong>Definir owner</strong> por peça: relintes (NLP) · mancha (geo) · norteadoras (síntese) · UI/demo.</div></div>
+        <div class="step"><div><strong>Mentor checkpoint</strong> ~10:30: pegar Ramon para validar a interpretação + perguntas pendentes.</div></div>
+        <div class="step"><div><strong>Demo dry-run</strong> 15:00. Cortar features que não rodam. Push final 16:00 (15 min de buffer).</div></div>
+      </div>
+    </section>
+
+    <footer class="page-foot">
+      <p><strong>Deadline GitHub: 16:15</strong> · Tema: Segurança Pública · Cliente: Secretaria-Geral CompStat / Prefeitura do Rio · Evento: Claude Impact Lab Rio 2026-05-24 · Local: Maravalley, Santo Cristo</p>
+      <p>
+        Repo do time (Group 14): <a href="https://github.com/alexandrepgui/claude_impact_lab_compstat_rio" target="_blank" rel="noopener">github.com/alexandrepgui/claude_impact_lab_compstat_rio</a><br>
+        Repo oficial (dados + dicionário): <a href="https://github.com/CompStat-Rio/claude_impact_lab_compstat_rio" target="_blank" rel="noopener">github.com/CompStat-Rio/claude_impact_lab_compstat_rio</a>
+      </p>
+      <p>Documento gerado a partir dos briefings transcritos por Whisper. Fonte primária: <code>CLAUDE.md</code> + transcrições em <code>briefing/recordings/</code>.</p>
+    </footer>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script>
+  hljs.highlightAll();
+  const root = document.documentElement;
+  const saved = localStorage.getItem("artifact-theme");
+  if (saved) root.dataset.theme = saved;
+  function syncTheme() {
+    document.getElementById("hl-light").disabled = root.dataset.theme === "dark";
+    document.getElementById("hl-dark").disabled = root.dataset.theme !== "dark";
+  }
+  syncTheme();
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("artifact-theme", root.dataset.theme);
+    syncTheme();
+  });
+  const toc = document.getElementById("toc");
+  document.querySelectorAll("main section[id]").forEach(section => {
+    const h = section.querySelector("h2");
+    if (!h) return;
+    const a = document.createElement("a");
+    a.href = "#" + section.id;
+    a.textContent = h.textContent;
+    toc.appendChild(a);
+  });
+</script>
+</body>
+</html>

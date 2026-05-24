@@ -805,14 +805,25 @@ button:disabled {
 }
 
 .lab-band {
-  grid-template-columns: auto auto auto minmax(0, 1fr);
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   align-items: center;
+  gap: 12px;
 }
 
 .lab-status {
   justify-self: end;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.lab-reset {
+  justify-self: end;
+  color: var(--muted);
+}
+
+.lab-reset:hover:not(:disabled) {
+  border-color: var(--red);
+  color: var(--red);
 }
 
 .lab-status.dirty {
@@ -894,6 +905,32 @@ button:disabled {
   border-color: #f5c26b;
 }
 
+.lab-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lab-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.lab-unit {
+  color: var(--subtle);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lab-help {
+  margin: 0;
+  color: var(--subtle);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  font-weight: 400;
+}
+
 .lab-layers {
   display: grid;
   gap: 0;
@@ -902,8 +939,18 @@ button:disabled {
 .lab-layer {
   display: grid;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid var(--line);
+  transition: opacity 0.15s ease;
+}
+
+.lab-layer.inactive {
+  opacity: 0.55;
+}
+
+.lab-layer.inactive .lab-layer-grid,
+.lab-layer.inactive .lab-cats {
+  filter: grayscale(0.5);
 }
 
 .lab-layer:last-child {
@@ -915,22 +962,26 @@ button:disabled {
   align-items: center;
   gap: 12px;
   justify-content: space-between;
+  padding: 4px 0 12px;
+  border-bottom: 1px solid var(--line);
 }
 
 .lab-layer-name {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.94rem;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lab-layer-name strong {
+  font-size: 0.96rem;
   font-weight: 700;
-  text-transform: capitalize;
 }
 
 .lab-layer-name .lab-source {
   color: var(--subtle);
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: none;
+  font-size: 0.74rem;
+  font-weight: 500;
 }
 
 .lab-toggle {
@@ -983,6 +1034,17 @@ button:disabled {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+.lab-cats-empty {
+  margin: 0;
+  padding: 6px 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.lab-console-panel[hidden] {
+  display: none;
 }
 
 .lab-cat-row {
@@ -1174,6 +1236,11 @@ button:disabled {
   .lab-band,
   .lab-layout {
     grid-template-columns: 1fr;
+  }
+
+  .lab-band .lab-status,
+  .lab-band .lab-reset {
+    justify-self: stretch;
   }
 
   .job {

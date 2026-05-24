@@ -171,48 +171,45 @@
           </section>
 
           <p class="lab-intro muted">
-            Ajuste os pesos usados no calculo do score (step 5). As mudancas escrevem
-            <code id="labConfigPath">shapefiles_qgis/config_pesos.json</code> e re-executam o motor semanal
-            (v1) seguido do step 5. As demais etapas (1-4 v0) nao sao afetadas.
+            Ajuste o quanto cada fonte e categoria conta no score de risco e re-execute
+            para ver o novo ranking — sem rodar a pipeline inteira.
           </p>
 
           <section class="command-band lab-band" aria-label="Acoes do Lab">
-            <button id="labSave" class="ghost">Salvar pesos</button>
-            <button id="labRerun" class="primary">Salvar + re-executar score</button>
-            <button id="labReset" class="ghost">Descartar alteracoes</button>
+            <button id="labRerun" class="primary">Aplicar e recalcular ranking</button>
+            <button id="labSave" class="ghost" title="Salva sem recalcular o ranking">Apenas salvar</button>
             <span id="labStatus" class="lab-status muted">Carregando...</span>
+            <button id="labReset" class="ghost lab-reset" title="Reverte para os valores salvos no disco">Resetar</button>
           </section>
 
           <div class="layout lab-layout">
             <div class="lab-form" id="labForm" aria-label="Editor de pesos">
               <section class="panel lab-panel">
                 <div class="lab-panel-head">
-                  <p class="kicker">Parametros estruturais</p>
-                  <h2>Janela, grade e cobertura</h2>
-                </div>
-                <div class="lab-grid lab-grid-structural" id="labStructural"></div>
-              </section>
-
-              <section class="panel lab-panel" id="labLayers" aria-label="Camadas">
-                <div class="lab-panel-head">
-                  <p class="kicker">Camadas e pesos</p>
-                  <h2>Configuracao por fonte</h2>
+                  <p class="kicker">Pesos por fonte de dado</p>
+                  <h2>O que mais influencia o score</h2>
                 </div>
                 <div class="lab-layers" id="labLayersBody"></div>
+              </section>
+
+              <section class="panel lab-panel">
+                <div class="lab-panel-head">
+                  <p class="kicker">Ajustes avancados</p>
+                  <h2>Janela temporal e geometria da grade</h2>
+                </div>
+                <div class="lab-grid lab-grid-structural" id="labStructural"></div>
               </section>
             </div>
 
             <aside class="side lab-side" aria-label="Comparacao de rankings">
               <section class="panel">
-                <p class="kicker">Antes / Depois</p>
-                <h2 class="lab-side-title">Top 8 do ranking</h2>
+                <p class="kicker">Top 8 — antes / depois</p>
                 <div id="labDiffPanel" class="lab-diff">
-                  <p class="muted">Execute uma vez para gerar a baseline.</p>
+                  <p class="muted">Aplique para ver o ranking aqui. Re-aplique apos ajustes para comparar.</p>
                 </div>
               </section>
-              <section class="panel">
-                <p class="kicker">Logs</p>
-                <h2 class="lab-side-title">Re-execucao</h2>
+              <section class="panel lab-console-panel" id="labConsolePanel" hidden>
+                <p class="kicker">Re-execucao em andamento</p>
                 <pre id="labConsole" class="console lab-console">Aguardando execucao...</pre>
               </section>
             </aside>

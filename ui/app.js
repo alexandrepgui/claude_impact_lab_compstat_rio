@@ -19,12 +19,76 @@ const state = {
 };
 
 const STRUCTURAL_KEYS = [
-  { key: "janela_semanas", label: "Janela (sem.)", type: "int", min: 1, step: 1 },
-  { key: "grade_m", label: "Grade (m)", type: "int", min: 50, step: 50 },
-  { key: "cobertura", label: "Cobertura", type: "float", min: 0, max: 1, step: 0.05 },
-  { key: "min_share_zona", label: "Min share zona", type: "float", min: 0, max: 1, step: 0.005 },
-  { key: "n_agentes", label: "Nº agentes", type: "int", min: 1, step: 10 },
+  {
+    key: "janela_semanas",
+    label: "Janela temporal",
+    unit: "semanas",
+    help: "Quantas semanas de historico cada zona usa pra calcular o score.",
+    type: "int",
+    min: 1,
+    step: 1,
+  },
+  {
+    key: "grade_m",
+    label: "Tamanho da celula",
+    unit: "metros",
+    help: "Resolucao espacial da grade de analise.",
+    type: "int",
+    min: 50,
+    step: 50,
+  },
+  {
+    key: "cobertura",
+    label: "Cobertura do top",
+    unit: "%",
+    help: "Fracao do total de risco a ser coberta pelas zonas selecionadas (ex: 0.50 = top 50%).",
+    type: "float",
+    min: 0,
+    max: 1,
+    step: 0.05,
+  },
+  {
+    key: "min_share_zona",
+    label: "Tamanho minimo de zona",
+    unit: "%",
+    help: "Zonas com participacao menor que isso sao descartadas (ruido).",
+    type: "float",
+    min: 0,
+    max: 1,
+    step: 0.005,
+  },
+  {
+    key: "n_agentes",
+    label: "Total de agentes",
+    unit: "agentes",
+    help: "Tamanho da Forca Municipal disponivel pra distribuir nas zonas.",
+    type: "int",
+    min: 1,
+    step: 10,
+  },
 ];
+
+const LAYER_META = {
+  ocorrencias: {
+    title: "Ocorrencias policiais",
+    subtitle: "Roubo a transeunte, celular, em coletivo (ISP/PMERJ)",
+    help: "Crimes oficialmente registrados nas DPs. Base mais confiavel.",
+  },
+  disque: {
+    title: "Disque Denuncia",
+    subtitle: "Denuncias anonimas da populacao",
+    help: "Sinaliza pontos sensiveis nao capturados em BOs (ex: receptacao).",
+  },
+  fatores: {
+    title: "Fatores urbanos",
+    subtitle: "Iluminacao, vegetacao, comercio irregular...",
+    help: "Caracteristicas do ambiente que favorecem o crime. Vem das subprefeituras.",
+  },
+};
+
+function layerDisplay(name) {
+  return LAYER_META[name] || { title: name, subtitle: "", help: "" };
+}
 
 const els = {
   navItems: document.querySelectorAll(".nav-item"),
@@ -58,6 +122,7 @@ const els = {
   labLayersBody: document.querySelector("#labLayersBody"),
   labDiffPanel: document.querySelector("#labDiffPanel"),
   labConsole: document.querySelector("#labConsole"),
+  labConsolePanel: document.querySelector("#labConsolePanel"),
   relatoriosGrid: document.querySelector("#relatoriosGrid"),
   relatoriosStatus: document.querySelector("#relatoriosStatus"),
   relatoriosRefresh: document.querySelector("#relatoriosRefresh"),
@@ -337,13 +402,16 @@ function renderLabRun(run, active) {
   els.labRunBadge.className = `run-badge ${isLabKind ? run?.status || "" : ""}`;
   els.labRunBadge.textContent = isLabKind ? run.status : "sem execucao";
 
-  if (els.labConsole) {
-    if (isLabKind && run.logs?.length) {
-      els.labConsole.textContent = run.logs.map((entry) => entry.line).join("\n");
-      els.labConsole.scrollTop = els.labConsole.scrollHeight;
-    } else if (!isLabKind && !run) {
-      els.labConsole.textContent = "Aguardando execucao...";
-    }
+  if (els.labConsole && isLabKind && run.logs?.length) {
+    els.labConsole.textContent = run.logs.map((entry) => entry.line).join("\n");
+    els.labConsole.scrollTop = els.labConsole.scrollHeight;
+  }
+
+  // Show the console panel only while a Lab rerun is in flight or just finished;
+  // hide it when idle so the side column doesn't carry a permanent dead box.
+  if (els.labConsolePanel) {
+    const showConsole = isLabKind && (active || run.status === "failed" || run.status === "stopped");
+    els.labConsolePanel.hidden = !showConsole;
   }
 
   if (els.labRerun && els.labSave) {
@@ -353,16 +421,16 @@ function renderLabRun(run, active) {
 
   if (isLabKind) {
     if (run.status === "starting" || run.status === "running") {
-      setLabStatus("Re-executando motor + step 5...", "running");
+      setLabStatus("Recalculando ranking...", "running");
     } else if (run.status === "success") {
-      setLabStatus("Score atualizado.", "ok");
+      setLabStatus("Ranking atualizado.", "ok");
     } else if (run.status === "failed") {
-      setLabStatus("Falha na re-execucao. Veja os logs.", "failed");
+      setLabStatus("Falha no recalculo. Veja os logs.", "failed");
     } else if (run.status === "stopped") {
-      setLabStatus("Re-execucao interrompida.", "failed");
+      setLabStatus("Recalculo interrompido.", "failed");
     }
   } else if (active) {
-    setLabStatus("Pipeline rodando em outra aba; aguarde.", "running");
+    setLabStatus("Pipeline rodando em outra aba; aguarde terminar.", "running");
   }
 }
 
@@ -597,19 +665,22 @@ function isDirty() {
 }
 
 function refreshDirtyIndicator() {
-  const dirty = isDirty();
-  if (state.lab.statusKind !== "running" && state.lab.statusKind !== "saving") {
-    setLabStatus(
-      dirty ? "Alteracoes nao salvas." : "Sem alteracoes.",
-      dirty ? "dirty" : "idle",
-    );
-  }
   if (!state.lab.draft || !state.lab.original) return;
+  let dirtyCount = 0;
   document.querySelectorAll("[data-lab-field]").forEach((node) => {
     const fieldPath = node.dataset.labField;
     const dirtyField = fieldDirty(fieldPath);
     node.classList.toggle("dirty", dirtyField);
+    if (dirtyField && node.querySelector("input")) dirtyCount += 1;
   });
+  if (state.lab.statusKind !== "running" && state.lab.statusKind !== "saving") {
+    if (dirtyCount > 0) {
+      const label = dirtyCount === 1 ? "1 ajuste pendente" : `${dirtyCount} ajustes pendentes`;
+      setLabStatus(label, "dirty");
+    } else {
+      setLabStatus("Sincronizado.", "idle");
+    }
+  }
 }
 
 function fieldDirty(path) {
@@ -641,7 +712,7 @@ function renderLab() {
 
 function renderLabStructural() {
   if (!els.labStructural) return;
-  const html = STRUCTURAL_KEYS.map(({ key, label, type, min, max, step }) => {
+  const html = STRUCTURAL_KEYS.map(({ key, label, unit, help, type, min, max, step }) => {
     const value = state.lab.draft[key];
     if (value === undefined) return "";
     const attrs = [
@@ -655,10 +726,16 @@ function renderLabStructural() {
     ]
       .filter(Boolean)
       .join(" ");
+    const unitHtml = unit ? `<span class="lab-unit">${escapeHtml(unit)}</span>` : "";
+    const helpHtml = help ? `<p class="lab-help">${escapeHtml(help)}</p>` : "";
     return `
       <div class="lab-field" data-lab-field="${key}">
-        <label for="lab-input-${key}">${label}</label>
-        <input id="lab-input-${key}" ${attrs} />
+        <label for="lab-input-${key}">${escapeHtml(label)}</label>
+        <div class="lab-input-row">
+          <input id="lab-input-${key}" ${attrs} />
+          ${unitHtml}
+        </div>
+        ${helpHtml}
       </div>
     `;
   }).join("");
@@ -736,15 +813,26 @@ function renderLabLayers() {
       const layer = event.currentTarget.dataset.layer;
       const next = state.lab.draft.camadas[layer];
       next.pesos_categoria = next.pesos_categoria || {};
-      let key = "Nova categoria";
+      let key = "Nova subcategoria";
       let i = 1;
       while (key in next.pesos_categoria) {
         i += 1;
-        key = `Nova categoria ${i}`;
+        key = `Nova subcategoria ${i}`;
       }
       next.pesos_categoria[key] = 1.0;
       renderLabLayers();
       refreshDirtyIndicator();
+      // Auto-focus the new row's key input so the user can name it immediately.
+      const candidates = els.labLayersBody.querySelectorAll(
+        `[data-lab-action='cat-key'][data-layer='${layer}']`,
+      );
+      for (const node of candidates) {
+        if (node.dataset.cat === key) {
+          node.focus();
+          node.select();
+          break;
+        }
+      }
     });
   });
 }
@@ -773,9 +861,10 @@ function onCatKeyChange(event) {
 function renderLayerCard(name, layer) {
   const ativa = layer.ativa !== false;
   const peso = layer.peso ?? 1.0;
-  const campoCategoria = layer.campo_categoria ?? "";
   const pesoDefault = layer.peso_categoria_default ?? 1.0;
   const pesos = layer.pesos_categoria || {};
+  const meta = layerDisplay(name);
+
   const catsHtml = Object.entries(pesos)
     .map(([cat, val]) => {
       return `
@@ -786,7 +875,7 @@ function renderLayerCard(name, layer) {
             data-lab-action="cat-key"
             data-layer="${name}"
             data-cat="${escapeHtml(cat)}"
-            aria-label="Categoria"
+            aria-label="Nome da subcategoria"
           />
           <input
             type="number"
@@ -795,7 +884,7 @@ function renderLayerCard(name, layer) {
             data-lab-action="cat-value"
             data-layer="${name}"
             data-cat="${escapeHtml(cat)}"
-            aria-label="Peso da categoria"
+            aria-label="Peso desta subcategoria"
           />
           <button
             type="button"
@@ -803,7 +892,7 @@ function renderLayerCard(name, layer) {
             data-lab-action="cat-remove"
             data-layer="${name}"
             data-cat="${escapeHtml(cat)}"
-            aria-label="Remover categoria"
+            aria-label="Remover subcategoria"
             title="Remover"
           >×</button>
         </div>
@@ -812,26 +901,26 @@ function renderLayerCard(name, layer) {
     .join("");
 
   return `
-    <article class="lab-layer" data-layer="${name}">
+    <article class="lab-layer ${ativa ? "" : "inactive"}" data-layer="${name}">
       <header class="lab-layer-head">
         <div class="lab-layer-name">
-          <span>${escapeHtml(name)}</span>
-          <span class="lab-source">${escapeHtml(campoCategoria)}</span>
+          <strong>${escapeHtml(meta.title)}</strong>
+          <span class="lab-source">${escapeHtml(meta.subtitle)}</span>
         </div>
-        <label class="lab-toggle ${ativa ? "active" : ""}">
+        <label class="lab-toggle ${ativa ? "active" : ""}" title="Ativa ou desliga esta fonte no calculo">
           <input
             type="checkbox"
             data-lab-action="toggle-active"
             data-layer="${name}"
             ${ativa ? "checked" : ""}
           />
-          <span>${ativa ? "Ativa" : "Inativa"}</span>
+          <span>${ativa ? "Ligada" : "Desligada"}</span>
         </label>
       </header>
 
       <div class="lab-layer-grid">
         <div class="lab-field" data-lab-field="camadas.${name}.peso">
-          <label>Peso da camada</label>
+          <label>Peso total da fonte</label>
           <input
             type="number"
             step="0.05"
@@ -840,9 +929,10 @@ function renderLayerCard(name, layer) {
             data-lab-action="layer-number"
             data-lab-field="camadas.${name}.peso"
           />
+          <p class="lab-help">Importancia relativa entre as 3 fontes.</p>
         </div>
         <div class="lab-field" data-lab-field="camadas.${name}.peso_categoria_default">
-          <label>Peso default (categoria)</label>
+          <label>Peso padrao por subcategoria</label>
           <input
             type="number"
             step="0.1"
@@ -851,12 +941,13 @@ function renderLayerCard(name, layer) {
             data-lab-action="layer-number"
             data-lab-field="camadas.${name}.peso_categoria_default"
           />
+          <p class="lab-help">Aplicado a subcategorias nao listadas abaixo.</p>
         </div>
       </div>
 
       <div class="lab-cats">
         <div class="lab-cats-head">
-          <p>Pesos por categoria</p>
+          <p>Ajustes finos por subcategoria</p>
           <button
             type="button"
             class="lab-cat-add"
@@ -864,7 +955,7 @@ function renderLayerCard(name, layer) {
             data-layer="${name}"
           >+ adicionar</button>
         </div>
-        ${catsHtml || `<p class="muted">Nenhuma categoria customizada — usando peso default.</p>`}
+        ${catsHtml || `<p class="muted lab-cats-empty">Sem ajustes especificos — todas usam o peso padrao.</p>`}
       </div>
     </article>
   `;

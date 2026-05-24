@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CompStat Rio Pipeline</title>
-    <link rel="stylesheet" href="/styles.css?v=8" />
+    <link rel="stylesheet" href="/styles.css?v=7" />
   </head>
   <body>
     <div class="app-frame">
@@ -102,47 +102,12 @@
           </section>
         </section>
 
-        <section class="app-page" data-page-panel="auditoria" aria-labelledby="audit-title">
-          <section class="topbar">
-            <div>
-              <p class="kicker">CompStat Rio · Grupo 14</p>
-              <h1 id="audit-title">Auditoria</h1>
-            </div>
-            <div class="run-badge" id="auditBadge">pipeline_audit.jsonl</div>
-          </section>
-
-          <section class="audit-overview" aria-label="Resumo dos artefatos de auditoria">
-            <div class="audit-metrics" id="auditMetrics"></div>
-            <aside class="panel audit-artifacts" id="auditArtifacts"></aside>
-          </section>
-
-          <section class="audit-layout" aria-label="Eventos auditaveis">
-            <div class="stage">
-              <div class="stage-header">
-                <div>
-                  <p class="kicker">Timeline</p>
-                  <h2>Eventos recentes</h2>
-                </div>
-                <button id="refreshAuditButton" class="ghost" type="button">Atualizar</button>
-              </div>
-              <div id="auditEvents" class="audit-events"></div>
-            </div>
-
-            <aside class="side" aria-label="Sumarios de auditoria">
-              <section class="panel">
-                <p class="kicker">Steps</p>
-                <div id="auditSteps" class="audit-steps"></div>
-              </section>
-              <section class="panel">
-                <p class="kicker">Execucoes</p>
-                <div id="auditRuns" class="audit-runs"></div>
-              </section>
-              <section class="panel">
-                <p class="kicker">Eventos frequentes</p>
-                <div id="auditTopEvents" class="audit-top-events"></div>
-              </section>
-            </aside>
-          </section>
+        <section class="app-page placeholder-page" data-page-panel="auditoria" aria-labelledby="audit-title">
+          <p class="kicker">CompStat Rio · Grupo 14</p>
+          <h1 id="audit-title">Auditoria</h1>
+          <div class="placeholder-panel">
+            <p>Secao dummy para consulta de eventos, historico de execucoes e trilhas de auditoria.</p>
+          </div>
         </section>
 
         <section class="app-page placeholder-page" data-page-panel="relatorio" aria-labelledby="report-title">
@@ -153,16 +118,66 @@
           </div>
         </section>
 
-        <section class="app-page placeholder-page" data-page-panel="lab" aria-labelledby="lab-title">
-          <p class="kicker">CompStat Rio · Grupo 14</p>
-          <h1 id="lab-title">Lab</h1>
-          <div class="placeholder-panel">
-            <p>Secao dummy para experimentos, prototipos e validacoes antes de promover mudancas para a pipeline.</p>
+        <section class="app-page" data-page-panel="lab" aria-labelledby="lab-title">
+          <section class="topbar" aria-labelledby="lab-title">
+            <div>
+              <p class="kicker">CompStat Rio · Grupo 14</p>
+              <h1 id="lab-title">Lab de pesos</h1>
+            </div>
+            <div class="run-badge" id="labRunBadge">sem execucao</div>
+          </section>
+
+          <p class="lab-intro muted">
+            Ajuste os pesos usados no calculo do score (step 5). As mudancas escrevem
+            <code id="labConfigPath">shapefiles_qgis/config_pesos.json</code> e re-executam o motor semanal
+            (v1) seguido do step 5. As demais etapas (1-4 v0) nao sao afetadas.
+          </p>
+
+          <section class="command-band lab-band" aria-label="Acoes do Lab">
+            <button id="labSave" class="ghost">Salvar pesos</button>
+            <button id="labRerun" class="primary">Salvar + re-executar score</button>
+            <button id="labReset" class="ghost">Descartar alteracoes</button>
+            <span id="labStatus" class="lab-status muted">Carregando...</span>
+          </section>
+
+          <div class="layout lab-layout">
+            <div class="lab-form" id="labForm" aria-label="Editor de pesos">
+              <section class="panel lab-panel">
+                <div class="lab-panel-head">
+                  <p class="kicker">Parametros estruturais</p>
+                  <h2>Janela, grade e cobertura</h2>
+                </div>
+                <div class="lab-grid lab-grid-structural" id="labStructural"></div>
+              </section>
+
+              <section class="panel lab-panel" id="labLayers" aria-label="Camadas">
+                <div class="lab-panel-head">
+                  <p class="kicker">Camadas e pesos</p>
+                  <h2>Configuracao por fonte</h2>
+                </div>
+                <div class="lab-layers" id="labLayersBody"></div>
+              </section>
+            </div>
+
+            <aside class="side lab-side" aria-label="Comparacao de rankings">
+              <section class="panel">
+                <p class="kicker">Antes / Depois</p>
+                <h2 class="lab-side-title">Top 8 do ranking</h2>
+                <div id="labDiffPanel" class="lab-diff">
+                  <p class="muted">Execute uma vez para gerar a baseline.</p>
+                </div>
+              </section>
+              <section class="panel">
+                <p class="kicker">Logs</p>
+                <h2 class="lab-side-title">Re-execucao</h2>
+                <pre id="labConsole" class="console lab-console">Aguardando execucao...</pre>
+              </section>
+            </aside>
           </div>
         </section>
       </main>
     </div>
 
-    <script src="/app.js?v=8"></script>
+    <script src="/app.js?v=7"></script>
   </body>
 </html>

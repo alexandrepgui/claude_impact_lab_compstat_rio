@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import posixpath
 import re
 import signal
 import subprocess
@@ -27,7 +26,10 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 UI_ROOT = Path(__file__).resolve().parent
 PIPELINE_PYTHON = REPO_ROOT / ".venv" / "bin" / "python"
-PAGE_ROUTES = {"/", "/pipeline", "/auditoria", "/relatorio", "/lab"}
+CONFIG_PESOS = REPO_ROOT / "shapefiles_qgis" / "config_pesos.json"
+MOTOR_SCRIPT = REPO_ROOT / "shapefiles_qgis" / "motor_bingo_semanal.py"
+SCORE_JSON = REPO_ROOT / "score_ranking.json"
+SCORE_JSON_SNAPSHOT = REPO_ROOT / "score_ranking.previous.json"
 
 sys.path.insert(0, str(REPO_ROOT))
 import pipeline  # noqa: E402
@@ -70,14 +72,6 @@ STEP_HINTS = {
 CURRENT_RUN: dict[str, Any] | None = None
 RUN_LOCK = threading.Lock()
 RUN_PROCESS: subprocess.Popen[str] | None = None
-
-
-def route_path(path: str) -> str:
-    clean = path.split("?", 1)[0].split("#", 1)[0]
-    clean = posixpath.normpath(clean)
-    if not clean.startswith("/"):
-        clean = f"/{clean}"
-    return clean
 
 
 def utc_now() -> str:
@@ -170,6 +164,7 @@ def new_run(payload: dict[str, Any]) -> dict[str, Any]:
         "selected": selected,
         "args": build_args(payload, selected),
         "dryRun": bool(payload.get("dryRun")),
+        "llmSample": payload.get("llmSample"),
         "steps": statuses,
         "logs": [],
         "returnCode": None,
@@ -218,10 +213,15 @@ def run_pipeline(run_id: str) -> None:
         cmd = [pipeline_python(), "-u", str(REPO_ROOT / "pipeline.py"), *run["args"]]
         append_log(run, "$ " + " ".join(cmd))
 
+    run_env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+    llm_sample = run.get("llmSample") if run else None
+    if llm_sample:
+        run_env["PIPELINE_LLM_SAMPLE"] = str(llm_sample)
+
     proc = subprocess.Popen(
         cmd,
         cwd=REPO_ROOT,
-        env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        env=run_env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
@@ -272,8 +272,7 @@ def run_pipeline(run_id: str) -> None:
             RUN_PROCESS = None
 
 
-def latest_score() -> dict[str, Any] | None:
-    path = REPO_ROOT / "score_ranking.json"
+def _score_payload(path: Path, limit: int = 8) -> dict[str, Any] | None:
     if not path.exists():
         return None
     try:
@@ -283,7 +282,7 @@ def latest_score() -> dict[str, Any] | None:
     score_field = data.get("score_field") or "risco"
     name_fields = ("nome_area", "nome_subar", "nome_zona", "nome")
     ranking = []
-    for idx, row in enumerate(data.get("ranking", [])[:8], start=1):
+    for idx, row in enumerate(data.get("ranking", [])[:limit], start=1):
         name = next((row.get(field) for field in name_fields if row.get(field)), "?")
         raw_score = row.get(score_field, row.get("risco", row.get("score", row.get("score_total", 0))))
         try:
@@ -310,161 +309,181 @@ def latest_score() -> dict[str, Any] | None:
     }
 
 
-def _step_from_event(event: str) -> str | None:
-    match = re.match(r"(?:step_|s)([1-5])(?:_|$)", event)
-    return match.group(1) if match else None
+def latest_score() -> dict[str, Any] | None:
+    return _score_payload(SCORE_JSON)
 
 
-def _parse_ts(value: Any) -> datetime | None:
-    if not isinstance(value, str):
-        return None
-    try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return None
+def lab_load_config() -> dict[str, Any]:
+    if not CONFIG_PESOS.exists():
+        raise FileNotFoundError(f"config_pesos.json not found at {CONFIG_PESOS}")
+    return json.loads(CONFIG_PESOS.read_text(encoding="utf-8"))
 
 
-def read_json_file(path: Path) -> dict[str, Any] | None:
-    if not path.exists():
-        return None
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {"status": "invalid_json", "path": str(path.relative_to(REPO_ROOT))}
-
-
-def count_jsonl(path: Path, limit: int = 4) -> dict[str, Any]:
-    if not path.exists():
-        return {"path": str(path.relative_to(REPO_ROOT)), "exists": False, "count": 0, "sample": []}
-
-    count = 0
-    sample = []
-    with path.open(encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
+def lab_save_config(new_cfg: dict[str, Any]) -> dict[str, Any]:
+    # Minimal structural validation — keep the same top-level keys + at least one layer.
+    if not isinstance(new_cfg, dict):
+        raise ValueError("config deve ser objeto JSON")
+    if "camadas" not in new_cfg or not isinstance(new_cfg["camadas"], dict):
+        raise ValueError("config.camadas ausente ou invalido")
+    for name, cam in new_cfg["camadas"].items():
+        if not isinstance(cam, dict):
+            raise ValueError(f"camada {name} deve ser objeto")
+        if "peso" in cam:
             try:
-                item = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            count += 1
-            if len(sample) < limit:
-                sample.append(item)
-    return {
-        "path": str(path.relative_to(REPO_ROOT)),
-        "exists": True,
-        "count": count,
-        "sample": sample,
-    }
-
-
-def audit_summary() -> dict[str, Any]:
-    events: list[dict[str, Any]] = []
-    malformed = 0
-    audit_path = pipeline.AUDIT_LOG
-
-    if audit_path.exists():
-        with audit_path.open(encoding="utf-8") as f:
-            for line_no, line in enumerate(f, start=1):
-                raw = line.strip()
-                if not raw:
-                    continue
+                cam["peso"] = float(cam["peso"])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"camada {name}.peso invalido: {cam['peso']}") from exc
+        if "peso_categoria_default" in cam:
+            try:
+                cam["peso_categoria_default"] = float(cam["peso_categoria_default"])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"camada {name}.peso_categoria_default invalido") from exc
+        if "ativa" in cam:
+            cam["ativa"] = bool(cam["ativa"])
+        if "pesos_categoria" in cam:
+            if not isinstance(cam["pesos_categoria"], dict):
+                raise ValueError(f"camada {name}.pesos_categoria deve ser objeto")
+            for catkey, catval in list(cam["pesos_categoria"].items()):
                 try:
-                    entry = json.loads(raw)
-                except json.JSONDecodeError:
-                    malformed += 1
-                    continue
-                event = str(entry.get("event", "unknown"))
-                level = str(entry.get("level", "INFO")).upper()
-                data = entry.get("data") if isinstance(entry.get("data"), dict) else {}
-                ts = entry.get("ts")
-                events.append(
-                    {
-                        "line": line_no,
-                        "ts": ts,
-                        "event": event,
-                        "level": level,
-                        "step": _step_from_event(event),
-                        "data": data,
-                    }
-                )
+                    cam["pesos_categoria"][catkey] = float(catval)
+                except (TypeError, ValueError) as exc:
+                    raise ValueError(
+                        f"camada {name}.pesos_categoria[{catkey}] invalido"
+                    ) from exc
+    for key in ("janela_semanas", "grade_m", "n_agentes"):
+        if key in new_cfg:
+            try:
+                new_cfg[key] = int(new_cfg[key])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"{key} deve ser inteiro") from exc
+    for key in ("cobertura", "min_share_zona"):
+        if key in new_cfg:
+            try:
+                new_cfg[key] = float(new_cfg[key])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"{key} deve ser numero") from exc
 
-    level_counts = {level: 0 for level in ("INFO", "OK", "WARN", "ERR")}
-    step_counts = {step["id"]: {"total": 0, "ERR": 0, "WARN": 0, "OK": 0, "INFO": 0} for step in pipeline.STEPS}
-    event_counts: dict[str, int] = {}
-    latest_by_step: dict[str, dict[str, Any]] = {}
-    runs: list[dict[str, Any]] = []
-    current_run: dict[str, Any] | None = None
+    CONFIG_PESOS.write_text(
+        json.dumps(new_cfg, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return new_cfg
 
-    for entry in events:
-        level = entry["level"] if entry["level"] in level_counts else "INFO"
-        level_counts[level] += 1
-        event_counts[entry["event"]] = event_counts.get(entry["event"], 0) + 1
 
-        step = entry.get("step")
-        if step in step_counts:
-            step_counts[step]["total"] += 1
-            step_counts[step][level] += 1
-            latest_by_step[step] = entry
+def snapshot_previous_ranking() -> None:
+    if SCORE_JSON.exists():
+        SCORE_JSON_SNAPSHOT.write_text(
+            SCORE_JSON.read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
 
-        if entry["event"] == "pipeline_start":
-            current_run = {
-                "startedAt": entry.get("ts"),
-                "endedAt": None,
-                "status": "running",
-                "steps": entry.get("data", {}).get("steps", []),
-                "levels": {level_name: 0 for level_name in ("INFO", "OK", "WARN", "ERR")},
-                "events": 0,
-                "durationS": None,
-            }
-            runs.append(current_run)
-        if current_run:
-            current_run["events"] += 1
-            current_run["levels"][level] += 1
-            if entry["event"] in {"pipeline_end", "pipeline_end_with_warnings", "pipeline_aborted", "pipeline_aborted_missing_deps"}:
-                current_run["endedAt"] = entry.get("ts")
-                current_run["status"] = "success" if entry["event"] == "pipeline_end" else "attention"
-                started = _parse_ts(current_run["startedAt"])
-                ended = _parse_ts(current_run["endedAt"])
-                if started and ended:
-                    current_run["durationS"] = round((ended - started).total_seconds(), 1)
-                current_run = None
 
-    review_queue = read_json_file(REPO_ROOT / "review_queue.json")
-    pending_items = review_queue.get("pending_items", []) if isinstance(review_queue, dict) else []
-    extracted = count_jsonl(REPO_ROOT / "relato_estruturado.jsonl")
-
-    recent = events[-80:]
-    recent.reverse()
-    top_events = sorted(event_counts.items(), key=lambda item: (-item[1], item[0]))[:8]
-
+def new_lab_run() -> dict[str, Any]:
+    # Lab rescore = motor_bingo_semanal.py (v1) + pipeline.py --only 5
     return {
-        "path": str(audit_path.relative_to(REPO_ROOT)),
-        "exists": audit_path.exists(),
-        "eventCount": len(events),
-        "malformedCount": malformed,
-        "firstTs": events[0]["ts"] if events else None,
-        "lastTs": events[-1]["ts"] if events else None,
-        "levelCounts": level_counts,
-        "stepCounts": step_counts,
-        "latestByStep": latest_by_step,
-        "recentEvents": recent,
-        "topEvents": [{"event": event, "count": count} for event, count in top_events],
-        "runs": runs[-8:][::-1],
-        "reviewQueue": {
-            "path": "review_queue.json",
-            "exists": (REPO_ROOT / "review_queue.json").exists(),
-            "status": review_queue.get("status") if isinstance(review_queue, dict) else None,
-            "generatedAt": review_queue.get("generated_at") if isinstance(review_queue, dict) else None,
-            "pendingCount": len(pending_items) if isinstance(pending_items, list) else 0,
-            "items": pending_items[:8] if isinstance(pending_items, list) else [],
+        "id": uuid.uuid4().hex[:10],
+        "kind": "lab_rescore",
+        "status": "starting",
+        "createdAt": utc_now(),
+        "startedAt": None,
+        "endedAt": None,
+        "selected": ["motor_v1", "5"],
+        "args": [],
+        "dryRun": False,
+        "llmSample": None,
+        "steps": {
+            "motor_v1": {"status": "queued", "startedAt": None, "endedAt": None},
+            "5": {"status": "queued", "startedAt": None, "endedAt": None},
         },
-        "extractedJsonl": extracted,
+        "logs": [],
+        "returnCode": None,
     }
 
 
-class ReusableThreadingHTTPServer(ThreadingHTTPServer):
-    allow_reuse_address = True
+def run_lab_rescore(run_id: str) -> None:
+    global CURRENT_RUN, RUN_PROCESS
+
+    with RUN_LOCK:
+        run = CURRENT_RUN
+        if not run or run["id"] != run_id:
+            return
+        run["status"] = "running"
+        run["startedAt"] = utc_now()
+
+    py = pipeline_python()
+    commands = [
+        ("motor_v1", [py, "-u", str(MOTOR_SCRIPT)], MOTOR_SCRIPT.parent),
+        ("5", [py, "-u", str(REPO_ROOT / "pipeline.py"), "--only", "5"], REPO_ROOT),
+    ]
+
+    run_env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+    overall_rc = 0
+
+    for sid, cmd, cwd in commands:
+        with RUN_LOCK:
+            run = CURRENT_RUN
+            if not run or run["id"] != run_id:
+                return
+            if run["status"] == "stopping":
+                mark_step(run, sid, "stopped")
+                continue
+            append_log(run, "$ " + " ".join(cmd))
+            mark_step(run, sid, "running")
+
+        proc = subprocess.Popen(
+            cmd,
+            cwd=cwd,
+            env=run_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            start_new_session=True,
+        )
+        with RUN_LOCK:
+            RUN_PROCESS = proc
+
+        assert proc.stdout is not None
+        for line in proc.stdout:
+            with RUN_LOCK:
+                run = CURRENT_RUN
+                if not run or run["id"] != run_id:
+                    continue
+                append_log(run, line)
+                # Reuse pipeline.py parser for step 5 markers
+                parse_line(run, line)
+
+        rc = proc.wait()
+        with RUN_LOCK:
+            run = CURRENT_RUN
+            if not run or run["id"] != run_id:
+                return
+            if run["status"] == "stopping":
+                mark_step(run, sid, "stopped")
+                overall_rc = 130
+                break
+            if rc != 0:
+                mark_step(run, sid, "failed")
+                overall_rc = rc
+                break
+            else:
+                # parse_line may already have set s5 to success via marker;
+                # otherwise force it.
+                if run["steps"][sid]["status"] != "success":
+                    mark_step(run, sid, "success")
+
+    with RUN_LOCK:
+        run = CURRENT_RUN
+        if run and run["id"] == run_id:
+            run["returnCode"] = overall_rc
+            run["endedAt"] = utc_now()
+            if run["status"] == "stopping":
+                run["status"] = "stopped"
+            elif overall_rc == 0:
+                run["status"] = "success"
+            else:
+                run["status"] = "failed"
+            RUN_PROCESS = None
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -473,9 +492,7 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
-        clean_path = route_path(self.path)
-
-        if clean_path == "/api/pipeline":
+        if self.path == "/api/pipeline":
             self.write_json(
                 {
                     "steps": step_metadata(),
@@ -489,15 +506,34 @@ class Handler(SimpleHTTPRequestHandler):
             )
             return
 
-        if clean_path == "/api/runs/current":
+        if self.path == "/api/runs/current":
             self.write_json({"run": self.current_run()})
             return
 
-        if clean_path == "/api/audit":
-            self.write_json(audit_summary())
+        if self.path == "/api/lab/config":
+            try:
+                cfg = lab_load_config()
+            except FileNotFoundError as exc:
+                self.write_json({"error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            self.write_json(
+                {
+                    "config": cfg,
+                    "path": str(CONFIG_PESOS.relative_to(REPO_ROOT)),
+                }
+            )
             return
 
-        if clean_path in PAGE_ROUTES or (not clean_path.startswith("/api/") and Path(clean_path).suffix == ""):
+        if self.path == "/api/lab/snapshot":
+            self.write_json(
+                {
+                    "current": _score_payload(SCORE_JSON),
+                    "previous": _score_payload(SCORE_JSON_SNAPSHOT),
+                }
+            )
+            return
+
+        if self.path == "/":
             self.path = "/index.html"
         return super().do_GET()
 
@@ -522,6 +558,37 @@ class Handler(SimpleHTTPRequestHandler):
             self.write_json({"run": run}, HTTPStatus.CREATED)
             return
 
+        if self.path == "/api/lab/config":
+            payload = self.read_json()
+            new_cfg = payload.get("config") if isinstance(payload, dict) else None
+            if new_cfg is None:
+                self.write_json({"error": "config ausente"}, HTTPStatus.BAD_REQUEST)
+                return
+            try:
+                saved = lab_save_config(new_cfg)
+            except ValueError as exc:
+                self.write_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+                return
+            self.write_json({"config": saved})
+            return
+
+        if self.path == "/api/lab/rerun":
+            with RUN_LOCK:
+                global CURRENT_RUN
+                if CURRENT_RUN and CURRENT_RUN["status"] in {"starting", "running", "stopping"}:
+                    self.write_json(
+                        {"error": "Ja existe uma execucao em andamento"},
+                        HTTPStatus.CONFLICT,
+                    )
+                    return
+                snapshot_previous_ranking()
+                CURRENT_RUN = new_lab_run()
+                run = CURRENT_RUN
+            thread = threading.Thread(target=run_lab_rescore, args=(run["id"],), daemon=True)
+            thread.start()
+            self.write_json({"run": run}, HTTPStatus.CREATED)
+            return
+
         if self.path == "/api/runs/current/stop":
             with RUN_LOCK:
                 if not CURRENT_RUN or CURRENT_RUN["status"] not in {"starting", "running"}:
@@ -537,8 +604,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.write_json({"error": "Not found"}, HTTPStatus.NOT_FOUND)
 
     def translate_path(self, path: str) -> str:
-        clean = route_path(path)
-        if clean in PAGE_ROUTES or (not clean.startswith("/api/") and Path(clean).suffix == ""):
+        clean = path.split("?", 1)[0].split("#", 1)[0]
+        if clean == "/":
             clean = "/index.html"
         return str(UI_ROOT / clean.lstrip("/"))
 
@@ -567,16 +634,13 @@ def main() -> int:
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
 
-    server = ReusableThreadingHTTPServer((args.host, args.port), Handler)
-    host, port = server.server_address[:2]
-    print(f"Pipeline UI: http://{host}:{port}", flush=True)
+    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    print(f"Pipeline UI: http://{args.host}:{args.port}")
     try:
         server.serve_forever(poll_interval=0.25)
     except KeyboardInterrupt:
         print("\nStopping server...")
         return 0
-    finally:
-        server.server_close()
 
 
 if __name__ == "__main__":

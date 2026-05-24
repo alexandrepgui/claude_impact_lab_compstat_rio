@@ -35,7 +35,7 @@ def _pick_source() -> tuple[Path, str] | None:
 
 
 def _name_field(field_names: list[str]) -> str:
-    for cand in ("nome_area", "nome_subar", "nome_zona", "nome"):
+    for cand in ("nome_area", "nome_subar", "nome_zona", "nome", "local", "bairro"):
         if cand in field_names:
             return cand
     return field_names[0]

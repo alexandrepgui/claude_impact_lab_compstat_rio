@@ -27,6 +27,7 @@ Modelo default: Claude Sonnet 4.5 (mais barato). Override via
 from __future__ import annotations
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -184,9 +185,10 @@ def _stub_run(reason: str) -> int:
 
 
 def main() -> int:
+    default_sample = int(os.environ.get("PIPELINE_LLM_SAMPLE", "5"))
     ap = argparse.ArgumentParser(description="Step 3 — LLM extraction de DD relatos")
-    ap.add_argument("--sample", type=int, default=5,
-                    help="Quantos relatos processar (default 5 se key existe)")
+    ap.add_argument("--sample", type=int, default=default_sample,
+                    help=f"Quantos relatos processar (default {default_sample}; env PIPELINE_LLM_SAMPLE)")
     ap.add_argument("--all", action="store_true",
                     help="Processa TODOS os relatos (~18k, custoso)")
     ap.add_argument("--stub", action="store_true",

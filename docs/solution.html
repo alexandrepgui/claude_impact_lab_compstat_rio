@@ -285,8 +285,192 @@
       </div>
     </section>
 
+    <section id="transform-pipeline">
+      <h2>Pipeline Transform — design detalhado</h2>
+      <div class="callout core">
+        <p style="margin:0"><strong>Princípio:</strong> pipeline 100% <em>automatizada</em> mas <em>auditável</em> por humanos. Cada passo deixa rastro. Inconsistências viram fila de revisão (auto-resolvida por IA quando seguro · escalada pra humano quando ambígua). Resultado: <strong>base consolidada confiável</strong> sobre a qual o score do BINGO é calculado.</p>
+      </div>
+
+      <h3>1. Fluxo da pipeline (visão de alto nível)</h3>
+      <div class="layer-stack">
+        <div class="layer core">
+          <div class="badge">P1</div>
+          <div><h3>Load + Normalize (programático)</h3><p>Ler cada fonte com seus encodings/separadores corretos. Padronizar CRS (WGS84), corrigir eixos invertidos (fatores_urbanos), renomear colunas pro schema canônico.</p></div>
+        </div>
+        <div class="layer">
+          <div class="badge">P2</div>
+          <div><h3>Detect inconsistências (rule engine + LLM)</h3><p>Rodar bateria de regras (geo bbox, completude, cross-source). LLM judga casos ambíguos. Output: lista de inconsistências com severidade + sugestão de correção.</p></div>
+        </div>
+        <div class="layer">
+          <div class="badge">P3</div>
+          <div><h3>Resolve (auto-fix OU fila humana)</h3><p>Se confiança alta + correção segura → auto-fix com log. Se ambíguo ou destrutivo → fila pra humano decidir. Pipeline pausa pra essa área até resolução.</p></div>
+        </div>
+        <div class="layer core">
+          <div class="badge">P4</div>
+          <div><h3>Enrich (programático + LLM)</h3><p>Geo-intersect tudo com os polígonos FM. <strong>LLM extrai padrões</strong> de DD relatos + RELINTs (modus operandi, rotas fuga, recepção, horários, controle territorial). Filtra fatores urbanos pelos que importam pra dinâmica.</p></div>
+        </div>
+        <div class="layer core">
+          <div class="badge">P5</div>
+          <div><h3>Consolidate (programático)</h3><p>Construir "área-snapshot" — registro único por (área FM × período) com todas as camadas integradas. Esse é o input pro score do BINGO.</p></div>
+        </div>
+        <div class="layer">
+          <div class="badge">P6</div>
+          <div><h3>Audit trail (sempre)</h3><p>Cada passo escreve: inconsistências detectadas, decisões tomadas (auto vs humano), confidence scores, timestamps. Humano pode reabrir e re-rodar.</p></div>
+        </div>
+      </div>
+
+      <h3>2. Linguagem unificada — schema da "área-snapshot"</h3>
+      <p>A pipeline produz <strong>um registro consolidado por área × período</strong>. Esta é a "base nova" que integra tudo. Estrutura proposta:</p>
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Origem</th></tr></thead>
+        <tbody>
+          <tr><td><code>area_fm_id</code></td><td>int</td><td>shapefile <code>fid</code></td></tr>
+          <tr><td><code>area_fm_nome</code></td><td>string</td><td>shapefile <code>nome_subar</code></td></tr>
+          <tr><td><code>periodo</code></td><td>YYYY-MM</td><td>derivado de ocorrências</td></tr>
+          <tr><td><code>mancha_criminal</code></td><td>object</td><td>contagens por tipo + geometrias hot points (df_ocorrencias_tratado)</td></tr>
+          <tr><td><code>dinamica_padroes</code></td><td>list[object]</td><td>extraído via LLM de DD + RELINT (modus, rotas, recepção, horário pico, controle)</td></tr>
+          <tr><td><code>fatores_urbanos_relevantes</code></td><td>list[object]</td><td>fatores_urbanos.csv filtrados pela dinâmica</td></tr>
+          <tr><td><code>cameras_cobertura</code></td><td>object</td><td>cameras_areas_fm.csv + análise de gaps</td></tr>
+          <tr><td><code>contexto_faccional</code></td><td>list[object]</td><td>dominio_territorial intersectado (não pra ação, só pra contexto)</td></tr>
+          <tr><td><code>validacao_1746</code></td><td>object</td><td>(plus) chamados 1746 que reforçam fatores</td></tr>
+          <tr><td><code>bingo_score</code></td><td>float + breakdown</td><td>calculado em P5 após consolidação</td></tr>
+          <tr><td><code>confidence</code></td><td>object</td><td>score por camada — sinaliza onde foi LLM, onde foi humano</td></tr>
+          <tr><td><code>pendencias_revisao</code></td><td>list</td><td>inconsistências não resolvidas (pipeline ainda usa, mas marca)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3. Por fonte — contribuição + tipo de análise</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>Fonte</th><th>Contribui</th><th>Análise programática</th><th>Análise LLM</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>df_ocorrencias_tratado</code></td>
+            <td>Mancha criminal (quantitativa)</td>
+            <td>Geo-intersect com polígono FM · agregação por mês/ano · contagens por tipo (transeunte/celular/coletivo)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>disk_denuncia</code></td>
+            <td>Dinâmica criminal (qualitativa)</td>
+            <td>Agregar por <code>id_denuncia</code> · geo-intersect · filtrar bairros relevantes</td>
+            <td><strong>Sim — extrair de <code>relato_redacted</code></strong>: modus operandi · rotas fuga · pontos recepção · horários · controle territorial · tipo de arma</td>
+          </tr>
+          <tr>
+            <td><code>relints/*.docx</code></td>
+            <td>Inteligência por área (gabarito)</td>
+            <td>Extrair texto do .docx · ler estrutura</td>
+            <td><strong>Sim — parse semântico</strong>: identificar padrões, órgão references, recomendações já feitas; comparar com nossa extração de DD</td>
+          </tr>
+          <tr>
+            <td><code>fatores_urbanos</code></td>
+            <td>Fator urbano + órgão responsável</td>
+            <td>Corrigir eixos invertidos · geo-intersect · agrupar por tipo/órgão</td>
+            <td><strong>Sim — filtrar pela dinâmica</strong>: dado o padrão extraído de DD/RELINT, quais fatores são relevantes? (ex.: iluminação só importa se dinâmica é noturna)</td>
+          </tr>
+          <tr>
+            <td><code>cameras_areas_fm</code></td>
+            <td>Cobertura CIVITAS/COR</td>
+            <td>Agregar por área · identificar pontos cegos (geo-distance vs ocorrências)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>shapefile FM</td>
+            <td>Boundary canônico</td>
+            <td>Load via geopandas · WGS84 · ground truth de "área"</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>dominio_territorial</code></td>
+            <td>Contexto faccional</td>
+            <td>Filtrar bbox município · geo-intersect com áreas FM</td>
+            <td><strong>Talvez — interpretação cuidadosa</strong>: relacionar facção dominante com rotas fuga extraídas (dado sensível, não usar como ação direta)</td>
+          </tr>
+          <tr>
+            <td>CPSR (Censo PSR)</td>
+            <td>Enriquece fator "Pessoa em Situação de Rua"</td>
+            <td>Agregar por área + ano · juntar com <code>fatores_urbanos</code> categoria PSR</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>4. Detecção de inconsistências — regras + julgamento LLM</h3>
+      <p>Duas camadas:</p>
+      <div class="grid">
+        <div class="callout">
+          <h3 style="margin-top:0">Regras programáticas (rápidas, determinísticas)</h3>
+          <ul>
+            <li>Geo: lat/long fora do bbox município RJ</li>
+            <li>Geo: coordenadas suspeitas de inversão (compare range)</li>
+            <li>Completude: campo obrigatório ausente / vazio</li>
+            <li>Encoding: caracteres inválidos em texto</li>
+            <li>Cross-source: bairro do registro não existe na lista canônica</li>
+            <li>Cross-source: câmera em área que não está no shapefile (Lauro Müller, Bangu)</li>
+            <li>Volume: zero ocorrências em área conhecidamente ativa</li>
+            <li>Temporal: data fora do período esperado</li>
+            <li>Duplicidade: mesma denúncia, geo diferente</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0">Julgamento LLM (slow, contextual)</h3>
+          <ul>
+            <li>Conteúdo do RELINT consistente com padrões que extraímos de DD?</li>
+            <li>Denúncia diz que ocorre no bairro X mas relato menciona bairro Y</li>
+            <li>Padrão extraído de DD é generalizado o suficiente pra área? (overfitting de poucas amostras)</li>
+            <li>Confidence da extração abaixo do threshold</li>
+            <li>Recomendação contradiz exemplo do RELINT</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>5. Matriz auto vs humano — quem resolve o quê</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>Inconsistência</th><th>Auto (IA)</th><th>Humano</th><th>Por quê</th></tr></thead>
+        <tbody>
+          <tr><td>Encoding latin-1 em DD</td><td>✅</td><td>—</td><td>Correção determinística, sem ambiguidade</td></tr>
+          <tr><td>Eixos invertidos em fatores</td><td>✅</td><td>—</td><td>Range bate, correção segura</td></tr>
+          <tr><td>Data/hora vazias em ocorrências</td><td>✅</td><td>—</td><td>Cair pra granularidade mês/ano</td></tr>
+          <tr><td>Domínio territorial fora bbox município</td><td>✅</td><td>—</td><td>Filtro programático claro</td></tr>
+          <tr><td>DD multi-row por denúncia</td><td>✅</td><td>—</td><td>Agregar por id é determinístico</td></tr>
+          <tr><td>Câmeras área "Lauro Müller" sem RELINT</td><td>—</td><td>✅</td><td>Decisão de escopo: incluir ou ignorar?</td></tr>
+          <tr><td>Geo point longe do bairro listado</td><td>⚠️ flag</td><td>✅ se &gt; 1km</td><td>Pode ser erro de campo, decisão depende de magnitude</td></tr>
+          <tr><td>Padrão LLM com confidence &lt; 0.6</td><td>—</td><td>✅</td><td>Pattern fraco — humano valida ou descarta</td></tr>
+          <tr><td>RELINT discorda da extração DD</td><td>—</td><td>✅ ou LLM se trivial</td><td>Conflito qualitativo — entender qual ganha</td></tr>
+          <tr><td>Zero ocorrências em área ativa</td><td>—</td><td>✅</td><td>Suspeito de dado faltando, não conclui</td></tr>
+          <tr><td>Recomendação ofende sensibilidade política</td><td>—</td><td>✅ obrigatório</td><td>Risco reputacional — humano sempre revisa</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>6. Auditoria — como humano inspeciona</h3>
+      <ul>
+        <li>Cada registro consolidado vem com <code>confidence</code> por camada + <code>source_log</code> (de onde veio cada peça)</li>
+        <li>Decisões automáticas geram entrada em <code>audit.jsonl</code>: <code>{timestamp, rule, before, after, confidence}</code></li>
+        <li>Decisões humanas vão pra mesma log com <code>actor=human</code> + <code>reason</code></li>
+        <li>Pipeline reproduzível: rodar com mesmo input + mesmas decisões = mesmo output</li>
+        <li>UI mínima de revisão: listar pendências por severidade · ação inline (aceitar sugestão IA · corrigir manual · marcar como aceito-com-flag)</li>
+      </ul>
+
+      <h3>7. Implicações pro time</h3>
+      <div class="callout warn">
+        <ul style="margin:0">
+          <li><strong>Não começar a calcular score</strong> antes da base consolidada estar pronta — score em base inconsistente é veneno</li>
+          <li><strong>Logs de auditoria são parte da entrega</strong> — Prefeitura precisa saber por que cada conclusão foi tirada</li>
+          <li><strong>Threshold de confiança parametrizável</strong> — não hardcode 0.6, deixe operador ajustar</li>
+          <li><strong>LLM extraction de DD é a parte mais imprevisível</strong> — começar por aí pra calibrar prompts e ter buffer de tempo</li>
+          <li>"Auditável por humano" não significa "humano revisa tudo" — significa que <em>pode</em> revisar quando quiser</li>
+        </ul>
+      </div>
+    </section>
+
     <section id="plus1">
       <h2><span class="pill plus">Plus 1</span> Detecção de inconsistências + revisão humana</h2>
+      <div class="callout core">
+        <p style="margin:0"><strong>Update:</strong> esta capability deixou de ser "plus opcional" e virou <strong>parte do core Transform pipeline</strong> (passos P2 + P3). Mantida nesta seção como referência mas o conteúdo principal mora em <a href="#transform-pipeline">Pipeline Transform — design detalhado</a>.</p>
+      </div>
       <p><strong>Problema:</strong> dados têm ruído real (ex.: eixos invertidos em <code>fatores_urbanos.csv</code>, datas vazias em <code>df_ocorrencias_tratado</code>, encoding latin-1 em DD, áreas que aparecem em câmeras mas não no shapefile). Tratar tudo como verdade = recomendação errada.</p>
       <h3>Forma desejada (parametrizada)</h3>
       <ul>
@@ -398,6 +582,8 @@
           <tr><td>10:30~</td><td>Output oficial = <code>.doc</code> (não dashboard).</td><td>README oficial pede <code>.doc</code>. Substituir o relatório manual da Duda.</td></tr>
           <tr><td>10:45~</td><td>Estratégia framada como ETL. Transform é o gargalo, não Extract.</td><td>Dados já entregues — o problema real é cruzar fontes distintas com qualidade. Plus features se encaixam em E ou L depois.</td></tr>
           <tr><td>10:50~</td><td>Load reclassificado como crítico (paralelo ao Transform), não "direto".</td><td>O <code>.doc</code> É o produto que a Prefeitura consome — qualidade de Load determina Impacto Real (40 pts). Transform sem Load bom = análise órfã.</td></tr>
+          <tr><td>11:00~</td><td>Pipeline Transform desenhada em 6 passos (load→detect→resolve→enrich→consolidate→audit).</td><td>Inconsistências promovidas pro core (não plus). Saída = "área-snapshot" canônica que alimenta o BINGO score.</td></tr>
+          <tr><td>11:00~</td><td>Linguagem unificada = registro "área-snapshot" por (área × período).</td><td>Schema único pra todas as camadas — facilita auditoria, reuso, e regeneração quando shapefile muda.</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
         </tbody>

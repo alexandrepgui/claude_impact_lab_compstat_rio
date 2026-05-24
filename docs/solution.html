@@ -181,6 +181,23 @@
         <p style="margin:0"><strong>Princípio:</strong> pipeline 100% <em>automatizada</em> mas <em>auditável</em> por humanos. Cada passo deixa rastro. Inconsistências viram fila de revisão (auto-resolvida por IA quando seguro · escalada pra humano quando ambígua). Resultado: <strong>base consolidada confiável</strong> sobre a qual o score do BINGO é calculado.</p>
       </div>
 
+      <h3>Estado atual (12:00)</h3>
+      <div class="grid">
+        <div class="callout good">
+          <h3 style="margin-top:0">✅ Estruturado — Alexandre (entregue)</h3>
+          <p>Em <code>shapefiles_qgis/</code>: shapefiles tratados das 5 fontes + <code>analise_grade.py</code> que produz <strong>grade_risco.shp</strong> (250m, 7534 células, 229 hotspots c/ 3 camadas) e <strong>areas_fm_risco.shp</strong> (8 áreas com risco agregado).</p>
+          <p style="margin:0"><strong>Score v0</strong>: <code>media(nrm_ocor, nrm_disq, nrm_fator) × (n_camadas/3)</code>. Ranking: Pres. Vargas <strong>0.842</strong> → Campo Grande 0.249. <em>Isso é o BINGO v0 — camada estruturada do P5.</em></p>
+        </div>
+        <div class="callout warn">
+          <h3 style="margin-top:0">🔄 Desestruturado — colegas em curso</h3>
+          <p>Em paralelo: detectar inconsistências em <strong>DD relatos + RELINTs (.docx)</strong>. Output esperado: novas camadas/contagens (modus operandi, horário, recepção, etc.) que viram <strong>nova camada de "ocorrência"</strong> na fact table → <strong>recompute do score (v1)</strong>.</p>
+          <p style="margin:0"><strong>Critério "transform done":</strong> pipeline detecta + flagga inconsistências em todas as bases · trata via IA agêntica OU humano · re-score com nova camada.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Load (.doc generator):</strong> deferido. Não é foco agora. Entra quando score v1 estiver pronto.
+      </div>
+
       <h3>1. Fluxo da pipeline (visão de alto nível)</h3>
       <div class="layer-stack">
         <div class="layer core">
@@ -485,55 +502,47 @@
         </tbody>
       </table>
 
-      <h3>2. Tracks paralelos — quem faz o quê</h3>
+      <h3>2. Tracks paralelos — estado atual (12:00)</h3>
       <div class="grid">
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">A</span> Data Engineering</h3>
+        <div class="callout good">
+          <h3 style="margin-top:0"><span class="pill" style="background:var(--good);color:white;border-color:var(--good)">A ✅</span> Estruturado — Alexandre</h3>
           <ul style="margin-bottom:0">
-            <li>P1 Loaders por fonte (encodings/separadores corretos)</li>
-            <li>P1 Normalização canônica (axis fix, CRS WGS84, schema unificado)</li>
-            <li>P2 Rule engine de inconsistências (regras determinísticas)</li>
-            <li>P3 Auto-fix runner</li>
-            <li>P4 Geo-intersect com polígonos FM</li>
-            <li>P5 Area-snapshot builder</li>
-            <li>P5 BINGO score formula</li>
-            <li>P6 Audit log (.jsonl)</li>
+            <li>✅ P1 Loaders + normalize (shapefiles_qgis/)</li>
+            <li>✅ P2 Tratamento básico (axis swap, dentro_rio, coord_fix, DD consolidação por id_denuncia)</li>
+            <li>✅ P4 Geo-intersect via shapefile FM</li>
+            <li>✅ P5 grade_risco.shp (250m, fact table de fato) + areas_fm_risco.shp</li>
+            <li>✅ Score v0 calculado: ranking Pres. Vargas → Campo Grande</li>
           </ul>
-          <p class="tbd-marker" style="margin-top:.6rem">Owner: Alexandre + 1 (já tem EDA pronto, vantagem de partida)</p>
+          <p style="margin-top:.6rem"><strong>Próximo:</strong> integrar saída de Track B → recompute score v1</p>
+        </div>
+        <div class="callout warn">
+          <h3 style="margin-top:0"><span class="pill" style="background:var(--warn);color:white;border-color:var(--warn)">B 🔄</span> Desestruturado — colegas em curso</h3>
+          <ul style="margin-bottom:0">
+            <li>🔄 Detectar inconsistências em <strong>DD relatos</strong> (texto livre 254 chars + tipos/órgãos)</li>
+            <li>🔄 Detectar inconsistências em <strong>RELINTs .docx</strong> (texto qualitativo, 8 arquivos)</li>
+            <li>🔄 Extração de novas dimensões (modus operandi, horário, recepção, controle)</li>
+            <li>🔄 Tratamento: agente IA (auto) ou humano (queue), conforme confiança</li>
+            <li>🔄 Output: novas contagens/camadas pra entrar na fact table do Alexandre</li>
+          </ul>
+          <p style="margin-top:.6rem"><strong>Owner:</strong> colegas do time (em curso). <strong>Critério done:</strong> camada nova alimentando recompute.</p>
         </div>
         <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">B</span> LLM / AI</h3>
+          <h3 style="margin-top:0"><span class="pill">C ⏸</span> Load (.doc) — deferido</h3>
           <ul style="margin-bottom:0">
-            <li><strong>P4 (CRÍTICO) Extração de padrões de DD</strong> — modus operandi, rotas, recepção, horários a partir de <code>relato_redacted</code></li>
-            <li>P4 Parse semântico de RELINTs (.docx → estrutura)</li>
-            <li>P4 Filtragem de fatores urbanos por relevância dinâmica</li>
-            <li>P2 LLM judgment pra inconsistências ambíguas</li>
-            <li>Prompt engineering + test loop</li>
+            <li>⏸ Não é foco agora</li>
+            <li>Entra quando score v1 (com unstructured) estiver pronto</li>
+            <li>Template do anexo do briefing PDF → reservar pra leitura quando virar foco</li>
           </ul>
-          <p class="tbd-marker" style="margin-top:.6rem">Owner: 1-2 pessoas. Começar P4 DD primeiro.</p>
         </div>
         <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">C</span> Output / Load</h3>
+          <h3 style="margin-top:0"><span class="pill">D</span> PM — Caio</h3>
           <ul style="margin-bottom:0">
-            <li>Estudar template <code>.doc</code> do anexo do briefing PDF</li>
-            <li>Definir estrutura do gerador (python-docx)</li>
-            <li>Implementar gerador que recebe area-snapshot → .doc</li>
-            <li>Embutir mapas/gráficos como imagens no .doc</li>
-            <li>UI mínima de revisão humana (P3 da pipeline)</li>
+            <li>🎯 <strong>Mentor sync c/ Ramon</strong> — apresentar risco v0 + plano de unstructured. Pergunta-chave: <em>"fórmula `media × n_camadas/3` faz sentido ou ponderam diferente?"</em></li>
+            <li>🎯 <strong>Acompanhar devs</strong> — quem tá em DD vs RELINTs, evitar duplicação, desbloquear</li>
+            <li>Scope guard (cortar features além do core)</li>
+            <li>Manter solution.html + decision log atualizados</li>
+            <li>Pré-leitura template .doc do briefing PDF (pra quando Track C ativar)</li>
           </ul>
-          <p class="tbd-marker" style="margin-top:.6rem">Owner: 1 pessoa</p>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">D</span> PM / Demo</h3>
-          <ul style="margin-bottom:0">
-            <li>Scope guard (cortar features que extrapolam core)</li>
-            <li>Mentor checkpoints (Ramon @ 12:30 e 14:30)</li>
-            <li>README final do repo time (8 campos obrigatórios)</li>
-            <li>Demo script + vídeo 60s</li>
-            <li>Dry-run do pitch (se finalistas)</li>
-            <li>Manter project-brief.html + solution.html atualizados</li>
-          </ul>
-          <p class="tbd-marker" style="margin-top:.6rem">Owner: Caio</p>
         </div>
       </div>
 
@@ -627,6 +636,11 @@
           <tr><td>11:30~</td><td>Solution.html podado: removida "Áreas dinâmicas" (já no Pipeline) e Plus 1/Plus 2 expandidos viraram callout único.</td><td>Foco em accionabilidade. Documento de estratégia + execução, não enciclopédia.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
+          <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>
+          <tr><td>12:15~</td><td>Unstructured output (colegas em curso) = <strong>nova camada de contagem</strong> que entra na fact table → recompute do score.</td><td>Arquitetura A do grill: layers feed score (não narrativa solta). DD/RELINTs viram dimensões mensuráveis.</td></tr>
+          <tr><td>12:15~</td><td>Load (.doc) <strong>deferido</strong> — não é foco agora.</td><td>Time decidiu focar 100% em Transform até score v1. Load entra como sprint dedicado depois.</td></tr>
+          <tr><td>12:15~</td><td>"Transform done" = pipeline detecta + flagga + resolve (humano OU agente IA) em todas as bases.</td><td>Critério operacional, não validação de score. Score validação é separado, c/ mentor.</td></tr>
+          <tr><td>12:15~</td><td>Caio (PM) foco = mentor sync + acompanhar devs (não Load).</td><td>Mentor pode mudar fórmula antes de virar pedra. Acompanhar devs evita duplicação DD vs RELINTs.</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
         </tbody>

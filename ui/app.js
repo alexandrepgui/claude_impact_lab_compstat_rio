@@ -42,6 +42,10 @@ const pagePaths = Object.fromEntries(
   Object.entries(routes).map(([path, page]) => [page, page === "pipeline" ? "/pipeline" : path])
 );
 
+if (window.lucide) {
+  window.lucide.createIcons();
+}
+
 function pageFromPath(pathname) {
   const normalized = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
   return routes[normalized] || "pipeline";

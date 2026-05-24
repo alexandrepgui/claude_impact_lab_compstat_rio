@@ -136,23 +136,13 @@ body {
 .nav-icon {
   width: 14px;
   height: 14px;
-  border: 1.5px solid currentColor;
-  border-radius: 3px;
+  fill: none;
+  flex: 0 0 14px;
   opacity: 0.9;
-}
-
-.nav-icon.audit {
-  border-radius: 50%;
-}
-
-.nav-icon.report {
-  border-radius: 2px;
-  border-top-width: 5px;
-}
-
-.nav-icon.lab {
-  border-radius: 4px;
-  transform: rotate(45deg) scale(0.82);
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
 }
 
 .app-page {
@@ -410,14 +400,13 @@ button:disabled {
 }
 
 .job:hover {
-  background: var(--accent);
-  color: #ffffff;
+  background: #f1f7fb;
 }
 
 .job:hover p,
 .job:hover .muted,
 .job:hover .job-id {
-  color: #ffffff;
+  color: var(--muted);
 }
 
 .job:last-child {
@@ -482,6 +471,7 @@ button:disabled {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #f3f3f3;
+  color: var(--ink);
   padding: 3px 6px;
   overflow-wrap: anywhere;
   font-size: 0.72rem;

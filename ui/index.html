@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CompStat Rio Pipeline</title>
-    <link rel="stylesheet" href="/styles.css?v=9" />
+    <link rel="stylesheet" href="/styles.css?v=10" />
   </head>
   <body>
     <div class="app-frame">
@@ -12,19 +12,19 @@
         <div class="brand-mark" aria-hidden="true">C</div>
         <nav class="app-nav">
           <button class="nav-item active" type="button" data-page="pipeline" aria-current="page">
-            <span class="nav-icon" aria-hidden="true"></span>
+            <i class="nav-icon" data-lucide="workflow" aria-hidden="true"></i>
             <span>Pipeline</span>
           </button>
           <button class="nav-item" type="button" data-page="auditoria">
-            <span class="nav-icon audit" aria-hidden="true"></span>
+            <i class="nav-icon" data-lucide="shield-check" aria-hidden="true"></i>
             <span>Auditoria</span>
           </button>
           <button class="nav-item" type="button" data-page="relatorio">
-            <span class="nav-icon report" aria-hidden="true"></span>
+            <i class="nav-icon" data-lucide="file-text" aria-hidden="true"></i>
             <span>Relatorio</span>
           </button>
           <button class="nav-item" type="button" data-page="lab">
-            <span class="nav-icon lab" aria-hidden="true"></span>
+            <i class="nav-icon" data-lucide="flask-conical" aria-hidden="true"></i>
             <span>Lab</span>
           </button>
         </nav>
@@ -159,6 +159,7 @@
       </main>
     </div>
 
-    <script src="/app.js?v=9"></script>
+    <script src="https://unpkg.com/lucide@1.16.0/dist/umd/lucide.js"></script>
+    <script src="/app.js?v=10"></script>
   </body>
 </html>

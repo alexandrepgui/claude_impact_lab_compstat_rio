@@ -141,7 +141,13 @@ Onde cada `nrm_*` é a contagem da camada na célula, normalizada pelo percentil
 
 ## 🎥 Vídeo demo
 
-_A adicionar antes do push final._
+**BINGO semanal — evolução das zonas ótimas da FM ao longo de ~5 anos** (262 semanas, 2020–2024). Heatmap = índice composto por célula da grade 250 m (janela de 8 semanas, pesos em [`config_pesos.json`](shapefiles_qgis/config_pesos.json)). Polígonos = 8 zonas ótimas da Força Municipal recalculadas a cada semana, rotuladas por bairro × nº de agentes.
+
+![Visualização semanal — BINGO + Zonas FM](docs/visualizacao_semanal.gif)
+
+> Fonte interativa: [`shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html`](shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html) (abrir no browser pra navegar com slider/play).
+>
+> Pra regenerar o GIF: `python shapefiles_qgis/distribuicao_fm/gerar_gif_demo.py` (requer `playwright` + `python -m playwright install chromium`).
 
 ---
 

@@ -59,6 +59,12 @@ STEP_OUTPUTS = {
         "shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html",
     ],
     "5": ["score_ranking.json"],
+    "6": [
+        "shapefiles_qgis/distribuicao_fm/relatorio_zonas_compacto.json",
+        "shapefiles_qgis/distribuicao_fm/relatorio_zonas_rico.md",
+        "shapefiles_qgis/distribuicao_fm/relatorios_ia/*.docx",
+        "shapefiles_qgis/distribuicao_fm/relatorios_ia/*.png",
+    ],
 }
 
 STEP_HINTS = {
@@ -67,7 +73,11 @@ STEP_HINTS = {
     "3": "Extracao semantica com LLM; sem ANTHROPIC_API_KEY cai automaticamente em stub.",
     "4": "Consolidacao v0 e motor semanal v1 para zonas dinamicas de alocacao.",
     "5": "Ranking de risco lendo zonas_semanais, com fallback para areas_fm_risco.",
+    "6": "Relatorio Analitico de Area (.docx) por zona; Sonnet 4.6 + Playwright; stub sem key.",
 }
+
+# Diretorio onde os RELINTs .docx + PNGs de mapa sao gerados
+RELATORIOS_DIR = REPO_ROOT / "shapefiles_qgis" / "distribuicao_fm" / "relatorios_ia"
 
 CURRENT_RUN: dict[str, Any] | None = None
 RUN_LOCK = threading.Lock()
@@ -165,6 +175,7 @@ def new_run(payload: dict[str, Any]) -> dict[str, Any]:
         "args": build_args(payload, selected),
         "dryRun": bool(payload.get("dryRun")),
         "llmSample": payload.get("llmSample"),
+        "reportMaxZonas": payload.get("reportMaxZonas"),
         "steps": statuses,
         "logs": [],
         "returnCode": None,
@@ -188,15 +199,15 @@ def mark_step(run: dict[str, Any], sid: str, status: str) -> None:
 
 
 def parse_line(run: dict[str, Any], line: str) -> None:
-    started = re.search(r"Step\s+([1-5])\s+", line)
+    started = re.search(r"Step\s+([1-6])\s+", line)
     if started:
         mark_step(run, started.group(1), "running")
 
-    done = re.search(r"step_([1-5])_done", line)
+    done = re.search(r"step_([1-6])_done", line)
     if done:
         mark_step(run, done.group(1), "success")
 
-    failed = re.search(r"step_([1-5])_failed", line)
+    failed = re.search(r"step_([1-6])_failed", line)
     if failed:
         mark_step(run, failed.group(1), "failed")
 
@@ -217,6 +228,9 @@ def run_pipeline(run_id: str) -> None:
     llm_sample = run.get("llmSample") if run else None
     if llm_sample:
         run_env["PIPELINE_LLM_SAMPLE"] = str(llm_sample)
+    report_max = run.get("reportMaxZonas") if run else None
+    if report_max is not None:
+        run_env["PIPELINE_REPORT_MAX_ZONAS"] = str(report_max)
 
     proc = subprocess.Popen(
         cmd,
@@ -280,7 +294,7 @@ def _score_payload(path: Path, limit: int = 8) -> dict[str, Any] | None:
     except json.JSONDecodeError:
         return None
     score_field = data.get("score_field") or "risco"
-    name_fields = ("nome_area", "nome_subar", "nome_zona", "nome")
+    name_fields = ("nome_area", "nome_subar", "nome_zona", "nome", "local")
     ranking = []
     for idx, row in enumerate(data.get("ranking", [])[:limit], start=1):
         name = next((row.get(field) for field in name_fields if row.get(field)), "?")
@@ -295,8 +309,8 @@ def _score_payload(path: Path, limit: int = 8) -> dict[str, Any] | None:
                 "name": str(name),
                 "score": score,
                 "scoreField": score_field,
-                "week": row.get("semana"),
-                "agents": row.get("n_agentes"),
+                "week": row.get("semana") or row.get("iso_sem"),
+                "agents": row.get("n_agentes") or row.get("agentes"),
             }
         )
     return {
@@ -363,11 +377,45 @@ def lab_save_config(new_cfg: dict[str, Any]) -> dict[str, Any]:
             except (TypeError, ValueError) as exc:
                 raise ValueError(f"{key} deve ser numero") from exc
 
-    CONFIG_PESOS.write_text(
+    # Atomic write: write to temp file then rename. Protects the motor's source
+    # of truth from being half-written if the server is killed mid-write.
+    tmp_path = CONFIG_PESOS.with_suffix(CONFIG_PESOS.suffix + ".tmp")
+    tmp_path.write_text(
         json.dumps(new_cfg, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    os.replace(tmp_path, CONFIG_PESOS)
     return new_cfg
+
+
+def list_relatorios() -> list[dict[str, Any]]:
+    """Lista os .docx em distribuicao_fm/relatorios_ia/ com metadados pra UI.
+
+    Cada item: {name, displayName, sizeKB, mtime, mapPng?}
+    """
+    if not RELATORIOS_DIR.exists():
+        return []
+    items: list[dict[str, Any]] = []
+    for docx in sorted(RELATORIOS_DIR.glob("*.docx")):
+        # Espera padrao: RA_<prio>_<local>.docx + RA_<prio>_<local>_mapa.png
+        stem = docx.stem
+        map_png = RELATORIOS_DIR / f"{stem}_mapa.png"
+        # Derivar display name (RA_001_Centro -> "001 · Centro")
+        parts = stem.split("_", 2)
+        if len(parts) == 3 and parts[0] == "RA":
+            display = f"{parts[1]} · {parts[2].replace('_', ' ')}"
+        else:
+            display = stem
+        items.append(
+            {
+                "name": docx.name,
+                "displayName": display,
+                "sizeKB": round(docx.stat().st_size / 1024, 1),
+                "mtime": datetime.fromtimestamp(docx.stat().st_mtime, tz=timezone.utc).isoformat(),
+                "mapPng": map_png.name if map_png.exists() else None,
+            }
+        )
+    return items
 
 
 def snapshot_previous_ranking() -> None:
@@ -426,7 +474,7 @@ def run_lab_rescore(run_id: str) -> None:
                 return
             if run["status"] == "stopping":
                 mark_step(run, sid, "stopped")
-                continue
+                break
             append_log(run, "$ " + " ".join(cmd))
             mark_step(run, sid, "running")
 
@@ -516,6 +564,12 @@ class Handler(SimpleHTTPRequestHandler):
             except FileNotFoundError as exc:
                 self.write_json({"error": str(exc)}, HTTPStatus.NOT_FOUND)
                 return
+            except json.JSONDecodeError as exc:
+                self.write_json(
+                    {"error": f"config_pesos.json invalido: {exc}"},
+                    HTTPStatus.UNPROCESSABLE_ENTITY,
+                )
+                return
             self.write_json(
                 {
                     "config": cfg,
@@ -533,9 +587,47 @@ class Handler(SimpleHTTPRequestHandler):
             )
             return
 
+        if self.path == "/api/relatorios":
+            self.write_json({"relatorios": list_relatorios()})
+            return
+
+        if self.path.startswith("/api/relatorios/file/"):
+            name = self.path[len("/api/relatorios/file/"):]
+            return self._serve_relatorio_file(name)
+
         if self.path == "/":
             self.path = "/index.html"
         return super().do_GET()
+
+    def _serve_relatorio_file(self, name: str) -> None:
+        # Sanity: nada de path traversal
+        if "/" in name or ".." in name or "\\" in name:
+            self.write_json({"error": "nome invalido"}, HTTPStatus.BAD_REQUEST)
+            return
+        path = RELATORIOS_DIR / name
+        if not path.exists() or not path.is_file():
+            self.write_json({"error": "nao encontrado"}, HTTPStatus.NOT_FOUND)
+            return
+        # Content-Type por extensao
+        ext = path.suffix.lower()
+        if ext == ".docx":
+            ctype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        elif ext == ".png":
+            ctype = "image/png"
+        elif ext == ".json":
+            ctype = "application/json"
+        elif ext == ".md":
+            ctype = "text/markdown; charset=utf-8"
+        else:
+            ctype = "application/octet-stream"
+        data = path.read_bytes()
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data)))
+        if ext == ".docx":
+            self.send_header("Content-Disposition", f'attachment; filename="{name}"')
+        self.end_headers()
+        self.wfile.write(data)
 
     def do_POST(self) -> None:  # noqa: N802
         if self.path == "/api/runs":
@@ -574,7 +666,6 @@ class Handler(SimpleHTTPRequestHandler):
 
         if self.path == "/api/lab/rerun":
             with RUN_LOCK:
-                global CURRENT_RUN
                 if CURRENT_RUN and CURRENT_RUN["status"] in {"starting", "running", "stopping"}:
                     self.write_json(
                         {"error": "Ja existe uma execucao em andamento"},

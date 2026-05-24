@@ -82,6 +82,13 @@ STEPS = [
         "owner": "Lê v1 (zonas_semanais) com fallback v0 (areas_fm_risco)",
         "critical": False,
     },
+    {
+        "id": "6",
+        "name": "Generate report (.docx por zona)",
+        "script": STEPS_DIR / "s6_generate_report.py",
+        "owner": "Stub sem key; full com Sonnet 4.6 + Playwright (env PIPELINE_REPORT_MAX_ZONAS)",
+        "critical": False,
+    },
 ]
 
 

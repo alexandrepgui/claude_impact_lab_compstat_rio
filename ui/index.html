@@ -110,12 +110,24 @@
           </div>
         </section>
 
-        <section class="app-page placeholder-page" data-page-panel="relatorio" aria-labelledby="report-title">
-          <p class="kicker">CompStat Rio · Grupo 14</p>
-          <h1 id="report-title">Relatorio</h1>
-          <div class="placeholder-panel">
-            <p>Secao dummy para sumarizacao dos resultados e exportacao dos artefatos da pipeline.</p>
-          </div>
+        <section class="app-page" data-page-panel="relatorio" aria-labelledby="report-title">
+          <section class="topbar" aria-labelledby="report-title">
+            <div>
+              <p class="kicker">CompStat Rio · Grupo 14</p>
+              <h1 id="report-title">Relatorios Analiticos de Area</h1>
+            </div>
+            <button id="relatoriosRefresh" class="ghost" type="button">Atualizar lista</button>
+          </section>
+
+          <p class="lab-intro muted">
+            Gerados pelo step 6 (<strong>Load</strong>) do pipeline a partir de <code>zonas_semanais.shp</code> + dossie compacto.
+            Cada zona da ultima semana vira um <code>.docx</code> no estilo dos RELINTs oficiais, com mapa Leaflet
+            renderizado via Playwright e texto gerado por Claude Sonnet 4.6. Configuravel via env
+            <code>PIPELINE_REPORT_MAX_ZONAS</code>.
+          </p>
+
+          <p id="relatoriosStatus" class="muted">Carregando relatorios...</p>
+          <div id="relatoriosGrid" class="relatorios-grid"></div>
         </section>
 
         <section class="app-page" data-page-panel="lab" aria-labelledby="lab-title">

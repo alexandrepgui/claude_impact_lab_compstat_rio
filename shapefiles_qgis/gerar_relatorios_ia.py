@@ -40,7 +40,8 @@ RELATORIO_JSON = FM / "relatorio_zonas_compacto.json"
 ZONAS_SHP = FM / "zonas_semanais"
 OUT_DIR = FM / "relatorios_ia"
 
-EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+# Renderização do mapa usa Playwright (cross-platform). Instalar:
+#   pip install playwright && python -m playwright install chromium
 MODEL = "claude-sonnet-4-6"
 
 # Camadas de pontos pra plotar no mapa (latin-1 universal — vide relatorio_zonas.py)
@@ -239,13 +240,30 @@ def renderizar_mapa(out_png, titulo, ring_lonlat, pontos_layers, n_oc, n_dq, n_f
     try:
         tmp_html = Path(tmp_dir) / "mapa.html"
         tmp_html.write_text(html, encoding="utf-8")
-        url = "file:///" + str(tmp_html).replace("\\", "/")
-        cmd = [EDGE, "--headless", "--disable-gpu", "--no-sandbox",
-               "--window-size=1400,1000", f"--screenshot={out_png}",
-               "--virtual-time-budget=10000", url]
-        subprocess.run(cmd, check=False, capture_output=True, timeout=60)
+
+        # Playwright headless: cross-platform, renderiza Leaflet + tiles + estilos.
+        try:
+            from playwright.sync_api import sync_playwright  # type: ignore
+        except ImportError as e:
+            raise RuntimeError(
+                "Playwright não instalado. Rode: pip install -r requirements.txt "
+                "&& python -m playwright install chromium"
+            ) from e
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(args=["--no-sandbox"])
+            page = browser.new_page(viewport={"width": 1400, "height": 1000})
+            page.goto(f"file://{tmp_html}")
+            try:
+                page.wait_for_function("window.__ready === true", timeout=10000)
+            except Exception:
+                # Mapa pode ter falhado no JS — segue com screenshot do que tem
+                page.wait_for_timeout(2000)
+            page.screenshot(path=out_png, full_page=False)
+            browser.close()
+
         if not Path(out_png).exists():
-            raise RuntimeError("Edge headless não gerou screenshot.")
+            raise RuntimeError("Playwright não gerou screenshot.")
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
@@ -345,15 +363,28 @@ def slug(s):
 
 
 def main():
+    # PIPELINE_REPORT_MAX_ZONAS env: default 8 (todas), 0 = todas, N = primeiras N
+    env_max = int(os.environ.get("PIPELINE_REPORT_MAX_ZONAS", "8"))
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max-zonas", type=int, default=1,
-                        help="Quantas zonas processar (default 1 = smoke).")
+    parser.add_argument("--max-zonas", type=int, default=env_max,
+                        help=f"Quantas zonas processar (default {env_max}; "
+                             f"env PIPELINE_REPORT_MAX_ZONAS; 0 = todas).")
     parser.add_argument("--zonas", type=str, default=None,
                         help="IDs específicos separados por vírgula (ex.: 1,3).")
     args = parser.parse_args()
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        sys.exit("ERRO: ANTHROPIC_API_KEY não configurada.")
+    # Carrega .env via _llm_client (handles fallback se python-dotenv não estiver)
+    try:
+        sys.path.insert(0, str(BASE.parent))
+        from pipeline_steps._llm_client import get_client, is_configured  # type: ignore
+        if not is_configured():
+            sys.exit("ERRO: ANTHROPIC_API_KEY não configurada. cp .env.example .env")
+        client = get_client()
+    except ImportError:
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            sys.exit("ERRO: ANTHROPIC_API_KEY não configurada.")
+        client = anthropic.Anthropic()
+
     if not RELATORIO_JSON.exists():
         sys.exit(f"ERRO: rode relatorio_zonas.py antes; falta {RELATORIO_JSON}")
 
@@ -363,11 +394,11 @@ def main():
     if args.zonas:
         alvo = set(int(x) for x in args.zonas.split(","))
         zonas = [z for z in zonas if z["zona_id"] in alvo]
-    else:
+    elif args.max_zonas > 0:
         zonas = zonas[:args.max_zonas]
+    # se max_zonas == 0, processa todas
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    client = anthropic.Anthropic()
 
     print(f"Modelo: {MODEL}")
     print(f"Processando {len(zonas)} zona(s) da semana "

@@ -1,12 +1,10 @@
 {
   "_ajuda": "Edite os pesos aqui. 'peso' da camada = importancia no bingo (0 ignora). 'pesos_categoria' = peso por subtipo; o que nao estiver listado usa 'peso_categoria_default'. Depois rode: python motor_bingo_semanal.py",
-
   "janela_semanas": 8,
   "grade_m": 250,
-  "cobertura": 0.50,
+  "cobertura": 0.5,
   "min_share_zona": 0.01,
   "n_agentes": 600,
-
   "camadas": {
     "ocorrencias": {
       "ativa": true,
@@ -19,7 +17,6 @@
         "Roubo em coletivo": 1.0
       }
     },
-
     "disque": {
       "ativa": true,
       "peso": 0.6,
@@ -32,7 +29,6 @@
         "CONSUMO DE DROGAS": 0.5
       }
     },
-
     "fatores": {
       "ativa": true,
       "peso": 0.4,

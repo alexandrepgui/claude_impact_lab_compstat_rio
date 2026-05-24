@@ -17,5 +17,7 @@ shapely>=2.0
 anthropic>=0.40
 python-dotenv>=1.0
 
-# --- Reservado para passos futuros (Load .doc) ---
-# python-docx>=1.1
+# --- Step 6 (Load) — Relatórios Analíticos de Área em .docx ---
+python-docx>=1.1
+playwright>=1.40
+# Após pip install, rodar: python -m playwright install chromium

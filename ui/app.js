@@ -18,7 +18,6 @@ const els = {
   skipStub: document.querySelector("#skipStub"),
   dryRun: document.querySelector("#dryRun"),
   selectedSteps: document.querySelector("#selectedSteps"),
-  scorePanel: document.querySelector("#scorePanel"),
   console: document.querySelector("#console"),
   auditLog: document.querySelector("#auditLog"),
   auditBadge: document.querySelector("#auditBadge"),
@@ -200,33 +199,6 @@ function renderRun(run) {
   }
 }
 
-function renderScore(score) {
-  if (!score?.ranking?.length) {
-    els.scorePanel.innerHTML = `<p class="muted">Ainda sem score_ranking.json.</p>`;
-    return;
-  }
-  const meta = [score.version, score.scoreField, score.total ? `${score.total} linhas` : null]
-    .filter(Boolean)
-    .map(escapeHtml)
-    .join(" · ");
-  const rows = score.ranking
-    .map((row) => {
-      const label = row.week ? `${row.name} · sem. ${row.week}` : row.name;
-      return `
-        <div class="score-row">
-          <span>#${row.rank}</span>
-          <strong title="${escapeHtml(label)}">${escapeHtml(label)}</strong>
-          <span>${Number(row.score).toFixed(3)}</span>
-        </div>
-      `;
-    })
-    .join("");
-  els.scorePanel.innerHTML = `
-    ${meta ? `<p class="score-meta">${meta}</p>` : ""}
-    ${rows}
-  `;
-}
-
 function renderAudit(data) {
   state.audit = data;
   els.auditBadge.textContent = data.path || "pipeline_audit.jsonl";
@@ -354,7 +326,6 @@ async function loadPipeline() {
   const data = await response.json();
   state.steps = data.steps;
   renderRun(data.run);
-  renderScore(data.score);
   els.deps.textContent = `deps: ${Object.keys(data.requiredDeps).join(", ")} · LLM: ${data.llmMode}`;
   els.auditLog.textContent = data.auditLog;
   els.fromStep.innerHTML = state.steps.map((step) => `<option value="${step.id}">${step.id}</option>`).join("");
@@ -390,19 +361,12 @@ async function pollRun() {
     state.lastRunStatus = nextStatus;
 
     if (wasActive && !isActive) {
-      await refreshScore();
       await loadAudit();
     }
   } catch (error) {
     els.runBadge.className = "run-badge failed";
     els.runBadge.textContent = "offline";
   }
-}
-
-async function refreshScore() {
-  const response = await fetch("/api/pipeline");
-  const data = await response.json();
-  renderScore(data.score);
 }
 
 function ensurePolling() {

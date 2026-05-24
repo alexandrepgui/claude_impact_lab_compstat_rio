@@ -559,37 +559,6 @@ button:disabled {
   border-bottom: 0;
 }
 
-.score-panel {
-  display: grid;
-  gap: 8px;
-}
-
-.score-meta {
-  margin: 0 0 2px;
-  color: var(--muted);
-  font-size: 0.74rem;
-  line-height: 1.35;
-}
-
-.score-row {
-  display: grid;
-  grid-template-columns: 26px minmax(0, 1fr) 52px;
-  gap: 8px;
-  align-items: center;
-  font-size: 0.8rem;
-}
-
-.score-row strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.score-row span:last-child {
-  text-align: right;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-
 .console-wrap {
   margin-top: 16px;
 }

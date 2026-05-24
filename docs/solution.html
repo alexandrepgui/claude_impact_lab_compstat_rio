@@ -278,9 +278,9 @@
           </tr>
           <tr style="background:var(--plus-soft)">
             <td><strong>RELINTs</strong> <br><code>relints/*.docx</code></td>
-            <td><strong>Desestruturado</strong> — narrativa qualitativa por área FM</td>
-            <td>S3 deveria parsear .docx + extrair via LLM patterns por área. Hoje serve só como gabarito/ground truth.</td>
-            <td>⚠️ <strong>GAP</strong> — S3 atual processa só DD, não os 8 .docx</td>
+            <td><strong>NÃO é input</strong> — é <strong>gabarito do output</strong> que vamos gerar</td>
+            <td>8 RELINTs (1 por área FM) definem a estrutura do nosso <code>.doc</code> final. Servem como template + ground truth pra validação.</td>
+            <td>✓ Referência consultada offline. Não passa por LLM no pipeline.</td>
           </tr>
           <tr>
             <td><strong>Fatores urbanos</strong> <br><code>fatores_urbanos.csv</code></td>
@@ -314,15 +314,72 @@
           </tr>
         </tbody>
       </table>
-      <div class="callout warn">
-        <h3 style="margin-top:0">⚠️ Gap conhecido: RELINTs (.docx)</h3>
-        <p>Os 8 RELINTs (RI_010..RI_017) são <strong>narrativa qualitativa por área</strong> descrevendo dinâmica criminal, modus operandi, fatores ambientais e plano de ação. Hoje servem como:</p>
-        <ul>
-          <li><strong>Ground truth</strong> — template do que o <code>.doc</code> final deve produzir</li>
-          <li><strong>Validação cross-source</strong> — comparar nossa síntese (de DD) com o RELINT da mesma área</li>
-        </ul>
-        <p style="margin-bottom:0">Mas <strong>não estão sendo processados via LLM hoje no S3</strong>. Próximo upgrade: parse <code>.docx</code> (python-docx) + chamada Claude com prompt diferente (documento inteiro, não relato linha-a-linha) → produz <code>relint_estruturado.json</code> com 1 entrada por área. Útil pra enriquecer dinâmica por área no relatório final + cross-validar a extração de DD na mesma região.</p>
+      <div class="callout">
+        <h3 style="margin-top:0">📄 RELINTs = gabarito do output, não input</h3>
+        <p style="margin:0">Os 8 RELINTs (RI_010..RI_017) <strong>não entram na pipeline como input</strong>. Eles são o <strong>template do .doc final</strong> que nossa solução vai gerar (Load step) — estrutura, tom, seções esperadas, profundidade analítica. Servem também como ground truth: depois do pipeline rodar, podemos comparar nosso .doc da área X com o RI_0XX correspondente pra validar qualidade.</p>
       </div>
+    </section>
+
+    <section id="logging">
+      <h2>Logging & observabilidade — pipeline pra visualização web</h2>
+      <div class="callout core">
+        <p style="margin:0"><strong>Regra:</strong> tudo que acontece na pipeline gera evento estruturado no <code>pipeline_audit.jsonl</code>. O time de visualização web consome esse arquivo (tail ou full read) sem precisar parsear stdout.</p>
+      </div>
+
+      <h3>Schema do evento (estável)</h3>
+      <pre><code>{
+  "ts":    "2026-05-24T13:42:11+00:00",  // ISO8601 UTC
+  "event": "s3_llm_extracted",            // snake_case
+  "level": "OK",                          // INFO | OK | WARN | ERR
+  "data":  { "id_denun": "...", "atividade_principal": "DRG-003", "confidence": 0.85 }
+}</code></pre>
+
+      <h3>Eventos emitidos por step</h3>
+      <table>
+        <thead><tr><th style="width:18%">Step</th><th>Eventos típicos</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Orchestrator</strong> <br>(pipeline.py)</td>
+            <td><code>pipeline_start</code> · <code>pre_check_ok|failed</code> · <code>step_N_start</code> · <code>step_N_done|failed|missing</code> · <code>pipeline_end|aborted</code></td>
+          </tr>
+          <tr>
+            <td><strong>S1 — Load</strong></td>
+            <td><code>s1_check_start</code> · <code>s1_check_file</code> (por arquivo, com size_kb) · <code>s1_done</code> (n_present, n_missing, total_mb)</td>
+          </tr>
+          <tr>
+            <td><strong>S2 — Auto</strong></td>
+            <td><code>s2_delegate_start</code> · <code>s2_delegate_failed</code> · <code>s2_done</code> (shapefiles_produced)</td>
+          </tr>
+          <tr>
+            <td><strong>S3 — LLM</strong></td>
+            <td><code>s3_mode_detected</code> · <code>s3_dd_loaded</code> · <code>s3_llm_configured</code> · <code>s3_llm_extracted</code> (por denúncia, com confidence) · <code>s3_llm_low_confidence</code> · <code>s3_llm_extraction_failed</code> · <code>s3_progress</code> (a cada 5 itens) · <code>s3_done</code></td>
+          </tr>
+          <tr>
+            <td><strong>S4 — Consolidate</strong></td>
+            <td><code>s4_v0_start|done|failed</code> · <code>s4_v1_start|done|failed</code> · <code>s4_done</code> (primary_source)</td>
+          </tr>
+          <tr>
+            <td><strong>S5 — Score</strong></td>
+            <td><code>s5_source_selected</code> · <code>s5_ranking_entry</code> (por linha do top 20) · <code>s5_done</code> (top_score, top_name)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>API pros steps (1 import só)</h3>
+      <pre><code>from pipeline_steps._audit import log
+
+log("s1_done", {"n_present": 9, "total_mb": 12.4}, level="OK")
+log("s3_llm_low_confidence", {"id_denun": "X", "confidence": 0.45},
+    level="WARN", echo=False)  # quiet — só audit, não polui console</code></pre>
+
+      <h3>Pra visualização web</h3>
+      <ul>
+        <li><strong>Tail</strong> o arquivo <code>pipeline_audit.jsonl</code> — uma linha por evento, parse com <code>JSON.parse(line)</code></li>
+        <li><strong>Filtros úteis</strong>: <code>event.startsWith('sN_')</code> pra ver só um step · <code>level=ERR</code> pra falhas · <code>data.confidence &lt; 0.6</code> pra fila humana</li>
+        <li><strong>Progress bar</strong>: pega eventos <code>s3_progress</code> com <code>data.done / data.total</code></li>
+        <li><strong>Heatmap de eventos por minuto</strong>: bucketize por <code>ts</code></li>
+        <li><strong>Detalhe expansível</strong>: cada linha em UI pode expandir pra ver <code>data</code> completo</li>
+      </ul>
     </section>
 
     <section id="transform-pipeline">
@@ -860,7 +917,9 @@
           <tr><td>13:00~</td><td>Período da fact table mudou de <code>YYYY-MM</code> para <code>YYYY-WW</code> + janela móvel de 8 semanas.</td><td>Granularidade do motor real. Mensal era proxy do mes/ano vazio em ocorrências; semana é a unidade operacional do CompStat (reunião terça).</td></tr>
           <tr><td>13:00~</td><td>Pesos por camada: ocorrências=1.0, disque=0.6, fatores=0.4. Pesos por categoria: roubo transeunte=2.0, iluminação ruim=2.0, consumo drogas=0.5.</td><td>Codifica prioridades do CompStat (foco máximo em roubo a transeunte, iluminação ligada a noturno) em vez de média uniforme.</td></tr>
           <tr><td>13:30~</td><td>Pipeline fechada: S3 LLM extraction real (auto-detect API key, sample 5 default, vocab 30 IDs) · S4 v0+v1 (analise_grade + motor_bingo_semanal) · S5 v1-first com fallback v0.</td><td>End-to-end runnable. <code>python pipeline.py</code> sem args funciona. Time pode iterar nos pesos do config_pesos.json sem mexer no código.</td></tr>
-          <tr><td>14:00~</td><td>Esclarecido: <strong>S3 processa só DD</strong> (texto livre). Ocorrências/fatores/câmeras são estruturados (S2 só). <strong>RELINTs ainda fora do S3</strong> — gap conhecido pra upgrade futuro.</td><td>Confusão potencial: "desestruturado" ≠ "todos os dados textuais". DD tem free text por denúncia; RELINTs têm narrativa por área. São cargas diferentes que precisam de prompts diferentes.</td></tr>
+          <tr><td>14:00~</td><td>Esclarecido: <strong>S3 processa só DD</strong> (texto livre). Ocorrências/fatores/câmeras são estruturados (S2 só).</td><td>"Desestruturado" no sentido pipeline ≠ "qualquer texto". DD tem free text por denúncia.</td></tr>
+          <tr><td>14:15~</td><td>Correção: <strong>RELINTs são OUTPUT, não input</strong>. Gabarito do .doc final que vamos gerar (Load), não fonte de dados qualitativos pra ingerir.</td><td>Eu havia categorizado RELINTs como "desestruturado pra LLM ingerir" — errado. Eles definem a forma do output, não alimentam o score.</td></tr>
+          <tr><td>14:30~</td><td>Logging estruturado: criado <code>pipeline_steps/_audit.py</code> com schema JSONL estável. Todos os steps emitem eventos consumíveis pela visualização web.</td><td>Visualização web é trabalho paralelo do time. Padronizar evento (ts, event, level, data) é o contrato pra integração — web só tail no arquivo, sem parsear stdout.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
           <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>

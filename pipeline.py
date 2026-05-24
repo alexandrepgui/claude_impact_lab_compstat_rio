@@ -25,15 +25,18 @@ Audit log: pipeline_audit.jsonl (1 entrada JSON por linha).
 
 from __future__ import annotations
 import argparse
-import json
+import os
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent
 STEPS_DIR = REPO_ROOT / "pipeline_steps"
 AUDIT_LOG = REPO_ROOT / "pipeline_audit.jsonl"
+
+# Garante que `pipeline_steps` é importável quando rodando como subprocess.
+sys.path.insert(0, str(REPO_ROOT))
+from pipeline_steps._audit import log as log_event  # noqa: E402
 
 # Deps usadas pelos scripts da pipeline (verificadas em pre-check)
 REQUIRED_DEPS = {
@@ -82,21 +85,6 @@ STEPS = [
 ]
 
 
-def log_event(event: str, data: dict | None = None, level: str = "INFO") -> None:
-    entry = {
-        "ts": datetime.now(timezone.utc).isoformat(),
-        "event": event,
-        "level": level,
-        "data": data or {},
-    }
-    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with AUDIT_LOG.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-    icon = {"INFO": "•", "OK": "✓", "WARN": "⚠", "ERR": "✗"}.get(level, "·")
-    msg = f" {data}" if data else ""
-    print(f"  {icon} {event}{msg}")
-
-
 def check_deps() -> bool:
     """Verifica que as deps Python estão instaladas antes de tentar rodar."""
     missing = []
@@ -130,11 +118,18 @@ def run_step(step: dict) -> bool:
         return False
 
     log_event(f"{label}_start", {"name": step["name"], "owner": step["owner"]})
+
+    # PYTHONPATH inclui REPO_ROOT pra que steps possam fazer
+    # `from pipeline_steps._audit import log`
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT) + os.pathsep + env.get("PYTHONPATH", "")
+
     proc = subprocess.run(
         [sys.executable, str(script)],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
+        env=env,
     )
     # Echo stdout to user (preserve visibility durante execução).
     if proc.stdout:

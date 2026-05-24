@@ -8,14 +8,6 @@ canônicos em `shapefiles_qgis/<fonte>/`.
 
 Delega pro script existente `shapefiles_qgis/gerar_shapefiles.py`, que
 faz tudo isso em ~520 linhas. Owner: Alexandre.
-
-Saídas (cada uma com .shp + .shx + .dbf + .prj + .cpg):
-  shapefiles_qgis/ocorrencias/ocorrencias.shp        (115.354 pontos)
-  shapefiles_qgis/disk_denuncia/disk_denuncia.shp    (17.850 pontos, 1/denúncia)
-  shapefiles_qgis/fatores_urbanos/fatores_urbanos.shp (2.085 pontos)
-  shapefiles_qgis/cameras/cameras.shp                (985 pontos)
-  shapefiles_qgis/dominio_territorial/dominio_territorial.shp
-  shapefiles_qgis/cpsr/cpsr.shp                      (Censo PSR)
 """
 
 from __future__ import annotations
@@ -23,25 +15,44 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Garante que pipeline_steps seja importável (quando rodando direto)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pipeline_steps._audit import log  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = REPO_ROOT / "shapefiles_qgis" / "gerar_shapefiles.py"
 
 
 def main() -> int:
     if not SCRIPT.exists():
-        print(f"[s2] ERR: script não encontrado: {SCRIPT}", file=sys.stderr)
+        log("s2_script_missing", {"path": str(SCRIPT)}, level="ERR")
         return 2
 
-    print(f"[s2] Delegando para {SCRIPT.relative_to(REPO_ROOT)}")
+    log("s2_delegate_start", {"script": str(SCRIPT.relative_to(REPO_ROOT))})
     proc = subprocess.run(
         [sys.executable, str(SCRIPT)],
         cwd=SCRIPT.parent,
     )
     if proc.returncode != 0:
-        print(f"[s2] ERR: gerar_shapefiles.py retornou {proc.returncode}", file=sys.stderr)
+        log("s2_delegate_failed", {"returncode": proc.returncode}, level="ERR")
         return proc.returncode
 
-    print(f"[s2] Treatments automáticos aplicados. Shapefiles em shapefiles_qgis/")
+    # Sanity check: shapefiles esperados existem
+    expected_shapes = [
+        "ocorrencias/ocorrencias.shp",
+        "disk_denuncia/disk_denuncia.shp",
+        "fatores_urbanos/fatores_urbanos.shp",
+        "cameras/cameras.shp",
+        "dominio_territorial/dominio_territorial.shp",
+        "cpsr/cpsr.shp",
+    ]
+    base = REPO_ROOT / "shapefiles_qgis"
+    found = [p for p in expected_shapes if (base / p).exists()]
+    log(
+        "s2_done",
+        {"shapefiles_produced": len(found), "expected": len(expected_shapes), "outputs": found},
+        level="OK",
+    )
     return 0
 
 

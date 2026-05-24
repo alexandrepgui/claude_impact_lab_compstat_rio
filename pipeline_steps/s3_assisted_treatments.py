@@ -32,6 +32,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Garante que pipeline_steps seja importável (quando rodando direto)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pipeline_steps._audit import log  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DD_BASE = REPO_ROOT / "shapefiles_qgis" / "disk_denuncia" / "disk_denuncia"
 OUT_JSONL = REPO_ROOT / "relato_estruturado.jsonl"
@@ -159,6 +163,7 @@ def _read_dd_records():
 
 def _stub_run(reason: str) -> int:
     """Modo stub: escreve outputs vazios sem custo."""
+    log("s3_mode_detected", {"mode": "stub", "reason": reason}, level="WARN")
     now = datetime.now(timezone.utc).isoformat()
     OUT_JSONL.write_text("", encoding="utf-8")
     REVIEW_QUEUE.write_text(
@@ -174,9 +179,7 @@ def _stub_run(reason: str) -> int:
         ),
         encoding="utf-8",
     )
-    print(f"[s3] STUB ({reason}) — outputs vazios escritos.")
-    print(f"[s3]   {OUT_JSONL.relative_to(REPO_ROOT)}")
-    print(f"[s3]   {REVIEW_QUEUE.relative_to(REPO_ROOT)}")
+    log("s3_done", {"mode": "stub", "n_extracted": 0, "n_review": 0}, level="OK")
     return 0
 
 
@@ -209,18 +212,18 @@ def main() -> int:
         return _stub_run("ANTHROPIC_API_KEY não configurada (esperado em CI sem segredo)")
 
     # Read DD
-    print(f"[s3] Lendo disk_denuncia.shp...")
     records = _read_dd_records()
     total = len(records)
-    print(f"[s3]   {total} denúncias com relato + dentro do RJ")
+    log("s3_dd_loaded", {"n_with_relato_in_rio": total}, level="OK")
 
     # Sample logic
     if args.all:
         target = records
-        print(f"[s3] Modo --all: processando todos os {total} relatos")
+        mode = "all"
     else:
         target = records[: args.sample]
-        print(f"[s3] Modo sample: processando os primeiros {len(target)} de {total}")
+        mode = "sample"
+    log("s3_mode_detected", {"mode": mode, "n_to_process": len(target), "n_total_available": total})
 
     # LLM setup
     client = get_client()
@@ -229,9 +232,15 @@ def main() -> int:
     temperature = get_temperature()
     threshold = get_threshold()
 
-    print(f"[s3] Modelo: {model} (max_tokens={max_tokens}, temp={temperature})")
-    print(f"[s3] Threshold de confiança pra revisão humana: {threshold}")
-    print()
+    log(
+        "s3_llm_configured",
+        {
+            "model": model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "threshold": threshold,
+        },
+    )
 
     results = []
     review_queue = []
@@ -269,6 +278,27 @@ def main() -> int:
                     "confidence": confidence,
                     "extracted": extracted,
                 })
+                log(
+                    "s3_llm_low_confidence",
+                    {
+                        "id_denun": rec.get("id_denun"),
+                        "confidence": confidence,
+                        "atividade_principal": extracted.get("atividade_principal"),
+                    },
+                    level="WARN",
+                    echo=False,  # quiet — só vai pra audit, não polui o console
+                )
+            else:
+                log(
+                    "s3_llm_extracted",
+                    {
+                        "id_denun": rec.get("id_denun"),
+                        "atividade_principal": extracted.get("atividade_principal"),
+                        "confidence": confidence,
+                    },
+                    level="OK",
+                    echo=False,
+                )
 
             results.append(extracted)
 
@@ -279,12 +309,26 @@ def main() -> int:
                 "error": str(e)[:300],
                 "relato_preview": relato[:120],
             })
+            log(
+                "s3_llm_extraction_failed",
+                {"id_denun": rec.get("id_denun"), "error": str(e)[:200]},
+                level="ERR",
+                echo=False,
+            )
 
         if i % 5 == 0 or i == len(target):
             elapsed = time.time() - started
             avg = elapsed / i
             eta = avg * (len(target) - i)
-            print(f"  ...{i}/{len(target)}  (elapsed {elapsed:.0f}s  ETA {eta:.0f}s)")
+            log(
+                "s3_progress",
+                {
+                    "done": i,
+                    "total": len(target),
+                    "elapsed_s": round(elapsed, 1),
+                    "eta_s": round(eta, 1),
+                },
+            )
 
     # Persist outputs
     with OUT_JSONL.open("w", encoding="utf-8") as f:
@@ -307,11 +351,19 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    print(f"\n[s3] Done.")
-    print(f"[s3]   Extraídos: {len(results)}")
-    print(f"[s3]   Fila revisão: {len(review_queue)}")
-    print(f"[s3]   Output: {OUT_JSONL.relative_to(REPO_ROOT)}")
-    print(f"[s3]   Queue:  {REVIEW_QUEUE.relative_to(REPO_ROOT)}")
+    log(
+        "s3_done",
+        {
+            "mode": mode,
+            "n_extracted_ok": len(results),
+            "n_review_queue": len(review_queue),
+            "n_processed": len(target),
+            "elapsed_s": round(time.time() - started, 1),
+            "output_jsonl": str(OUT_JSONL.relative_to(REPO_ROOT)),
+            "review_queue": str(REVIEW_QUEUE.relative_to(REPO_ROOT)),
+        },
+        level="OK",
+    )
     return 0
 
 

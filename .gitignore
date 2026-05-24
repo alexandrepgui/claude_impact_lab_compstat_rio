@@ -17,6 +17,7 @@ __pycache__/
 pipeline_audit.jsonl
 review_queue.json
 score_ranking.json
+relato_estruturado.jsonl
 
 # Secrets — NUNCA committar API keys
 .env

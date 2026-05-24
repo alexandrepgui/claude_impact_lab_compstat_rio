@@ -60,6 +60,14 @@ PRJ_WGS84 = (
 RIO = dict(lat_min=-23.15, lat_max=-22.70, lon_min=-43.85, lon_max=-43.05)
 ANO_MIN, ANO_MAX = 2020, 2024
 
+# Grade do heatmap (lat/lon) — mesmo passo que o motor antigo (250 m)
+GRADE_M = 250
+LAT_REF = -22.9
+M_PER_DEG_LAT = 110574.0
+M_PER_DEG_LON = 111320.0 * math.cos(math.radians(abs(LAT_REF)))
+DLAT_HEAT = GRADE_M / M_PER_DEG_LAT
+DLON_HEAT = GRADE_M / M_PER_DEG_LON
+
 # Buffer ao redor do logradouro para coletar pontos
 BUFFER_PONTOS_M = 100
 # Buffer ao redor do logradouro selecionado para formar o polígono final
@@ -142,7 +150,7 @@ def carregar_logradouros(to_utm):
 
 
 def carregar_pontos(layer_name, cfg_cam, to_utm):
-    """Devolve [(point_utm_xy, peso, data_or_None)] para a camada."""
+    """Devolve [(x_utm, y_utm, lon, lat, peso, data)] para a camada."""
     spec = LAYER_SPECS[layer_name]
     r = shapefile.Reader(str(BASE / spec["path"]), encoding=spec["encoding"])
     field_names = [f[0] for f in r.fields[1:]]
@@ -168,7 +176,7 @@ def carregar_pontos(layer_name, cfg_cam, to_utm):
             if data is None or not (ANO_MIN <= data.year <= ANO_MAX):
                 continue
         x, y = to_utm.transform(lon, lat)
-        out.append((x, y, peso, data))
+        out.append((x, y, lon, lat, peso, data))
     return out
 
 
@@ -316,29 +324,39 @@ def main():
         weeks.append((iso[0], iso[1], d))
         d += timedelta(days=7)
 
+    # heat_temporal[(ano,sem)][(ix,iy)] = score acumulado da célula
+    heat_temporal = defaultdict(lambda: defaultdict(float))
+    heat_estatico = defaultdict(float)
+
     for nome, pts in pontos_por_camada.items():
         peso_camada = cams[nome]["peso"]
         spec = LAYER_SPECS[nome]
-        for x, y, peso, data in pts:
+        for x, y, lon, lat, peso, data in pts:
             p = Point(x, y)
             idxs = tree.query(p)
-            if len(idxs) == 0:
-                continue
-            # filtra pra os buffers que realmente contém o ponto
             hits = [int(i) for i in idxs if logr_buffs[int(i)].contains(p)]
-            if not hits:
-                continue
-            # ponto pode estar em N logradouros (e.g. esquina) — distribui igual
-            share = (peso * peso_camada) / len(hits)
+            # Score por logradouro (mesma lógica de antes)
+            if hits:
+                share = (peso * peso_camada) / len(hits)
+                if spec["temporal"]:
+                    iso = data.isocalendar()
+                    key = (iso[0], iso[1])
+                    bucket = score_temporal[key]
+                    for i in hits:
+                        bucket[i] += share
+                else:
+                    for i in hits:
+                        score_estatico[i] += share
+            # Heatmap por célula 250 m (todos os pontos contribuem, não só
+            # os perto de Arteriais)
+            cell = (int((lon - RIO["lon_min"]) / DLON_HEAT),
+                    int((lat - RIO["lat_min"]) / DLAT_HEAT))
+            v = peso * peso_camada
             if spec["temporal"]:
                 iso = data.isocalendar()
-                key = (iso[0], iso[1])
-                bucket = score_temporal[key]
-                for i in hits:
-                    bucket[i] += share
+                heat_temporal[(iso[0], iso[1])][cell] += v
             else:
-                for i in hits:
-                    score_estatico[i] += share
+                heat_estatico[cell] += v
     print(f"  semanas com sinal: {len(score_temporal)}")
 
     # 4) Para cada semana selecionada: compõe score (janela móvel) e gera zonas
@@ -361,6 +379,23 @@ def main():
     w.field("score", "N", 14, 4)
     w.field("pct", "N", 7, 2)
     w.field("n_cel", "N", 6)  # mantém schema; aqui = #logradouros usados (não usamos cells)
+
+    # Pré-calcula p95 do heat (estabilizador do gradiente)
+    print("Calculando escala do heatmap (p95)...")
+    heat_amostra = []
+    for sem in (semanas_alvo if len(semanas_alvo) <= 5 else semanas_alvo[::20]):
+        idx_s = week_index[sem]
+        compor = defaultdict(float)
+        for j in range(max(0, idx_s - W + 1), idx_s + 1):
+            wk = (weeks[j][0], weeks[j][1])
+            for c, v in heat_temporal.get(wk, {}).items():
+                compor[c] += v
+        for c, v in heat_estatico.items():
+            compor[c] += v
+        heat_amostra.extend(v for v in compor.values() if v > 0)
+    heat_amostra.sort()
+    heatmax = heat_amostra[int(0.95 * (len(heat_amostra) - 1))] if heat_amostra else 1.0
+    print(f"  heatmax (p95) = {heatmax:.2f}")
 
     total_features = 0
     weeks_html = []
@@ -452,10 +487,24 @@ def main():
                 "poly": html_poly,
             })
 
+        # heat da semana (janela móvel para temporais + estáticos)
+        heat_sem = defaultdict(float)
+        for j in range(max(0, idx_sem - W + 1), idx_sem + 1):
+            wk = (weeks[j][0], weeks[j][1])
+            for c, v in heat_temporal.get(wk, {}).items():
+                heat_sem[c] += v
+        for c, v in heat_estatico.items():
+            heat_sem[c] += v
+        # Limiar pra cortar cauda (mantém HTML leve)
+        thr = 0.10 * heatmax
+        hp = [[ix, iy, round(v, 2)] for (ix, iy), v in heat_sem.items()
+              if v >= thr]
+
         weeks_html.append({
             "l": f"{ano}-S{isem:02d}",
             "d": seg.isoformat(),
             "z": zonas_html_semana,
+            "hp": hp,
         })
 
     w.close()
@@ -467,7 +516,13 @@ def main():
     print(f"-> {OUT_SHP}.shp")
 
     # HTML interativo
-    escrever_html(weeks_html, W)
+    grid = {
+        "lon0": round(RIO["lon_min"], 8),
+        "lat0": round(RIO["lat_min"], 8),
+        "dlon": round(DLON_HEAT, 8),
+        "dlat": round(DLAT_HEAT, 8),
+    }
+    escrever_html(weeks_html, W, grid, heatmax)
 
 
 HTML_TMPL = r"""<!DOCTYPE html>
@@ -476,6 +531,7 @@ HTML_TMPL = r"""<!DOCTYPE html>
 <title>CompStat Rio — Zonas FM (logradouros)</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <style>
  html,body{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif}
  #map{position:absolute;inset:0}
@@ -491,6 +547,7 @@ HTML_TMPL = r"""<!DOCTYPE html>
  .leg{position:absolute;z-index:1000;right:10px;bottom:18px;background:rgba(255,255,255,.95);
   padding:10px 12px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.3);font-size:12px;max-width:280px}
  .swatch{display:inline-block;width:16px;height:10px;margin-right:6px;vertical-align:middle}
+ .barra{height:10px;border-radius:5px;background:linear-gradient(90deg,#3b3,#ff3,#f80,#f00);margin:4px 0}
  .zlbl{background:rgba(0,0,0,.7);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:bold;white-space:nowrap}
 </style></head><body>
 <div id="map"></div>
@@ -505,20 +562,27 @@ HTML_TMPL = r"""<!DOCTYPE html>
  </div>
 </div>
 <div class="leg">
+ <b>Heatmap (bingo da semana)</b>
+ <div class="barra"></div>
+ <div style="display:flex;justify-content:space-between"><span>menor</span><span>maior</span></div>
+ <hr/>
  <b>Zonas ótimas da FM</b><br/>
  <span class="swatch" style="background:rgba(180,30,30,.30);border:1.5px solid #700"></span>
  Polígono limitado por logradouros (Arteriais).<br/>
- Cor mais intensa = mais agentes.<br/>
- <em>Comparar com sh_area_forca atual.</em>
+ Cor mais intensa = mais agentes.
 </div>
 <script>
-const WEEKS=__WEEKS__, CENTER=[-22.93,-43.30];
+const WEEKS=__WEEKS__, GRID=__GRID__, HEATMAX=__HEATMAX__, CENTER=[-22.93,-43.30];
 const map=L.map('map').setView(CENTER,11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+const heat=L.heatLayer([],{radius:22,blur:18,minOpacity:.35,max:HEATMAX,
+  gradient:{0.2:'#33aa33',0.45:'#ffff33',0.7:'#ff8800',1.0:'#ff0000'}}).addTo(map);
 const zlayer=L.layerGroup().addTo(map);
 function maxAg(z){return Math.max(1,...z.map(o=>o.a));}
+function pts(i){return WEEKS[i].hp.map(([ix,iy,w])=>[GRID.lat0+(iy+0.5)*GRID.dlat,GRID.lon0+(ix+0.5)*GRID.dlon,w]);}
 function desenha(i){
+  heat.setLatLngs(pts(i));
   zlayer.clearLayers();
   const W=WEEKS[i], mx=maxAg(W.z);
   let total_ag=0;
@@ -552,10 +616,12 @@ desenha(WEEKS.length-1);   // começa na última semana
 """
 
 
-def escrever_html(weeks, janela):
+def escrever_html(weeks, janela, grid, heatmax):
     out = FM / "visualizacao_semanal.html"
     html = HTML_TMPL
     html = html.replace("__WEEKS__", json.dumps(weeks, separators=(",", ":")))
+    html = html.replace("__GRID__", json.dumps(grid))
+    html = html.replace("__HEATMAX__", str(round(heatmax, 2)))
     html = html.replace("__JANELA__", str(janela))
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)

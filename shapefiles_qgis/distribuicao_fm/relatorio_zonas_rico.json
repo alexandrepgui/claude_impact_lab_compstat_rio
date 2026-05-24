@@ -1,0 +1,4244 @@
+{
+  "semana": {
+    "iso_ano": 2025,
+    "iso_sem": 1,
+    "segunda_feira": "2024-12-30"
+  },
+  "parametros": {
+    "n_agentes_total": 600,
+    "n_zonas": 7,
+    "janela_semanas_bingo": 8,
+    "grade_metros": 250
+  },
+  "zonas": [
+    {
+      "local_rotulo": "Centro",
+      "centroide": {
+        "lat": -22.91038,
+        "lon": -43.18543
+      },
+      "bbox": {
+        "lat_min": -22.923907,
+        "lat_max": -22.896776,
+        "lon_min": -43.196637,
+        "lon_max": -43.174696
+      },
+      "area_km2": 5.531,
+      "n_celulas": 53,
+      "agentes_alocados": 169,
+      "score": 42.7685,
+      "pct_indice_semana": 6.41,
+      "ocorrencias": {
+        "total": 10576,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 7169
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 2810
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 597
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 20,
+            "n": 794
+          },
+          {
+            "valor": 23,
+            "n": 724
+          },
+          {
+            "valor": 22,
+            "n": 715
+          },
+          {
+            "valor": 21,
+            "n": 709
+          },
+          {
+            "valor": 5,
+            "n": 675
+          },
+          {
+            "valor": 19,
+            "n": 652
+          },
+          {
+            "valor": 6,
+            "n": 589
+          },
+          {
+            "valor": 3,
+            "n": 533
+          },
+          {
+            "valor": 4,
+            "n": 502
+          },
+          {
+            "valor": 2,
+            "n": 472
+          },
+          {
+            "valor": 18,
+            "n": 462
+          },
+          {
+            "valor": 0,
+            "n": 441
+          },
+          {
+            "valor": 1,
+            "n": 393
+          },
+          {
+            "valor": 17,
+            "n": 351
+          },
+          {
+            "valor": 7,
+            "n": 334
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Sabado",
+            "n": 1928
+          },
+          {
+            "valor": "Domingo",
+            "n": 1777
+          },
+          {
+            "valor": "Sexta",
+            "n": 1726
+          },
+          {
+            "valor": "Segunda",
+            "n": 1419
+          },
+          {
+            "valor": "Terca",
+            "n": 1360
+          },
+          {
+            "valor": "Quinta",
+            "n": 1243
+          },
+          {
+            "valor": "Quarta",
+            "n": 1120
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 2107,
+          "2021": 2067,
+          "2022": 2186,
+          "2023": 1856,
+          "2024": 2360
+        },
+        "top_logradouros": [
+          {
+            "valor": "Avenida Presidente Vargas",
+            "n": 765
+          },
+          {
+            "valor": "Avenida Avenida Presidente Vargas",
+            "n": 605
+          },
+          {
+            "valor": "Avenida Mem De Sa",
+            "n": 468
+          },
+          {
+            "valor": "Avenida Avenida Mem De Sa",
+            "n": 392
+          },
+          {
+            "valor": "Avenida Rio Branco",
+            "n": 317
+          },
+          {
+            "valor": "Rua Riachuelo",
+            "n": 252
+          },
+          {
+            "valor": "Rua Dos Arcos",
+            "n": 188
+          },
+          {
+            "valor": "Rua Do Passeio",
+            "n": 180
+          },
+          {
+            "valor": "Avenida Avenida Rio Branco",
+            "n": 148
+          },
+          {
+            "valor": "Avenida Gomes Freire",
+            "n": 148
+          },
+          {
+            "valor": "Rua Rua Riachuelo",
+            "n": 141
+          },
+          {
+            "valor": "Rua Primeiro De Marco",
+            "n": 133
+          },
+          {
+            "valor": "Rua Uruguaiana",
+            "n": 108
+          },
+          {
+            "valor": "Rua Do Resende",
+            "n": 107
+          },
+          {
+            "valor": "Avenida Avenida Republica Do Chile",
+            "n": 106
+          }
+        ]
+      },
+      "disque": {
+        "total": 824,
+        "top_tipos": [
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 406
+          },
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 350
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 31
+          },
+          {
+            "valor": "ROUBO EM TRANSP COLETIVOS",
+            "n": 20
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 17
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 474
+          },
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 350
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Centro",
+            "n": 599
+          },
+          {
+            "valor": "Santa Teresa",
+            "n": 145
+          },
+          {
+            "valor": "Gloria",
+            "n": 17
+          },
+          {
+            "valor": "Catumbi - 1? Aisp",
+            "n": 14
+          },
+          {
+            "valor": "Saude",
+            "n": 13
+          },
+          {
+            "valor": "Catumbi",
+            "n": 7
+          },
+          {
+            "valor": "Lapa",
+            "n": 5
+          },
+          {
+            "valor": "Catete",
+            "n": 4
+          },
+          {
+            "valor": "Gamboa",
+            "n": 4
+          },
+          {
+            "valor": "Cinelandia",
+            "n": 4
+          },
+          {
+            "valor": "Santa Tereza",
+            "n": 3
+          },
+          {
+            "valor": "Centro Do Rio",
+            "n": 2
+          },
+          {
+            "valor": "Ilha Do Governador",
+            "n": 1
+          },
+          {
+            "valor": "Central Do Brasil",
+            "n": 1
+          },
+          {
+            "valor": "Iracema",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "AV Presidente Vargas",
+            "n": 62
+          },
+          {
+            "valor": "AV Mem De Sa",
+            "n": 44
+          },
+          {
+            "valor": "R Riachuelo",
+            "n": 34
+          },
+          {
+            "valor": "R Uruguaiana",
+            "n": 32
+          },
+          {
+            "valor": "R Andre Cavalcanti",
+            "n": 30
+          },
+          {
+            "valor": "LD Frei Orlando",
+            "n": 29
+          },
+          {
+            "valor": "R Costa Bastos",
+            "n": 21
+          },
+          {
+            "valor": "R Monte Alegre",
+            "n": 19
+          },
+          {
+            "valor": "R Leandro Martins",
+            "n": 14
+          },
+          {
+            "valor": "AV Rio Branco",
+            "n": 14
+          },
+          {
+            "valor": "R Resende, Do",
+            "n": 12
+          },
+          {
+            "valor": "PC Cristiano Ottoni",
+            "n": 11
+          },
+          {
+            "valor": "R Joaquim Silva",
+            "n": 11
+          },
+          {
+            "valor": "R Barao De Sao Felix",
+            "n": 11
+          },
+          {
+            "valor": "R Ubaldino Do Amaral",
+            "n": 10
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 103,
+          "2020": 115,
+          "2021": 123,
+          "2022": 118,
+          "2023": 79,
+          "2024": 102,
+          "2025": 147,
+          "2026": 37
+        },
+        "amostras_relato": [
+          "NO ENDERECO CITADO PROXIMO AO HOSPITAL [NOME] DOR LOCALIZASE O CONDOMINIO VIVENDA ONDE RESIDE A IDOSA [NOME] 74 ANOS QUE NESTE MOMENTO ESTA SENDO AGREDIDA VERBALMENTE COM GRITOS E  FISICAMENTE POR PARTE DA [NOME] DE CRIACAO [NOME] QUE ESTA DROGADA EXACER",
+          "NA RUA CITADA EM FRENTE AO N 82 OITENTA E DOIS ESQUINA COM A AVENIDA RIO [NOME] ONDE NESTE MOMENTO HA UM INDIVIDUO NO LOCAL VENDENDO CIGARROS DE MACONHA PARA OUTROS USUARIOS NAO CARACTERIZADOS ALGUNS DOS CITADOS ESTAO FUMANDO O CIGARRO ALI NO LOCAL MESMO",
+          "NA PRACA MENCIONADA NA ESQUINA DO OUTRO LADO DA POLICIA PRESENTE EMBAIXO DO SEMAFORO ATRAS DA BANCA DE JORNAL NESTE MOMENTO ENCONTRAMSE TRES INDIVIDUOS CARACTERIZADOS DROGADOS E UM DELES QUE USA CAMISA NA COR LARANJA ESTA ASSALTANDO PESSOAS NAO IDENTIFIC",
+          "NO ENDERECO MENCIONADO ESQUINA COM A RUA MEM DE SA LOCALIZASE UMA CLINICA DE HEMODIALISE QUE SE ENCONTRA FECHAD  ONDE PODE SER VISTO [NOME] QUE ESTA ROUBANDO TUDO QUE TEM DA CLINICA E JOGANDO POR JANELAS ABERTAS NA LATERAL DO EDIFICIO FACILITANDO A ENTRA",
+          "NO ENDERECO CITADO LOCALIZASE UMA CASA ONDE RESIDE [NOME] DOS [NOME] NAO CARACTERIZADA QUE VEM PRATICANDO MAUS TRATOS CONTRA SEU PAI [NOME] NAO CARACTERIZADO DE 70 ANOS [NOME] INFORMACOES ELA PRATICA FURTOS NA LOCALIDADE E UTILIZA DINHEIRO DO BENEFICIO B",
+          "NO ENDERECO CITADO SEM REFERENCIA LOCALIZASE UM APARTAMENTO ONDE RESIDE UMA MULHER TRANS NAO IDENTIFICADA QUE FREQUENTEMENTE CONSOME DROGAS DE FORMA DESENFREADA E AGRIDE FISICAMENTE E PROFERE INJURIAS E AMEACAS CONTRA SEU IRMAO NAO IDENTIFICADO QUE POSSU",
+          "NA RUA MENCIONADA PROXIMO AO CEMITERIO SAO [NOME] DE [NOME] EM FRENTE AO N 89 OITENTA E NOVE NESTE MOMENTO INDIVIDUO NAO IDENTIFICADO ESTACIONOU UM ALTO MODELO E PLACA NAO DESCRITO [NOME] COM CAIXAS DE SOM AUTOMOTIVA E OUVE MUSICA EM VOLUME ALTISSIMO E C",
+          "NA RUA MENCIONADA ESQUINA COM A RUA DO RIACHUELO EM FRENTE AO N 69 SESSENTA E NOVE NESTE MOMENTO TRAFICANTES NAO IDENTIFICADOS PERTENCENTES A FACCAO DO COMANDO VERMELHO ESTAO NO LOCAL COMERCIALIZANDO E CONSUMINDO ENTORPECENTES COM O SOM ALTO ALEM DOS LIM",
+          "NO ENDERECO CITADO EM CIMA DO BAR PAVILHAO DA LAPA LOCALIZASE UM SOBRADO ONDE NESTE MOMENTO INDIVIDUOS NAO IDENTIFICADOS REALIZAM UM FORRO PARA COMERCIALIZACAO DE ENTORPECENTES CONSUMIDORES UTILIZAM AS DROGAS NO MESMO LOCAL INCOMODANDO MORADORES DA REGIA",
+          "NO ENDERECO MENCIONADO NO CINEMA [NOME] O QUAL FUNCIONA DE SEGUNDA A SABADO DAS 12H AS 18H PESSOAS TEM RELACOES SEXUAIS DENTRO DO CINEMA FAZEM USO DE ENTORPECENTES ALEM DE OCORREREM ASSALTOS HA CONIVENCIA DOS FUNCIONARIOS DO ESTABELECIMENTO COM A APROXIM"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 101,
+        "top_tipos": [
+          {
+            "valor": "Pessoas em situação de rua",
+            "n": 27
+          },
+          {
+            "valor": "Vegetação encobrindo iluminação pública",
+            "n": 14
+          },
+          {
+            "valor": "Ponto de retenção do tráfego",
+            "n": 12
+          },
+          {
+            "valor": "Comércio irregular obstruindo a visibilidade do passeio",
+            "n": 7
+          },
+          {
+            "valor": "Calçada estreita forçando pedestres à pista",
+            "n": 6
+          },
+          {
+            "valor": "Cena de uso de drogas",
+            "n": 6
+          },
+          {
+            "valor": "Motocicletas trafegando no passeio",
+            "n": 5
+          },
+          {
+            "valor": "Sem ocorrência",
+            "n": 5
+          },
+          {
+            "valor": "Mobiliário/estrutura servindo de esconderijo",
+            "n": 4
+          },
+          {
+            "valor": "Praças e Parques",
+            "n": 4
+          },
+          {
+            "valor": "Vegetação obstruindo a visibilidade do passeio",
+            "n": 3
+          },
+          {
+            "valor": "Área mal iluminada com circulação de pedestres",
+            "n": 2
+          },
+          {
+            "valor": "Mobiliário urbano desviando pedestres para a pista",
+            "n": 2
+          },
+          {
+            "valor": "Estacionamento irregular forçando pedestres à pista",
+            "n": 2
+          },
+          {
+            "valor": "Veículos de grande porte obstruindo a visibilidade",
+            "n": 1
+          }
+        ],
+        "top_orgaos_responsaveis": [
+          {
+            "valor": "SMAS",
+            "n": 33
+          },
+          {
+            "valor": "COMLURB",
+            "n": 17
+          },
+          {
+            "valor": "SECONSERVA",
+            "n": 13
+          },
+          {
+            "valor": "CET-Rio",
+            "n": 12
+          },
+          {
+            "valor": "SEOP",
+            "n": 10
+          },
+          {
+            "valor": "GM-Rio",
+            "n": 5
+          },
+          {
+            "valor": "Rio Luz",
+            "n": 2
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "Avenida Presidente Vargas",
+            "n": 45
+          },
+          {
+            "valor": "Rua Santana",
+            "n": 13
+          },
+          {
+            "valor": "Rua Frei Caneca",
+            "n": 8
+          },
+          {
+            "valor": "Rua Uruguaiana",
+            "n": 6
+          },
+          {
+            "valor": "Avenida Rio Branco",
+            "n": 5
+          },
+          {
+            "valor": "Praça Da República",
+            "n": 5
+          },
+          {
+            "valor": "Rua Da Conceição",
+            "n": 4
+          },
+          {
+            "valor": "Praça Floriano",
+            "n": 3
+          },
+          {
+            "valor": "Avenida Almirante Barroso",
+            "n": 2
+          },
+          {
+            "valor": "Avenida Chile",
+            "n": 1
+          },
+          {
+            "valor": "Rua Moncorvo Filho",
+            "n": 1
+          },
+          {
+            "valor": "Rua Benedito Hipólito",
+            "n": 1
+          },
+          {
+            "valor": "Avenida Chila",
+            "n": 1
+          },
+          {
+            "valor": "Avenida República Do Chile",
+            "n": 1
+          },
+          {
+            "valor": "Terminal Procópio Ferreira",
+            "n": 1
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Centro",
+            "n": 94
+          },
+          {
+            "valor": "Cidade Nova",
+            "n": 7
+          }
+        ]
+      },
+      "cameras": {
+        "total": 234,
+        "top_areas": [
+          {
+            "valor": "Presidente Vargas - Campo de Santana - Central do Brasil - Cinelândia",
+            "n": 222
+          },
+          {
+            "valor": "Rodoviária - Terminal Gentileza - Estação Leopoldina",
+            "n": 12
+          }
+        ]
+      },
+      "cpsr": {
+        "total": 4625,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 3878
+          },
+          {
+            "valor": "Feminino",
+            "n": 714
+          },
+          {
+            "valor": "Não identificado",
+            "n": 33
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "31 a 49",
+            "n": 1877
+          },
+          {
+            "valor": "18 a 30",
+            "n": 1198
+          },
+          {
+            "valor": "50 a 59",
+            "n": 882
+          },
+          {
+            "valor": "60 a 69",
+            "n": 442
+          },
+          {
+            "valor": "Não identificada",
+            "n": 102
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Parda",
+            "n": 2033
+          },
+          {
+            "valor": "Preta",
+            "n": 1714
+          },
+          {
+            "valor": "Branca",
+            "n": 716
+          },
+          {
+            "valor": "Não identificada",
+            "n": 110
+          },
+          {
+            "valor": "Amarela",
+            "n": 34
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Centro",
+            "n": 3768
+          },
+          {
+            "valor": "Lapa",
+            "n": 506
+          },
+          {
+            "valor": "Glória",
+            "n": 123
+          },
+          {
+            "valor": "Gamboa",
+            "n": 75
+          },
+          {
+            "valor": "Santa Teresa",
+            "n": 60
+          },
+          {
+            "valor": "Cidade Nova",
+            "n": 47
+          },
+          {
+            "valor": "Catumbi",
+            "n": 38
+          },
+          {
+            "valor": "Saúde",
+            "n": 8
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 1640,
+          "2022": 1500,
+          "2024": 1485
+        }
+      },
+      "dominio_territorial": {
+        "total": 3,
+        "por_faccao": [
+          {
+            "valor": "CV",
+            "n": 1
+          },
+          {
+            "valor": "Milícia",
+            "n": 1
+          },
+          {
+            "valor": "TCP",
+            "n": 1
+          }
+        ],
+        "territorios": [
+          {
+            "territorio": "MORRO DA CONCEIÇÃO",
+            "faccao": "CV"
+          },
+          {
+            "territorio": "ESCADARIA SELARON",
+            "faccao": "Milícia"
+          },
+          {
+            "territorio": "FAVELA PAULA MATOS",
+            "faccao": "TCP"
+          }
+        ]
+      },
+      "zona_id": 1,
+      "prioridade": 1
+    },
+    {
+      "local_rotulo": "Botafogo",
+      "centroide": {
+        "lat": -22.945495,
+        "lon": -43.184652
+      },
+      "bbox": {
+        "lat_min": -22.960082,
+        "lat_max": -22.93069,
+        "lon_min": -43.199075,
+        "lon_max": -43.172258
+      },
+      "area_km2": 5.719,
+      "n_celulas": 37,
+      "agentes_alocados": 120,
+      "score": 30.4283,
+      "pct_indice_semana": 4.56,
+      "ocorrencias": {
+        "total": 3348,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 2052
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 1092
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 204
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 20,
+            "n": 268
+          },
+          {
+            "valor": 22,
+            "n": 267
+          },
+          {
+            "valor": 21,
+            "n": 258
+          },
+          {
+            "valor": 23,
+            "n": 256
+          },
+          {
+            "valor": 19,
+            "n": 245
+          },
+          {
+            "valor": 18,
+            "n": 210
+          },
+          {
+            "valor": 1,
+            "n": 167
+          },
+          {
+            "valor": 0,
+            "n": 162
+          },
+          {
+            "valor": 2,
+            "n": 157
+          },
+          {
+            "valor": 14,
+            "n": 114
+          },
+          {
+            "valor": 13,
+            "n": 112
+          },
+          {
+            "valor": 15,
+            "n": 108
+          },
+          {
+            "valor": 6,
+            "n": 99
+          },
+          {
+            "valor": 17,
+            "n": 99
+          },
+          {
+            "valor": 16,
+            "n": 98
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Sexta",
+            "n": 505
+          },
+          {
+            "valor": "Domingo",
+            "n": 503
+          },
+          {
+            "valor": "Sabado",
+            "n": 497
+          },
+          {
+            "valor": "Terca",
+            "n": 466
+          },
+          {
+            "valor": "Quarta",
+            "n": 461
+          },
+          {
+            "valor": "Quinta",
+            "n": 460
+          },
+          {
+            "valor": "Segunda",
+            "n": 456
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 561,
+          "2021": 551,
+          "2022": 605,
+          "2023": 590,
+          "2024": 1041
+        },
+        "top_logradouros": [
+          {
+            "valor": "Praia De Botafogo",
+            "n": 153
+          },
+          {
+            "valor": "Rua Voluntarios Da Patria",
+            "n": 141
+          },
+          {
+            "valor": "Praia Praia De Botafogo",
+            "n": 98
+          },
+          {
+            "valor": "Rua Sao Clemente",
+            "n": 87
+          },
+          {
+            "valor": "Praia Do Flamengo",
+            "n": 87
+          },
+          {
+            "valor": "Avenida Infante Dom Henrique",
+            "n": 85
+          },
+          {
+            "valor": "Rua Paissandu",
+            "n": 77
+          },
+          {
+            "valor": "Rua Das Laranjeiras",
+            "n": 64
+          },
+          {
+            "valor": "Rua Rua Voluntarios Da Patria",
+            "n": 58
+          },
+          {
+            "valor": "Rua Marques De Abrantes",
+            "n": 58
+          },
+          {
+            "valor": "Rua Pinheiro Machado",
+            "n": 57
+          },
+          {
+            "valor": "Praia Praia Do Flamengo",
+            "n": 55
+          },
+          {
+            "valor": "Rua Senador Vergueiro",
+            "n": 46
+          },
+          {
+            "valor": "Rua Rua Sao Clemente",
+            "n": 45
+          },
+          {
+            "valor": "Rua Da Passagem",
+            "n": 41
+          }
+        ]
+      },
+      "disque": {
+        "total": 335,
+        "top_tipos": [
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 198
+          },
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 114
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 13
+          },
+          {
+            "valor": "ROUBO EM TRANSP COLETIVOS",
+            "n": 9
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 1
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 198
+          },
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 137
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Botafogo",
+            "n": 206
+          },
+          {
+            "valor": "Flamengo",
+            "n": 60
+          },
+          {
+            "valor": "Laranjeiras",
+            "n": 33
+          },
+          {
+            "valor": "Humaita",
+            "n": 16
+          },
+          {
+            "valor": "Catete",
+            "n": 13
+          },
+          {
+            "valor": "Largo Do Machado",
+            "n": 4
+          },
+          {
+            "valor": "Campo Grande",
+            "n": 1
+          },
+          {
+            "valor": "Rio Comprido",
+            "n": 1
+          },
+          {
+            "valor": "Complexo Do Alemao",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "R Voluntarios Da Patria",
+            "n": 20
+          },
+          {
+            "valor": "PR Botafogo, De",
+            "n": 20
+          },
+          {
+            "valor": "R Marechal Francisco De Moura",
+            "n": 18
+          },
+          {
+            "valor": "R Sao Clemente",
+            "n": 12
+          },
+          {
+            "valor": "R Laranjeiras, Das",
+            "n": 11
+          },
+          {
+            "valor": "R Senador Vergueiro",
+            "n": 9
+          },
+          {
+            "valor": "R Catete, Do",
+            "n": 8
+          },
+          {
+            "valor": "R Palmeiras, Das",
+            "n": 8
+          },
+          {
+            "valor": "PR Flamengo, Do",
+            "n": 8
+          },
+          {
+            "valor": "R Pinheiro Machado",
+            "n": 8
+          },
+          {
+            "valor": "LRG Machado, Do",
+            "n": 7
+          },
+          {
+            "valor": "R Alvaro Ramos",
+            "n": 7
+          },
+          {
+            "valor": "R Sao Salvador",
+            "n": 7
+          },
+          {
+            "valor": "R Dona Mariana",
+            "n": 7
+          },
+          {
+            "valor": "R Visconde De Ouro Preto",
+            "n": 7
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 54,
+          "2020": 22,
+          "2021": 45,
+          "2022": 48,
+          "2023": 40,
+          "2024": 41,
+          "2025": 63,
+          "2026": 22
+        },
+        "amostras_relato": [
+          "NA RUA CITADA NA ALTURA DO N 475 QUATROCENTOS E SETENTA E CINCO EM FRENTE AO BANCO DO [NOME] PERMANECE UM MORADOR DE RUA CARACTERIZADO QUE E USUARIO DE DROGAS E ALCOOL O QUAL FREQUENTEMENTE AGRIDE PERSEGUE E AMEACA TRANSEUNTES E MORADORES DO LOCAL ACRESC",
+          "NA RUA CITADA NA ALTURA DO N 229 DUZENTOS E VINTE E NOVE ENCONTRASE UM MORADOR DE RUA NAO IDENTIFICADO USUARIO DE DROGAS QUE E ENCONTRADO NO LOCAL CITADO TODOS OS [NOME] EM QUALQUER HORARIO E QUE POSSUI UM CACHORRO DE RACA NAO DEFINIDA NO QUAL PRATICA MA",
+          "NA RUA CITADA EM FRENTE AO N 465 QUATROCENTOS E SESSENTA E CINCO E EM FRENTE A PAROQUIA NOSSA SENHORA [NOME] ENCONTRAMSE DIARIAMENTE UM HOMEM E UMA MULHER NAO IDENTIFICADOS EM SITUACAO DE RUA QUE SAO USUARIOS DE DROGAS E QUANDO ESTAO SOB EFEITO DE ENTORP",
+          "NA RUA CITADA AO LONGOS DESTA VIA DIARIAMENTE EM HORARIOS ALTERNADOS SAO VISTOS DIVERSOS MORADORES DE RUAS E USUARIOS DE ENTORPECENTES CONSUMINDO DROGAS NESTA RUA SEMPRE FICAM DIVERSOS MORADORES DE RUA DORMINDO NAS CALCADAS E MANTENDO RELACOES SEXUAIS ES",
+          "NO LARGO CITADO PODE SER ENCONTRADO EM [NOME] ALTERNADOS UM MORADOR DE RUA QUE UTILIZA UM BANCO SITUADO EM FRENTE AO N 100 CEM PARA DORMIR O QUAL GUARDA SEUS PERTENCES EM UM VEICULO DE COR PRATA QUE ENCONTRASE ABANDONADO ELE E VISTO JUNTO COM MAIS DOIS I",
+          "NO ENDERECO CITADO PROXIMO A SUBIDA DA COMUNIDADE DONA [NOME] LOCALIZASE UM PREDIO NA COR LARANJA EM UM DOS APARTAMENTOS RESIDE [NOME] E SUA COMPANHEIRA [NOME] NESTE MOMENTO ELES ESTAO COM O SOM LIGADO EM ALTISSIMO VOLUME INCOMODANDO OS MORADORES VIZINHO",
+          "NO ENDERECO CITADO PROXIMO A PRACA SAO [NOME] LOCALIZASE UMA LOJA QUE FUNCIONA COMO UM BINGO CLANDESTINO COM MAQUINAS CACA NIQUEIS ACRESCENTA QUE LOCAL FUNCIONA NA PARTE DA NOITE COM VENDA E CONSUMO DE DROGAS E BEBIDAS ALCOOLICAS ATE PARA MENORES DE IDAD",
+          "NA RUA CITADA EM FRENTE AO N 10 DEZ AO LADO DA LOJA AMOEDO LOCALIZASE UM BAR QUE FUNCIONA TODOS OS [NOME] POR 24H ONDE OCORRE COMERCIALIZACAO DE ENTORPECENTES NO LOCAL NA PARTE DA NOITE PODEM SER VISTOS VARIOS USUARIOS QUE UTILIZAM OS ENTORPECENTES LIVRE",
+          "NO ENDERECO CITADO NA FRENTE DO SUPERMERCADOS CAMPEAO RESIDE ALINDO [NOME] MAIS CONHECIDO COMO [NOME] QUE USA E TRAFICA ENTORPECENTES NO LOCAL SABESE QUE ELE TEM UM COMPORTAMENTO SUPER AGRESSIVO E FREQUENTEMENTE PROFERE AMEACAS A MORADORES E FUNCIONARIOS",
+          "NO ENDERECO CITADO PROXIMO AO BOBS LOCALIZASE UM EDIFICIO ONDE RESIDE [NOME] NAO CARACTERIZADA DE 90 ANOS QUE ESTA SENDO AGREDIDA DE FORMA FISICA E VERBAL [NOME] NORA NAO IDENTIFICADA INFORMA QUE O [NOME] DA IDOSA FOI EMBORA DE CASA E DEIXOU SUA EX MULHE"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 358,
+        "top_tipos": [
+          {
+            "valor": "Vegetação encobrindo iluminação pública",
+            "n": 75
+          },
+          {
+            "valor": "Área mal iluminada com circulação de pedestres",
+            "n": 67
+          },
+          {
+            "valor": "Pessoas em situação de rua",
+            "n": 51
+          },
+          {
+            "valor": "Vegetação obstruindo a visibilidade do passeio",
+            "n": 28
+          },
+          {
+            "valor": "Ponto de retenção do tráfego",
+            "n": 27
+          },
+          {
+            "valor": "Área mal iluminada com parada de veículos",
+            "n": 15
+          },
+          {
+            "valor": "Calçada estreita forçando pedestres à pista",
+            "n": 11
+          },
+          {
+            "valor": "Comércio irregular obstruindo a visibilidade do passeio",
+            "n": 11
+          },
+          {
+            "valor": "Estacionamento irregular forçando pedestres à pista",
+            "n": 10
+          },
+          {
+            "valor": "Vãos ou cavidades usados como esconderijo",
+            "n": 10
+          },
+          {
+            "valor": "Motocicletas trafegando no passeio",
+            "n": 8
+          },
+          {
+            "valor": "Cena de uso de drogas",
+            "n": 7
+          },
+          {
+            "valor": "Sem ocorrência",
+            "n": 7
+          },
+          {
+            "valor": "Praças e Parques",
+            "n": 6
+          },
+          {
+            "valor": "Mobiliário/estrutura servindo de esconderijo",
+            "n": 5
+          }
+        ],
+        "top_orgaos_responsaveis": [
+          {
+            "valor": "COMLURB",
+            "n": 110
+          },
+          {
+            "valor": "Rio Luz",
+            "n": 82
+          },
+          {
+            "valor": "SMAS",
+            "n": 58
+          },
+          {
+            "valor": "SECONSERVA",
+            "n": 34
+          },
+          {
+            "valor": "CET-Rio",
+            "n": 27
+          },
+          {
+            "valor": "SEOP",
+            "n": 25
+          },
+          {
+            "valor": "GM-Rio",
+            "n": 8
+          },
+          {
+            "valor": "SMTR",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "Rua Voluntários Da Pátria",
+            "n": 49
+          },
+          {
+            "valor": "Praia De Botafogo",
+            "n": 45
+          },
+          {
+            "valor": "Rua Nelson Mandela",
+            "n": 17
+          },
+          {
+            "valor": "Rua Marquês De Abrantes",
+            "n": 16
+          },
+          {
+            "valor": "Avenida Pasteur",
+            "n": 15
+          },
+          {
+            "valor": "Rua Paissandu",
+            "n": 13
+          },
+          {
+            "valor": "Rua Real Grandeza",
+            "n": 12
+          },
+          {
+            "valor": "Rua São Clemente",
+            "n": 12
+          },
+          {
+            "valor": "Rua Sorocaba",
+            "n": 10
+          },
+          {
+            "valor": "Rua Dezenove De Fevereiro",
+            "n": 10
+          },
+          {
+            "valor": "Rua Dona Mariana",
+            "n": 9
+          },
+          {
+            "valor": "Rua Senador Vergueiro",
+            "n": 9
+          },
+          {
+            "valor": "Rua Paulo Vi",
+            "n": 8
+          },
+          {
+            "valor": "Rua Conde De Irajá",
+            "n": 8
+          },
+          {
+            "valor": "Rua Guilhermina Guinle",
+            "n": 8
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Botafogo",
+            "n": 289
+          },
+          {
+            "valor": "Flamengo",
+            "n": 62
+          },
+          {
+            "valor": "Laranjeiras",
+            "n": 6
+          },
+          {
+            "valor": "Humaitá",
+            "n": 1
+          }
+        ]
+      },
+      "cameras": {
+        "total": 254,
+        "top_areas": [
+          {
+            "valor": "Praia de Botafogo - Rua Marquês de Abrantes",
+            "n": 144
+          },
+          {
+            "valor": "Metrô Botafogo - Rua São Clemente - Rua Voluntários da Pátria",
+            "n": 80
+          },
+          {
+            "valor": "Rua Lauro Müller – Avenida General Severiano – Avenida Venceslau Brás",
+            "n": 30
+          }
+        ]
+      },
+      "cpsr": {
+        "total": 859,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 711
+          },
+          {
+            "valor": "Feminino",
+            "n": 141
+          },
+          {
+            "valor": "Não identificado",
+            "n": 7
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "31 a 49",
+            "n": 349
+          },
+          {
+            "valor": "18 a 30",
+            "n": 275
+          },
+          {
+            "valor": "50 a 59",
+            "n": 137
+          },
+          {
+            "valor": "60 a 69",
+            "n": 51
+          },
+          {
+            "valor": "12 a 17",
+            "n": 21
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Preta",
+            "n": 376
+          },
+          {
+            "valor": "Parda",
+            "n": 338
+          },
+          {
+            "valor": "Branca",
+            "n": 120
+          },
+          {
+            "valor": "Não identificada",
+            "n": 15
+          },
+          {
+            "valor": "Amarela",
+            "n": 8
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Botafogo",
+            "n": 484
+          },
+          {
+            "valor": "Flamengo",
+            "n": 138
+          },
+          {
+            "valor": "Laranjeiras",
+            "n": 112
+          },
+          {
+            "valor": "Catete",
+            "n": 110
+          },
+          {
+            "valor": "Humaitá",
+            "n": 15
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 229,
+          "2022": 285,
+          "2024": 345
+        }
+      },
+      "dominio_territorial": {
+        "total": 2,
+        "por_faccao": [
+          {
+            "valor": "CV",
+            "n": 2
+          }
+        ],
+        "territorios": [
+          {
+            "territorio": "MORRO DO AZUL",
+            "faccao": "CV"
+          },
+          {
+            "territorio": "MORRO DONA MARTA",
+            "faccao": "CV"
+          }
+        ]
+      },
+      "zona_id": 2,
+      "prioridade": 2
+    },
+    {
+      "local_rotulo": "Tijuca",
+      "centroide": {
+        "lat": -22.919342,
+        "lon": -43.231843
+      },
+      "bbox": {
+        "lat_min": -22.932951,
+        "lat_max": -22.908081,
+        "lon_min": -43.242957,
+        "lon_max": -43.21614
+      },
+      "area_km2": 4.938,
+      "n_celulas": 36,
+      "agentes_alocados": 117,
+      "score": 29.6174,
+      "pct_indice_semana": 4.44,
+      "ocorrencias": {
+        "total": 4405,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 2415
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 1730
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 260
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 20,
+            "n": 448
+          },
+          {
+            "valor": 21,
+            "n": 373
+          },
+          {
+            "valor": 19,
+            "n": 373
+          },
+          {
+            "valor": 22,
+            "n": 319
+          },
+          {
+            "valor": 18,
+            "n": 292
+          },
+          {
+            "valor": 23,
+            "n": 259
+          },
+          {
+            "valor": 6,
+            "n": 170
+          },
+          {
+            "valor": 0,
+            "n": 165
+          },
+          {
+            "valor": 16,
+            "n": 162
+          },
+          {
+            "valor": 13,
+            "n": 161
+          },
+          {
+            "valor": 17,
+            "n": 160
+          },
+          {
+            "valor": 12,
+            "n": 156
+          },
+          {
+            "valor": 15,
+            "n": 151
+          },
+          {
+            "valor": 5,
+            "n": 151
+          },
+          {
+            "valor": 14,
+            "n": 149
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Quinta",
+            "n": 674
+          },
+          {
+            "valor": "Terca",
+            "n": 673
+          },
+          {
+            "valor": "Sexta",
+            "n": 672
+          },
+          {
+            "valor": "Quarta",
+            "n": 642
+          },
+          {
+            "valor": "Segunda",
+            "n": 596
+          },
+          {
+            "valor": "Sabado",
+            "n": 588
+          },
+          {
+            "valor": "Domingo",
+            "n": 559
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 596,
+          "2021": 721,
+          "2022": 1000,
+          "2023": 859,
+          "2024": 1229
+        },
+        "top_logradouros": [
+          {
+            "valor": "Rua Sao Francisco Xavier",
+            "n": 293
+          },
+          {
+            "valor": "Rua Conde De Bonfim",
+            "n": 195
+          },
+          {
+            "valor": "Avenida Maracana",
+            "n": 157
+          },
+          {
+            "valor": "Rua Rua Sao Francisco Xavier",
+            "n": 143
+          },
+          {
+            "valor": "Rua Rua Conde De Bonfim",
+            "n": 106
+          },
+          {
+            "valor": "Avenida Avenida Maracana",
+            "n": 99
+          },
+          {
+            "valor": "Avenida Presidente Castelo Branco",
+            "n": 93
+          },
+          {
+            "valor": "Rua Barao De Mesquita",
+            "n": 76
+          },
+          {
+            "valor": "Rua Mariz E Barros",
+            "n": 64
+          },
+          {
+            "valor": "Rua Professor Gabizo",
+            "n": 60
+          },
+          {
+            "valor": "Rua Almirante Cochrane",
+            "n": 54
+          },
+          {
+            "valor": "Rua Jose Higino",
+            "n": 49
+          },
+          {
+            "valor": "Avenida Avenida Presidente Castelo Branco",
+            "n": 47
+          },
+          {
+            "valor": "Rua Antonio Basilio",
+            "n": 45
+          },
+          {
+            "valor": "Rua Major Avila",
+            "n": 43
+          }
+        ]
+      },
+      "disque": {
+        "total": 387,
+        "top_tipos": [
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 180
+          },
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 177
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 15
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 11
+          },
+          {
+            "valor": "ROUBO EM TRANSP COLETIVOS",
+            "n": 4
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 207
+          },
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 180
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Tijuca",
+            "n": 217
+          },
+          {
+            "valor": "Maracana",
+            "n": 97
+          },
+          {
+            "valor": "Vila Isabel",
+            "n": 50
+          },
+          {
+            "valor": "Sao Cristovao",
+            "n": 11
+          },
+          {
+            "valor": "Mangueira",
+            "n": 7
+          },
+          {
+            "valor": "Andarai",
+            "n": 2
+          },
+          {
+            "valor": "Não Informado",
+            "n": 1
+          },
+          {
+            "valor": "Sao Francisco Xavier",
+            "n": 1
+          },
+          {
+            "valor": "Barra Das Tijucas",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "R Conde De Bonfim",
+            "n": 29
+          },
+          {
+            "valor": "R Sao Francisco Xavier",
+            "n": 28
+          },
+          {
+            "valor": "R Visconde De Itamarati",
+            "n": 27
+          },
+          {
+            "valor": "R Doutor Satamini",
+            "n": 14
+          },
+          {
+            "valor": "R Gonzaga Bastos",
+            "n": 11
+          },
+          {
+            "valor": "PC Saenz Pena",
+            "n": 11
+          },
+          {
+            "valor": "R General Roca",
+            "n": 11
+          },
+          {
+            "valor": "AV Maracana",
+            "n": 10
+          },
+          {
+            "valor": "R Felipe Camarao",
+            "n": 9
+          },
+          {
+            "valor": "R Uruguai",
+            "n": 9
+          },
+          {
+            "valor": "PC Pinto Peixoto",
+            "n": 8
+          },
+          {
+            "valor": "R General Canabarro",
+            "n": 8
+          },
+          {
+            "valor": "R Barao De Mesquita",
+            "n": 8
+          },
+          {
+            "valor": "R Alfredo Pinto",
+            "n": 7
+          },
+          {
+            "valor": "N.I. Não Informado",
+            "n": 7
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 63,
+          "2020": 24,
+          "2021": 33,
+          "2022": 70,
+          "2023": 41,
+          "2024": 47,
+          "2025": 73,
+          "2026": 36
+        },
+        "amostras_relato": [
+          "NA RUA CITADA PROXIMO AO N 66 SESSENTA E SEIS ATRAS DE UM VALAO HA UM QUIOSQUE DE COR VERDE E UM BARRACO COM LONA DE COR PRETA ONDE PODEM SER VISTOS DIARIAMENTE A PARTIR DAS 22H VARIOS USUARIOS DE CRACK OS MESMOS COSTUMAM FURTAR FIOS DE COBRE E VANDALIZA",
+          "NO ENDERECO CITADO PROXIMO A HOSPITAL BADIM LOCALIZASE O BAR [NOME] DO MARACANA NO QUAL O PROPRIETARIO NAO IDENTIFICADO FAZ JOGO DO BICHO INCLUSIVE PODEM SER ENCONTRADAS VARIAS MAQUINAS CACANIQUEIS INFORMA QUE FREQUENTEMENTE PODEM SER VISTOS VARIOS INDIV",
+          "NA RUA CITADA ENTRES OS N 150 CENTO E CINQUENTA ATE O FINAL DA RUA OCORREM FURTOS A RESIDENCIAS DIARIAMENTE ENTRE 2HE 5H PRATICADOS POR USUARIOS DE ENTORPECENTES OS MESMOS COSTUMAM UTILIZAR PE DE CABRA PARA SUBTRAIREM VARIOS OBJETOS NO INTERIOR DOS CONDO",
+          "NA RUA CITADA QUE DA ACESSO AS RUAS MARIZ E [NOME] E [NOME] E [NOME] DIARIAMENTE NO PERIODO DA NOITE PODEM SER VISTOS INDIVIDUOS NAO IDENTIFICADOS CONSUMINDO ENTORPECENTES E URINA EM VIA PUBLICA ELES APROVEITAM A CALCADA DO PAREDAO DE POUCO MOVIMENTO E D",
+          "NO ENDERECO CITADO PROXIMO A RUA 28 DE SETEMBRO E AO LADO DA UERJ LOCALIZASE UMA CASA QUE FOI INVADIDA POR QUATRO INDIVIDUOS NAO IDENTIFICADOS QUE ESTAO FAZENDO USO DE ENTORPECENTES CAUSANDO MUITO BARULHO E BADERNA INCOMODANDO OS MORADORES NAO IDENTIFICA",
+          "NO ENDERECO MENCIONADO PROXIMO A ESCOLA TECNICA EM FRENTE A PETROBRAS DENTRO DE INSTITUICAO DE ENSINO CEFET OCORRE USO DE DROGAS COMO MACONHA E COCAINA COM VENDA POR PARTE DOS ESTUDANTES PODEM SER VISTOS ALUNOS MENORES DE IDADE FUMANDO E VENDENDO PROXIMO",
+          "NO ENDERECO MENCIONADO PROXIMO AO BAR GAROTA DA TIJUCA E BUXIXO LOCALIZASE UMA CASA ONDE RESIDE [NOME] QUE COSTUMA AMEACAR MORADORES DA [NOME] E JA CHEGOU A QUEBRAR A PORTA E PERTENCES DE UM DOS MORADORES [NOME] FAZ USO EXCESSIVO DE MACONHA INFORMA QUE [",
+          "NO ENDERECO CITADO PROXIMO A UPA LOCALIZASE A CASA MURO COM DESENHOS EM GRAFITE ONDE RESIDEM [NOME] SEU ESPOSO CARACTERIZADO QUE INVADIRAM O IMOVEL E CONSOMEM ENTORPECENTES NA PRESENCA [NOME] NAO IDENTIFICADA 3 ANOS DE IDADE OS CITADOS PODEM SER ENCONTRA",
+          "NA RUA CITADA DE ESQUINA COM A [NOME] PROXIMO A AGENCIA DE AUTOMOVEIS E A BANCA DE JORNAL LOCALIZASE UMA CLINICA MEDICA ABANDONADA QUE FOI INVADIDA POR INDIVIDUOS NAO IDENTIFICADOS E E UTILIZADA PRINCIPALMENTE A NOITE PARA CONSUMO DE ENTORPECENTES E BADE",
+          "NA RUA CITADA EM FRENTE AO N 452 QUATROCENTOS E CINQUENTA E DOIS PROXIMO A RUA [NOME] DE [NOME] E A IMOBILIARIO [NOME] BOGORICIN LOCALIZASE UM BARRACO FEITO DE TAPUMES ONDE DOIS INDIVIDUOS NAO IDENTIFICADOS FAZEM USO DE ENTORPECENTES TODOS OS [NOME] ENTR"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 123,
+        "top_tipos": [
+          {
+            "valor": "Vegetação encobrindo iluminação pública",
+            "n": 22
+          },
+          {
+            "valor": "Pessoas em situação de rua",
+            "n": 14
+          },
+          {
+            "valor": "Vegetação obstruindo a visibilidade do passeio",
+            "n": 13
+          },
+          {
+            "valor": "Ponto de retenção do tráfego",
+            "n": 12
+          },
+          {
+            "valor": "Ponto de ônibus com histórico de vandalismo",
+            "n": 9
+          },
+          {
+            "valor": "Motocicletas trafegando no passeio",
+            "n": 8
+          },
+          {
+            "valor": "Sem ocorrência",
+            "n": 8
+          },
+          {
+            "valor": "Mobiliário/estrutura servindo de esconderijo",
+            "n": 6
+          },
+          {
+            "valor": "Área mal iluminada com circulação de pedestres",
+            "n": 5
+          },
+          {
+            "valor": "Calçada estreita forçando pedestres à pista",
+            "n": 5
+          },
+          {
+            "valor": "Estacionamento irregular forçando pedestres à pista",
+            "n": 5
+          },
+          {
+            "valor": "Veículos de grande porte obstruindo a visibilidade",
+            "n": 4
+          },
+          {
+            "valor": "Vãos ou cavidades usados como esconderijo",
+            "n": 4
+          },
+          {
+            "valor": "Mobiliário abandonado servindo de esconderijo",
+            "n": 3
+          },
+          {
+            "valor": "Tapumes servindo de esconderijo",
+            "n": 2
+          }
+        ],
+        "top_orgaos_responsaveis": [
+          {
+            "valor": "COMLURB",
+            "n": 36
+          },
+          {
+            "valor": "SECONSERVA",
+            "n": 20
+          },
+          {
+            "valor": "SMAS",
+            "n": 14
+          },
+          {
+            "valor": "CET-Rio",
+            "n": 12
+          },
+          {
+            "valor": "SEOP",
+            "n": 10
+          },
+          {
+            "valor": "SMTR",
+            "n": 9
+          },
+          {
+            "valor": "GM-Rio",
+            "n": 8
+          },
+          {
+            "valor": "Rio Luz",
+            "n": 6
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "Rua São Francisco Xavier",
+            "n": 46
+          },
+          {
+            "valor": "Rua Martins Pena",
+            "n": 8
+          },
+          {
+            "valor": "Rua Mariz E Barros",
+            "n": 7
+          },
+          {
+            "valor": "Rua Gonçalves Crespo",
+            "n": 6
+          },
+          {
+            "valor": "Rua Alfredo Pinto",
+            "n": 6
+          },
+          {
+            "valor": "Avenida Melo Matos",
+            "n": 5
+          },
+          {
+            "valor": "Avenida Maracanã",
+            "n": 5
+          },
+          {
+            "valor": "Avenida Paula Sousa",
+            "n": 4
+          },
+          {
+            "valor": "Avenida Rei Pelé",
+            "n": 4
+          },
+          {
+            "valor": "Rua Campos Sales",
+            "n": 4
+          },
+          {
+            "valor": "Avenida Professor Manoel De Abreu",
+            "n": 4
+          },
+          {
+            "valor": "Rua Professor Gabizo",
+            "n": 4
+          },
+          {
+            "valor": "Rua Araújo Pena",
+            "n": 3
+          },
+          {
+            "valor": "Rua Delgado De Carvalho",
+            "n": 2
+          },
+          {
+            "valor": "Rua Afonso Pena",
+            "n": 2
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Maracanã",
+            "n": 70
+          },
+          {
+            "valor": "Tijuca",
+            "n": 49
+          },
+          {
+            "valor": "Vila Isabel",
+            "n": 2
+          },
+          {
+            "valor": "São Francisco Xavier",
+            "n": 2
+          }
+        ]
+      },
+      "cameras": {
+        "total": 27,
+        "top_areas": [
+          {
+            "valor": "Estações São Francisco Xavier - Afonso Pena",
+            "n": 27
+          }
+        ]
+      },
+      "cpsr": {
+        "total": 505,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 395
+          },
+          {
+            "valor": "Feminino",
+            "n": 108
+          },
+          {
+            "valor": "Não identificado",
+            "n": 2
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "31 a 49",
+            "n": 190
+          },
+          {
+            "valor": "18 a 30",
+            "n": 183
+          },
+          {
+            "valor": "50 a 59",
+            "n": 93
+          },
+          {
+            "valor": "60 a 69",
+            "n": 23
+          },
+          {
+            "valor": "12 a 17",
+            "n": 6
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Preta",
+            "n": 218
+          },
+          {
+            "valor": "Parda",
+            "n": 197
+          },
+          {
+            "valor": "Branca",
+            "n": 83
+          },
+          {
+            "valor": "Amarela",
+            "n": 5
+          },
+          {
+            "valor": "Não identificada",
+            "n": 2
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Tijuca",
+            "n": 280
+          },
+          {
+            "valor": "Maracanã",
+            "n": 157
+          },
+          {
+            "valor": "Vila Isabel",
+            "n": 34
+          },
+          {
+            "valor": "São Francisco Xavier",
+            "n": 19
+          },
+          {
+            "valor": "Mangueira",
+            "n": 15
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 220,
+          "2022": 142,
+          "2024": 143
+        }
+      },
+      "dominio_territorial": {
+        "total": 0,
+        "por_faccao": [],
+        "territorios": []
+      },
+      "zona_id": 3,
+      "prioridade": 3
+    },
+    {
+      "local_rotulo": "Madureira",
+      "centroide": {
+        "lat": -22.874321,
+        "lon": -43.335072
+      },
+      "bbox": {
+        "lat_min": -22.88321,
+        "lat_max": -22.862862,
+        "lon_min": -43.352664,
+        "lon_max": -43.316095
+      },
+      "area_km2": 4.875,
+      "n_celulas": 27,
+      "agentes_alocados": 90,
+      "score": 22.6957,
+      "pct_indice_semana": 3.4,
+      "ocorrencias": {
+        "total": 4281,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 2606
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 1146
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 529
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 20,
+            "n": 382
+          },
+          {
+            "valor": 21,
+            "n": 345
+          },
+          {
+            "valor": 19,
+            "n": 314
+          },
+          {
+            "valor": 22,
+            "n": 287
+          },
+          {
+            "valor": 18,
+            "n": 241
+          },
+          {
+            "valor": 23,
+            "n": 223
+          },
+          {
+            "valor": 6,
+            "n": 195
+          },
+          {
+            "valor": 5,
+            "n": 169
+          },
+          {
+            "valor": 17,
+            "n": 161
+          },
+          {
+            "valor": 15,
+            "n": 160
+          },
+          {
+            "valor": 13,
+            "n": 160
+          },
+          {
+            "valor": 14,
+            "n": 155
+          },
+          {
+            "valor": 12,
+            "n": 153
+          },
+          {
+            "valor": 7,
+            "n": 143
+          },
+          {
+            "valor": 16,
+            "n": 142
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Sabado",
+            "n": 665
+          },
+          {
+            "valor": "Sexta",
+            "n": 657
+          },
+          {
+            "valor": "Segunda",
+            "n": 654
+          },
+          {
+            "valor": "Domingo",
+            "n": 596
+          },
+          {
+            "valor": "Quinta",
+            "n": 581
+          },
+          {
+            "valor": "Terca",
+            "n": 569
+          },
+          {
+            "valor": "Quarta",
+            "n": 559
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 1179,
+          "2021": 908,
+          "2022": 734,
+          "2023": 650,
+          "2024": 810
+        },
+        "top_logradouros": [
+          {
+            "valor": "Avenida Ministro Edgard Romero",
+            "n": 272
+          },
+          {
+            "valor": "Rua Carolina Machado",
+            "n": 262
+          },
+          {
+            "valor": "Rua Conselheiro Galvao",
+            "n": 262
+          },
+          {
+            "valor": "Estrada Do Portela",
+            "n": 167
+          },
+          {
+            "valor": "Rua Soares Caldeira",
+            "n": 160
+          },
+          {
+            "valor": "Rua Carvalho De Sousa",
+            "n": 121
+          },
+          {
+            "valor": "Rua Rua Carolina Machado",
+            "n": 100
+          },
+          {
+            "valor": "Rua Rua Ministro Edgard Romero",
+            "n": 85
+          },
+          {
+            "valor": "Rua Ministro Edgard Romero",
+            "n": 76
+          },
+          {
+            "valor": "Rua Rua Conselheiro Galvao",
+            "n": 76
+          },
+          {
+            "valor": "Estrada Estrada Do Portela",
+            "n": 72
+          },
+          {
+            "valor": "Avenida Dom Helder Camara",
+            "n": 71
+          },
+          {
+            "valor": "Rua Cerqueira Daltro",
+            "n": 68
+          },
+          {
+            "valor": "Rua Iguacu",
+            "n": 53
+          },
+          {
+            "valor": "Avenida Ernani Cardoso",
+            "n": 48
+          }
+        ]
+      },
+      "disque": {
+        "total": 377,
+        "top_tipos": [
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 172
+          },
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 170
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 17
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 9
+          },
+          {
+            "valor": "ROUBO EM TRANSP COLETIVOS",
+            "n": 9
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 205
+          },
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 172
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Madureira",
+            "n": 223
+          },
+          {
+            "valor": "Cascadura",
+            "n": 62
+          },
+          {
+            "valor": "Oswaldo Cruz",
+            "n": 51
+          },
+          {
+            "valor": "Engenheiro Leal",
+            "n": 22
+          },
+          {
+            "valor": "Turiacu",
+            "n": 10
+          },
+          {
+            "valor": "Quintino Bocaiuva",
+            "n": 4
+          },
+          {
+            "valor": "Cavalcanti",
+            "n": 2
+          },
+          {
+            "valor": "Realengo",
+            "n": 1
+          },
+          {
+            "valor": "Cscadura",
+            "n": 1
+          },
+          {
+            "valor": "Jacarepagua",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "R Domingos Lopes",
+            "n": 29
+          },
+          {
+            "valor": "R Conselheiro Galvao",
+            "n": 24
+          },
+          {
+            "valor": "R Carolina Machado",
+            "n": 22
+          },
+          {
+            "valor": "R Taubate",
+            "n": 15
+          },
+          {
+            "valor": "EST Portela, Do",
+            "n": 12
+          },
+          {
+            "valor": "R Antonio Badajos",
+            "n": 12
+          },
+          {
+            "valor": "AV Ministro Edgard Romero",
+            "n": 10
+          },
+          {
+            "valor": "R Leopoldino De Oliveira",
+            "n": 9
+          },
+          {
+            "valor": "N.I. Não Informado",
+            "n": 8
+          },
+          {
+            "valor": "R Sidonio Pais",
+            "n": 8
+          },
+          {
+            "valor": "R Andrade Figueira",
+            "n": 8
+          },
+          {
+            "valor": "R Silva Gomes",
+            "n": 7
+          },
+          {
+            "valor": "AV Ernani Cardoso",
+            "n": 7
+          },
+          {
+            "valor": "PC Patriarca, Do",
+            "n": 7
+          },
+          {
+            "valor": "R Tapajos",
+            "n": 7
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 50,
+          "2020": 49,
+          "2021": 39,
+          "2022": 54,
+          "2023": 45,
+          "2024": 46,
+          "2025": 57,
+          "2026": 37
+        },
+        "amostras_relato": [
+          "NO ENDERECO CITADO PROXIMO DA PRACA [NOME] DA [NOME] E DA 29 DP SITUA UM SALAO DE FESTAS ONDE NESTE MOMENTO ESTA OCORRENDO UM EVENTO FESTIVO COM PESSOAS AGLOMERADAS SUSPEITASE QUE ESTA FESTA SEJA DE TRAFICANTES NAO IDENTIFICADOS ORIUNDOS DO MORRO FUBA PO",
+          "NO ENDERECO MENCIONADO ESQUINA COM A RUA [NOME] LOCALIZASE UM FERROVELHO CLANDESTINO ONDE [NOME] RELATOS O PROPRIETARIO NAO IDENTIFICADO COMPRA OBJETOS E MERCADORIAS QUE SAO ROUBADOS PELOS USUARIOS DE DROGAS NAO IDENTIFICADOS CITA QUE OS USUARIOS DE DROG",
+          "NA RUA CITADA ESQUINA COM RUA QUAXIMA EMBAIXO DO VIADUTO DO BRT PODE SER ENCONTRADO UM CASAL MORADOR DE RUA CARACTERIZADO QUE USA DROGAS NA FRENTE DA [NOME] NAO IDENTIFICADA DE 2 ANOS CITA QUE ESSA CRIANCA FICA CORRENDO [NOME] NA RUA PODENDO ACONTECER AL",
+          "NA ESTRADA CITADA PROXIMO A LOJA DE MOTO HONDA E DO MERCADO REDE ECONOMIA LOCALIZASE UMA RESTAURANTE ONDE PODE SER ENCONTRADO O DONO [NOME] FACHINETTI O QUAL E UM DOS CHEFES DA MILICIA DA LOCALIDADE ELE ANDA ARMADO COM UMA PISTOLA AMEACA AS PESSOAS E E U",
+          "NO ENDERECO MENCIONADO COM UM COMERCIO PEQUENO NA FRENTE E O ACESSO E POR UM PORTAO COM ACESSO PARA OS FUNDOS NESSA RESIDENCIA COM FREQUENCIA ENCONTRAMSE DIVERSOS USUARIOS DE DROGAS QUE ULTIMAMENTE ESTAO FURTANDO CABOS DE ENERGIA E DA NET QUASE QUE DIARI",
+          "NO ENDERECO CITADO AO LADO DA QUADRA DE SAMBA DA [NOME] SITUASE O SAMBAS BAR NO QUAL HAVERA HOJE DIA 11042020 EM HORARIO NAO INFORMADO UMA FESTA ORGANIZADA POR NYKOLLAS [NOME] QUE POSSUI UM GRUPO NO FACEBOOK COM O NOME RESISTENCIA DA 40 TENDO DOIS SIMBOL",
+          "NA RUA CITADA PROXIMO A PRACA DO [NOME] O RESPONSAVEL PELO BAR PETELECOS ORIGINALEDUARDO ALVARES NAO CARACTERIZADO IRA PROMOVER UMA FESTA HOJE 02082025 A PARTIR DAS 14H SEM HORARIO PREVISTO PARA TERMINO DURANTE ESSES EVENTOS A RUA E OBSTRUIDA SEM AUTORIZ",
+          "NA RUA MENCIONADA EM FRENTE AO N 761 SETECENTOS E SESSENTA E UM TODOS OS [NOME] DE 7H EM DIANTE FUNCIONA UM CAMELO COMERCIALIZANDO DOCES E BEBIDAS O DONO NAO IDENTIFICADO DEIXA O [NOME] NAO IDENTIFICADO DE 10 ANOS DE IDADE TRABALHANDO TODOS OS [NOME] ELE",
+          "NO ENDERECO CITADO PROXIMO DA 29 DP SITUASE UMA OFICINA MECANICA ANTERIORMENTE ERA UMA SERRALHERIA QUE ESTA OPERANDO SEM ALVARA PERTENCENTE A UM INDIVIDUO VULGO MAGOO NAO CARACTERIZADO ONDE DIARIAMENTE OCORRE CONSUMACAO DE ENTORPECENTES E OS INDIVIDUOS N",
+          "COMPLEMENTA DENUNCIA 451152020 INFORMANDO QUE OS TRAFICANTES CITADOS DENTRE ELES [NOME] NAO CARACTERIZADO OS QUAIS FIZERAM UM [NOME] NA RUA [NOME] QUE DA ACESSO RUA IGUAIBA RELATA QUE O TRAFICANTE DE VULGO [NOME] POSSUI UM AUTO DE COR PRETO PLACA IGNORAD"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 235,
+        "top_tipos": [
+          {
+            "valor": "Comércio irregular obstruindo a visibilidade do passeio",
+            "n": 46
+          },
+          {
+            "valor": "Ponto de retenção do tráfego",
+            "n": 22
+          },
+          {
+            "valor": "Área mal iluminada com circulação de pedestres",
+            "n": 20
+          },
+          {
+            "valor": "Pessoas em situação de rua",
+            "n": 20
+          },
+          {
+            "valor": "Vegetação encobrindo iluminação pública",
+            "n": 20
+          },
+          {
+            "valor": "Cena de uso de drogas",
+            "n": 18
+          },
+          {
+            "valor": "Estacionamento irregular forçando pedestres à pista",
+            "n": 13
+          },
+          {
+            "valor": "Veículos de grande porte obstruindo a visibilidade",
+            "n": 11
+          },
+          {
+            "valor": "Ponto de ônibus com histórico de vandalismo",
+            "n": 11
+          },
+          {
+            "valor": "Calçada estreita forçando pedestres à pista",
+            "n": 10
+          },
+          {
+            "valor": "Motocicletas trafegando no passeio",
+            "n": 10
+          },
+          {
+            "valor": "Vegetação obstruindo a visibilidade do passeio",
+            "n": 8
+          },
+          {
+            "valor": "Vãos ou cavidades usados como esconderijo",
+            "n": 8
+          },
+          {
+            "valor": "Mobiliário urbano desviando pedestres para a pista",
+            "n": 4
+          },
+          {
+            "valor": "Lixo/entulho forçando pedestres à pista",
+            "n": 3
+          }
+        ],
+        "top_orgaos_responsaveis": [
+          {
+            "valor": "SEOP",
+            "n": 70
+          },
+          {
+            "valor": "SMAS",
+            "n": 38
+          },
+          {
+            "valor": "COMLURB",
+            "n": 33
+          },
+          {
+            "valor": "SECONSERVA",
+            "n": 27
+          },
+          {
+            "valor": "Rio Luz",
+            "n": 22
+          },
+          {
+            "valor": "CET-Rio",
+            "n": 22
+          },
+          {
+            "valor": "SMTR",
+            "n": 11
+          },
+          {
+            "valor": "GM-Rio",
+            "n": 10
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "Avenida Ministro Edgard Romero",
+            "n": 47
+          },
+          {
+            "valor": "Rua Carolina Machado",
+            "n": 41
+          },
+          {
+            "valor": "Rua Conselheiro Galvão",
+            "n": 39
+          },
+          {
+            "valor": "Estrada Do Portela",
+            "n": 35
+          },
+          {
+            "valor": "Rua Carvalho De Souza",
+            "n": 17
+          },
+          {
+            "valor": "Rua Soares Caldeira",
+            "n": 16
+          },
+          {
+            "valor": "Rua Clara Nunes",
+            "n": 12
+          },
+          {
+            "valor": "Rua Ângelo Dantas",
+            "n": 7
+          },
+          {
+            "valor": "Soares Caldeira",
+            "n": 3
+          },
+          {
+            "valor": "Rua Dagmar Da Fonseca",
+            "n": 2
+          },
+          {
+            "valor": "Rua Américo Brasiliense",
+            "n": 2
+          },
+          {
+            "valor": "Rua Átila Da Silveira",
+            "n": 2
+          },
+          {
+            "valor": "Rua Alfeu Faria Castro",
+            "n": 2
+          },
+          {
+            "valor": "Rua Tapirapuã",
+            "n": 1
+          },
+          {
+            "valor": "Avenida Edgard Romero",
+            "n": 1
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Madureira",
+            "n": 178
+          },
+          {
+            "valor": "Turiaçu",
+            "n": 26
+          },
+          {
+            "valor": "Oswaldo Cruz",
+            "n": 15
+          },
+          {
+            "valor": "Cascadura",
+            "n": 14
+          },
+          {
+            "valor": "Bento Ribeiro",
+            "n": 2
+          }
+        ]
+      },
+      "cameras": {
+        "total": 0,
+        "top_areas": []
+      },
+      "cpsr": {
+        "total": 622,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 545
+          },
+          {
+            "valor": "Feminino",
+            "n": 72
+          },
+          {
+            "valor": "Não identificado",
+            "n": 5
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "31 a 49",
+            "n": 252
+          },
+          {
+            "valor": "18 a 30",
+            "n": 206
+          },
+          {
+            "valor": "50 a 59",
+            "n": 71
+          },
+          {
+            "valor": "Não identificada",
+            "n": 41
+          },
+          {
+            "valor": "12 a 17",
+            "n": 23
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Parda",
+            "n": 274
+          },
+          {
+            "valor": "Preta",
+            "n": 217
+          },
+          {
+            "valor": "Branca",
+            "n": 86
+          },
+          {
+            "valor": "Não identificada",
+            "n": 42
+          },
+          {
+            "valor": "Amarela",
+            "n": 3
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Madureira",
+            "n": 481
+          },
+          {
+            "valor": "Cascadura",
+            "n": 112
+          },
+          {
+            "valor": "Turiaçú",
+            "n": 25
+          },
+          {
+            "valor": "Engenheiro Leal",
+            "n": 2
+          },
+          {
+            "valor": "Osvaldo Cruz",
+            "n": 2
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 253,
+          "2022": 184,
+          "2024": 185
+        }
+      },
+      "dominio_territorial": {
+        "total": 7,
+        "por_faccao": [
+          {
+            "valor": "Milícia",
+            "n": 3
+          },
+          {
+            "valor": "TCP",
+            "n": 3
+          },
+          {
+            "valor": "CV",
+            "n": 1
+          }
+        ],
+        "territorios": [
+          {
+            "territorio": "AP DE OSWALDO CRUZ",
+            "faccao": "CV"
+          },
+          {
+            "territorio": "VILA MARIA CONE",
+            "faccao": "Milícia"
+          },
+          {
+            "territorio": "TAVARES BELFORT",
+            "faccao": "Milícia"
+          },
+          {
+            "territorio": "LIMBURGO",
+            "faccao": "Milícia"
+          },
+          {
+            "territorio": "MORRO SÃO JOSÉ DA PEDRA (COMPLEXO DA SERRINHA)",
+            "faccao": "TCP"
+          },
+          {
+            "territorio": "MORRO DO DENDÊZINHO",
+            "faccao": "TCP"
+          },
+          {
+            "territorio": "MORRO DA PATOLINHA",
+            "faccao": "TCP"
+          }
+        ]
+      },
+      "zona_id": 4,
+      "prioridade": 4
+    },
+    {
+      "local_rotulo": "Ipanema",
+      "centroide": {
+        "lat": -22.983253,
+        "lon": -43.209833
+      },
+      "bbox": {
+        "lat_min": -22.987213,
+        "lat_max": -22.978169,
+        "lon_min": -43.221016,
+        "lon_max": -43.196637
+      },
+      "area_km2": 1.969,
+      "n_celulas": 17,
+      "agentes_alocados": 43,
+      "score": 10.8261,
+      "pct_indice_semana": 1.62,
+      "ocorrencias": {
+        "total": 1193,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 754
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 417
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 22
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 21,
+            "n": 113
+          },
+          {
+            "valor": 20,
+            "n": 109
+          },
+          {
+            "valor": 22,
+            "n": 97
+          },
+          {
+            "valor": 19,
+            "n": 85
+          },
+          {
+            "valor": 14,
+            "n": 78
+          },
+          {
+            "valor": 18,
+            "n": 73
+          },
+          {
+            "valor": 16,
+            "n": 70
+          },
+          {
+            "valor": 17,
+            "n": 59
+          },
+          {
+            "valor": 15,
+            "n": 59
+          },
+          {
+            "valor": 23,
+            "n": 58
+          },
+          {
+            "valor": 13,
+            "n": 51
+          },
+          {
+            "valor": 1,
+            "n": 45
+          },
+          {
+            "valor": 0,
+            "n": 39
+          },
+          {
+            "valor": 3,
+            "n": 34
+          },
+          {
+            "valor": 2,
+            "n": 31
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Domingo",
+            "n": 235
+          },
+          {
+            "valor": "Sabado",
+            "n": 187
+          },
+          {
+            "valor": "Sexta",
+            "n": 170
+          },
+          {
+            "valor": "Quarta",
+            "n": 160
+          },
+          {
+            "valor": "Terca",
+            "n": 153
+          },
+          {
+            "valor": "Quinta",
+            "n": 148
+          },
+          {
+            "valor": "Segunda",
+            "n": 139
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 265,
+          "2021": 285,
+          "2022": 260,
+          "2023": 186,
+          "2024": 197
+        },
+        "top_logradouros": [
+          {
+            "valor": "Avenida Avenida Vieira Souto",
+            "n": 169
+          },
+          {
+            "valor": "Avenida Vieira Souto",
+            "n": 152
+          },
+          {
+            "valor": "Rua Visconde De Piraja",
+            "n": 57
+          },
+          {
+            "valor": "Rua Prudente De Morais",
+            "n": 37
+          },
+          {
+            "valor": "Rua Rua Visconde De Piraja",
+            "n": 36
+          },
+          {
+            "valor": "Rua Barao Da Torre",
+            "n": 36
+          },
+          {
+            "valor": "Rua Rua Prudente De Morais",
+            "n": 31
+          },
+          {
+            "valor": "Avenida Avenida Ataulfo De Paiva",
+            "n": 26
+          },
+          {
+            "valor": "Rua Vinicius De Morais",
+            "n": 24
+          },
+          {
+            "valor": "Avenida Ataulfo De Paiva",
+            "n": 20
+          },
+          {
+            "valor": "Praia Vieira Souto",
+            "n": 20
+          },
+          {
+            "valor": "Avenida Epitacio Pessoa",
+            "n": 20
+          },
+          {
+            "valor": "Avenida Borges De Medeiros",
+            "n": 20
+          },
+          {
+            "valor": "Vila Avenida Vieira Souto",
+            "n": 19
+          },
+          {
+            "valor": "Rua Rua Barao Da Torre",
+            "n": 19
+          }
+        ]
+      },
+      "disque": {
+        "total": 91,
+        "top_tipos": [
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 46
+          },
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 42
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 2
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 1
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 49
+          },
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 42
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Ipanema",
+            "n": 67
+          },
+          {
+            "valor": "Leblon",
+            "n": 24
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "AV Vieira Souto",
+            "n": 15
+          },
+          {
+            "valor": "R Visconde De Piraja",
+            "n": 10
+          },
+          {
+            "valor": "R Barao Da Torre",
+            "n": 10
+          },
+          {
+            "valor": "AV Borges De Medeiros",
+            "n": 7
+          },
+          {
+            "valor": "R Almirante Guilhem",
+            "n": 5
+          },
+          {
+            "valor": "R Joana Angelica",
+            "n": 4
+          },
+          {
+            "valor": "R Vinicius De Moraes",
+            "n": 3
+          },
+          {
+            "valor": "R Nascimento Silva",
+            "n": 3
+          },
+          {
+            "valor": "R Prudente De Morais",
+            "n": 3
+          },
+          {
+            "valor": "R Humberto De Campos",
+            "n": 3
+          },
+          {
+            "valor": "AV Epitacio Pessoa",
+            "n": 3
+          },
+          {
+            "valor": "AV Afranio De Melo Franco",
+            "n": 2
+          },
+          {
+            "valor": "R Alberto De Campos",
+            "n": 2
+          },
+          {
+            "valor": "R Teixeira De Melo",
+            "n": 2
+          },
+          {
+            "valor": "R Professor Antonio Maria Teixeira",
+            "n": 2
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 23,
+          "2020": 9,
+          "2021": 13,
+          "2022": 18,
+          "2023": 5,
+          "2024": 5,
+          "2025": 11,
+          "2026": 7
+        },
+        "amostras_relato": [
+          "NO ENDERECO CITADO RESIDE A IDOSA [NOME] 91 ANOS A QUAL [NOME] COM [NOME] O QUAL E USUARIO DE DROGAS E FREQUENTEMENTE AGRIDE FISICAMENTE A MAE DEIXANDOA COM HEMATOMAS NOS BRACOS E PERNAS COMO PODE SER CONSTATADO NESTE MOMENTO ACRESCENTA QUE [NOME] TAMBEM",
+          "NO ENDERECO MENCIONADO ESQUINA COM A RUA [NOME] LOCALIZASE O BAR [NOME] DE IPANEMA ONDE APOS A PORTA DO BANHEIRO HA QUATRO MAQUINAS DE CACA NIQUEIS NO LOCAL PODEM SER VISTOS INDIVIDUOS NAO IDENTIFICADOS USANDO ENTORPECENTES O ESTABELECIMENTO FUNCIONA DIA",
+          "NO ENDERECO CITADO REFERENCIAS IGNORADAS HA UM IMOVEL NO QUAL RESIDE A IDOSA [NOME] VIERA DE [NOME] DE 78 ANOS QUE E PORTADORA DA  DOENCA DE ALZHEIMER E QUE SOFRE CONSTANTES MAUS TRATOS E ABANDONADO DO SEU [NOME] DE 48 ANOS QUE E USUARIO DE ENTORPECENTES",
+          "NO ENDERECO CITADO PROXIMO A PRACA GENERAL OSORIO LOCALIZASE O BAR COM CAFETERIA SILENCIO CAFE ONDE NESTE MOMENTO ENCONTRAMSE INDIVIDUOS NAO IDENTIFICADOS QUE ESTAO CONSUMINDO DROGAS E COM CAIXAS DE SOM COM O VOLUME EXCESSIVAMENTE ALTO INCOMODANDO OS DEM",
+          "NO ENDERECO CITADO PROXIMO AO [NOME] DE ALAH LOCALIZASE O EDIFICIO LAGOA DE MURO NA COR VERDE ONDE NESTE MOMENTO ENCONTRAMSE INDIVIDUOS NAO IDENTIFICADOS USUARIOS DE DROGAS QUE MONTARAM UMA BARRACA FEITA DE PAPELAO NA FRENTE DO EDIFICIO PARA CONSUMIREM A",
+          "NO ENDERECO CITADO RESIDE [NOME] RIBAS NAO CARACTERIZADO DE APROXIMADAMENTE 67 ANOS QUE ESTA APRESENTANDO PROBLEMAS PSICOLOGICOS E TEM ACUMULADO UMA GRANDE QUANTIDADE DE LIXO QUE CONSEQUENTEMENTE EXALA MAL CHEIRO E INFESTACAO DE INSETOS PERCEBESE QUE ESP",
+          "NO ENDERECO CITADO NO BLOCO 07 [NOME] DE COR VERDE PODEM SER VISTOS DIARIAMENTE POR 24H VARIOS TRAFICANTES NAO IDENTIFICADOS COMERCIALIZANDO E CONSUMIDO ENTORPECENTES ARMADOS DE PISTOLAS PERTENCENTES A FACCAO DO COMANDO VERMELHO NO LOCAL OCORREM BAILES F",
+          "NA AVENIDA CITADA NA ALTURA DO N 360 TREZENTOS E SESSENTA POSTO 11 ONZE PROXIMO AO [NOME] DE ALAH PRECISAMENTE NA AREIA DA PRAIA PROXIMO DE UMA REDE DE VOLEI ONDE TODOS OS SABADOS [NOME] E FERIADOS ENTRE 8H E 11H SAO VISTOS OS PRATICANTES DE VOLEI FUMAND",
+          "NA RUA CITADA NAS IMEDIACOES DO SHOPPING RIO DESIGN DIARIAMENTE ENTRE 11H E 23H FUNCIONA UM PONTO CLANDESTINO DE MOTO TAXI NO LOCAL PODEM SER VISTOS INDIVIDUOS CONSUMINDO E COMERCIALIZANDO DROGAS INDIVIDUOS NAO IDENTIFICADOS FAZENDO USO DE TORNOZELEIRA E",
+          "NO ENDERECO CITADO ESQUINA COM A RUA FARME DE AMOEDO RESIDE E PODE SER ENCONTRADA MAIS PRECISAMENTE NAS QUARTAS FEIRAS E FINAIS DE SEMANA UMA MULHER CARACTERIZADA QUE GUARDA FOGOS DE ARTIFICIOS E UM ARMA DE FOGO NO LOCAL ACRESCENTA QUE O LOCAL E MUITO FR"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 290,
+        "top_tipos": [
+          {
+            "valor": "Pessoas em situação de rua",
+            "n": 85
+          },
+          {
+            "valor": "Vegetação encobrindo iluminação pública",
+            "n": 44
+          },
+          {
+            "valor": "Área mal iluminada com circulação de pedestres",
+            "n": 32
+          },
+          {
+            "valor": "Ponto de retenção do tráfego",
+            "n": 22
+          },
+          {
+            "valor": "Estacionamento irregular forçando pedestres à pista",
+            "n": 20
+          },
+          {
+            "valor": "Vegetação obstruindo a visibilidade do passeio",
+            "n": 14
+          },
+          {
+            "valor": "Vãos ou cavidades usados como esconderijo",
+            "n": 14
+          },
+          {
+            "valor": "Cena de uso de drogas",
+            "n": 11
+          },
+          {
+            "valor": "Comércio irregular obstruindo a visibilidade do passeio",
+            "n": 8
+          },
+          {
+            "valor": "Veículos de grande porte obstruindo a visibilidade",
+            "n": 7
+          },
+          {
+            "valor": "Praças e Parques",
+            "n": 7
+          },
+          {
+            "valor": "Mobiliário urbano desviando pedestres para a pista",
+            "n": 5
+          },
+          {
+            "valor": "Mobiliário/estrutura servindo de esconderijo",
+            "n": 5
+          },
+          {
+            "valor": "Tapumes servindo de esconderijo",
+            "n": 4
+          },
+          {
+            "valor": "Motocicletas trafegando no passeio",
+            "n": 3
+          }
+        ],
+        "top_orgaos_responsaveis": [
+          {
+            "valor": "SMAS",
+            "n": 96
+          },
+          {
+            "valor": "COMLURB",
+            "n": 59
+          },
+          {
+            "valor": "SEOP",
+            "n": 35
+          },
+          {
+            "valor": "Rio Luz",
+            "n": 33
+          },
+          {
+            "valor": "SECONSERVA",
+            "n": 31
+          },
+          {
+            "valor": "CET-Rio",
+            "n": 22
+          },
+          {
+            "valor": "GM-Rio",
+            "n": 3
+          },
+          {
+            "valor": "SMTR",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "Avenida Vieira Souto",
+            "n": 50
+          },
+          {
+            "valor": "Rua Visconde De Pirajá",
+            "n": 40
+          },
+          {
+            "valor": "Avenida Borges De Medeiros",
+            "n": 34
+          },
+          {
+            "valor": "Rua Prudente De Morais",
+            "n": 24
+          },
+          {
+            "valor": "Avenida Epitácio Pessoa",
+            "n": 22
+          },
+          {
+            "valor": "Avenida Afrânio De Melo Franco",
+            "n": 20
+          },
+          {
+            "valor": "Avenida Ataulfo De Paiva",
+            "n": 15
+          },
+          {
+            "valor": "Rua Teixeira De Melo",
+            "n": 7
+          },
+          {
+            "valor": "Rua Farme De Amoedo",
+            "n": 6
+          },
+          {
+            "valor": "Rua Humberto De Campos",
+            "n": 6
+          },
+          {
+            "valor": "Rua Vinícius De Moraes",
+            "n": 6
+          },
+          {
+            "valor": "Rua Almirante Pereira Guimarães",
+            "n": 6
+          },
+          {
+            "valor": "Avenida Henrique Dumont",
+            "n": 5
+          },
+          {
+            "valor": "Rua Maria Quitéria",
+            "n": 5
+          },
+          {
+            "valor": "Rua Aníbal De Mendonça",
+            "n": 4
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Ipanema",
+            "n": 187
+          },
+          {
+            "valor": "Leblon",
+            "n": 98
+          },
+          {
+            "valor": "Lagoa",
+            "n": 4
+          },
+          {
+            "valor": "Recreio Dos Bandeirantes",
+            "n": 1
+          }
+        ]
+      },
+      "cameras": {
+        "total": 30,
+        "top_areas": [
+          {
+            "valor": "Jardim de Alah",
+            "n": 30
+          }
+        ]
+      },
+      "cpsr": {
+        "total": 314,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 266
+          },
+          {
+            "valor": "Feminino",
+            "n": 47
+          },
+          {
+            "valor": "Não identificado",
+            "n": 1
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "31 a 49",
+            "n": 138
+          },
+          {
+            "valor": "18 a 30",
+            "n": 109
+          },
+          {
+            "valor": "50 a 59",
+            "n": 37
+          },
+          {
+            "valor": "60 a 69",
+            "n": 15
+          },
+          {
+            "valor": "Até 11",
+            "n": 5
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Parda",
+            "n": 147
+          },
+          {
+            "valor": "Preta",
+            "n": 118
+          },
+          {
+            "valor": "Branca",
+            "n": 38
+          },
+          {
+            "valor": "Não identificada",
+            "n": 8
+          },
+          {
+            "valor": "Indígena",
+            "n": 3
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Ipanema",
+            "n": 213
+          },
+          {
+            "valor": "Leblon",
+            "n": 95
+          },
+          {
+            "valor": "Lagoa",
+            "n": 6
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 84,
+          "2022": 85,
+          "2024": 145
+        }
+      },
+      "dominio_territorial": {
+        "total": 1,
+        "por_faccao": [
+          {
+            "valor": "CV",
+            "n": 1
+          }
+        ],
+        "territorios": [
+          {
+            "territorio": "CRUZADA SÃO SEBASTIÃO",
+            "faccao": "CV"
+          }
+        ]
+      },
+      "zona_id": 5,
+      "prioridade": 5
+    },
+    {
+      "local_rotulo": "Engenho De  Dentro",
+      "centroide": {
+        "lat": -22.894243,
+        "lon": -43.296456
+      },
+      "bbox": {
+        "lat_min": -22.901298,
+        "lat_max": -22.887732,
+        "lon_min": -43.301468,
+        "lon_max": -43.291716
+      },
+      "area_km2": 1.125,
+      "n_celulas": 10,
+      "agentes_alocados": 32,
+      "score": 7.95,
+      "pct_indice_semana": 1.19,
+      "ocorrencias": {
+        "total": 786,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 536
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 223
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 27
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 19,
+            "n": 75
+          },
+          {
+            "valor": 20,
+            "n": 74
+          },
+          {
+            "valor": 21,
+            "n": 74
+          },
+          {
+            "valor": 22,
+            "n": 62
+          },
+          {
+            "valor": 23,
+            "n": 56
+          },
+          {
+            "valor": 1,
+            "n": 41
+          },
+          {
+            "valor": 6,
+            "n": 37
+          },
+          {
+            "valor": 18,
+            "n": 37
+          },
+          {
+            "valor": 0,
+            "n": 29
+          },
+          {
+            "valor": 13,
+            "n": 27
+          },
+          {
+            "valor": 17,
+            "n": 26
+          },
+          {
+            "valor": 5,
+            "n": 25
+          },
+          {
+            "valor": 2,
+            "n": 24
+          },
+          {
+            "valor": 15,
+            "n": 24
+          },
+          {
+            "valor": 11,
+            "n": 22
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Domingo",
+            "n": 146
+          },
+          {
+            "valor": "Sabado",
+            "n": 128
+          },
+          {
+            "valor": "Terca",
+            "n": 112
+          },
+          {
+            "valor": "Segunda",
+            "n": 109
+          },
+          {
+            "valor": "Sexta",
+            "n": 99
+          },
+          {
+            "valor": "Quarta",
+            "n": 97
+          },
+          {
+            "valor": "Quinta",
+            "n": 95
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 151,
+          "2021": 166,
+          "2022": 168,
+          "2023": 142,
+          "2024": 159
+        },
+        "top_logradouros": [
+          {
+            "valor": "Rua Jose Dos Reis",
+            "n": 128
+          },
+          {
+            "valor": "Avenida Amaro Cavalcanti",
+            "n": 74
+          },
+          {
+            "valor": "Rua Arquias Cordeiro",
+            "n": 67
+          },
+          {
+            "valor": "Rua Bento Goncalves",
+            "n": 37
+          },
+          {
+            "valor": "Rua Monsenhor Jeronimo",
+            "n": 35
+          },
+          {
+            "valor": "Rua Daniel Carneiro",
+            "n": 25
+          },
+          {
+            "valor": "Rua Teixeira De Azevedo",
+            "n": 23
+          },
+          {
+            "valor": "Rua Rua Jose Dos Reis",
+            "n": 21
+          },
+          {
+            "valor": "Rua General Clarindo",
+            "n": 20
+          },
+          {
+            "valor": "Rua Adolfo Bergamini",
+            "n": 17
+          },
+          {
+            "valor": "Rua Guilhermina",
+            "n": 17
+          },
+          {
+            "valor": "Avenida Avenida Amaro Cavalcanti",
+            "n": 17
+          },
+          {
+            "valor": "Rua Mario Carpenter",
+            "n": 16
+          },
+          {
+            "valor": "Rua Doutor Leal",
+            "n": 16
+          },
+          {
+            "valor": "Rua Doutor Bulhoes",
+            "n": 16
+          }
+        ]
+      },
+      "disque": {
+        "total": 99,
+        "top_tipos": [
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 51
+          },
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 44
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 2
+          },
+          {
+            "valor": "ROUBO EM TRANSP COLETIVOS",
+            "n": 1
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 1
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 55
+          },
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 44
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Engenho De  Dentro",
+            "n": 76
+          },
+          {
+            "valor": "Abolicao",
+            "n": 12
+          },
+          {
+            "valor": "Engenho De Dentro",
+            "n": 9
+          },
+          {
+            "valor": "Encantado",
+            "n": 1
+          },
+          {
+            "valor": "Quintino Bocaiuva",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "R Jose Dos Reis",
+            "n": 21
+          },
+          {
+            "valor": "AV Amaro Cavalcanti",
+            "n": 12
+          },
+          {
+            "valor": "R Monsenhor Jeronimo",
+            "n": 10
+          },
+          {
+            "valor": "R Pernambuco",
+            "n": 7
+          },
+          {
+            "valor": "R Teixeira De Azevedo",
+            "n": 7
+          },
+          {
+            "valor": "R Bento Goncalves",
+            "n": 7
+          },
+          {
+            "valor": "R Dona Eugenia",
+            "n": 6
+          },
+          {
+            "valor": "R Guineza",
+            "n": 6
+          },
+          {
+            "valor": "R Doutor Niemeyer",
+            "n": 5
+          },
+          {
+            "valor": "R Doutor Bulhoes",
+            "n": 2
+          },
+          {
+            "valor": "R Afonso Ferreira",
+            "n": 2
+          },
+          {
+            "valor": "N.I. Não Informado",
+            "n": 2
+          },
+          {
+            "valor": "R Luis Silva",
+            "n": 2
+          },
+          {
+            "valor": "PC Rio Grande Do Norte",
+            "n": 1
+          },
+          {
+            "valor": "LRG Abolicao, Da",
+            "n": 1
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 19,
+          "2020": 6,
+          "2021": 15,
+          "2022": 10,
+          "2023": 14,
+          "2024": 15,
+          "2025": 15,
+          "2026": 5
+        },
+        "amostras_relato": [
+          "NO ENDERECO CITADO HA UMA CASA ABANDONADO E DEPREDADA POR USUARIOS DE ENTORPECENTES ONDE FREQUENTEMENTE E INVADIDA POR INDIVIDUOS PARA CONSUMIREM ENTORPECENTES E PRATICAREM SEXO DEVIDO AO SEU ESTADO DE ABANDONO HA RISCOS DE USUARIOS DE DROGAS ABORDAREM A",
+          "NO ENDERECO MENCIONADO AO LADO DO ESTADIO DE FUTEBOL [NOME] O ENGENHAO E DA GARAGEM DE ONIBUS TRANSURBE SITUASE UM TERRENO DE UMA ANTIGA FABRICA QUE FOI INVADIDO E VEM SENDO DEPREDADO POR USUARIOS DE DROGAS O LOCAL SERVE DE ABRIGO PARA OS MESMOS QUE PRAT",
+          "NO ENDERECO MENCIONADO PROXIMO A [NOME] LOCALIZASE UM FERRO VELHO ONDE HA RECEPTACAO DE FIOS DE COBRE ROUBADOS BEM COMO TAMPOES DE BUEIROS E GRADES DE RESIDENCIAS QUE SAO FURTADOS [NOME] REGIAO GERALMENTE AS PESSOAS NAO IDENTIFICADAS QUE ROUBAM SAO USUAR",
+          "NO ENDERECO CITADO EM FRENTE AO VIADUTO LOCALIZASE A LOJA DESATIVADA QUE FOI INVADIDA POR UM INDIVIDUO NAO IDENTIFICADO E ATUALMENTE FUNCIONA O FERRO VELHO ABERTO DIARIAMENTE NO HORARIO DAS 10H AS 20H  SAO COMERCIALIZADOS FIOS PROVENIENTES DE ROUBOS OS P",
+          "NO ENDERECO MENCIONADO PROXIMO AO POSTO IPIRANGA LOCALIZASE UM PREDIO ONDE NO APARTAMENTO CITADO O MORADOR NAO IDENTIFICADO ATEOU FOGO EM SEU APARTAMENTO NUM MOMENTO DE SURTO DE DROGAS O MESMO POSSUI CERCA DE 5 CINCO CACHORROS O MORADOR FOI INTERNADO NUM",
+          "NO ENDERECO CITADO PROXIMO A [NOME] AO LADO DE UM PREDIO E UM CORREGO LOCALIZASE UM FERRO VELHO CLANDESTINO ONDE PODEM SER VISTOS INDIVIDUOS NAO IDENTIFICADOS CONSUMINDO DROGAS ALEM DISSO HA PROLIFERACAO DE SUJEIRA NA CALCADA QUE FICA OCUPADA COM CARRINH",
+          "NA FRENTE DO MERCADO DONA [NOME] PODEM SER VISTOS DIARIAMENTE A PARTIR DAS 22H APROXIMADAMENTE DEZ INDIVIDUOS NAO IDENTIFICADOS CONSUMINDO E COMERCIALIZANDO ENTORPECENTES ALEM DO TRAFICO ELES PROMOVEM MUITO BARULHO TIRANDO A PAZ E O SOSSEGO DE TODA A VIZ",
+          "NA RUA CITADA ALTURA DO N 470 QUATROCENTOS E SETENTA ATRAS DO SUPERMERCADO GUANABARA ENCONTRASE ABANDONADO UM AUTO FIAT PALIO DE COR BEGE PLACA LCQ8193 QUE ESTA SERVINDO DE ABRIGO PARA USUARIO DE DROGAS NAO IDENTIFICADOS QUE USAM ENTORPECENTES E DORMEM N",
+          "NO ENDERECO CITADO PROXIMO AO ESTADIO [NOME] CONDOMINIO NOSSA SENHORA [NOME] E GARAGEM DE ONIBUS TRANSURB LOCALIZASE UM TERRENO QUE FUNCIONAVA UMA FABRICA ONDE PODEM SER VISTAS ESTRUTURAS METALICAS E FOI OCUPADO POR USUARIOS DE DROGAS NAO IDENTIFICADOS Q",
+          "NA AVENIDA CITADA ESQUINA COM A RUA MONSENHOR EM FRENTE A ESTACAO DE TREM LOCALIZASE A IGREJA NOSSA SENHORA ONDE TODA TERCAFEIRA OCORRE UMA OBRA SOCIAL PARA USUARIO DE DROGAS DEVIA ISSO HA UMA GRANDE CONCENTRACAO DE MORADORES DE RUA NO LOCAL ALGUNS DESSE"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 0,
+        "top_tipos": [],
+        "top_orgaos_responsaveis": [],
+        "top_ruas": [],
+        "top_bairros": []
+      },
+      "cameras": {
+        "total": 0,
+        "top_areas": []
+      },
+      "cpsr": {
+        "total": 26,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 24
+          },
+          {
+            "valor": "Feminino",
+            "n": 2
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "31 a 49",
+            "n": 14
+          },
+          {
+            "valor": "18 a 30",
+            "n": 6
+          },
+          {
+            "valor": "50 a 59",
+            "n": 5
+          },
+          {
+            "valor": "60 a 69",
+            "n": 1
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Parda",
+            "n": 12
+          },
+          {
+            "valor": "Branca",
+            "n": 8
+          },
+          {
+            "valor": "Preta",
+            "n": 6
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Engenho De Dentro",
+            "n": 25
+          },
+          {
+            "valor": "Encantado",
+            "n": 1
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 6,
+          "2022": 3,
+          "2024": 17
+        }
+      },
+      "dominio_territorial": {
+        "total": 0,
+        "por_faccao": [],
+        "territorios": []
+      },
+      "zona_id": 6,
+      "prioridade": 6
+    },
+    {
+      "local_rotulo": "Cachambi",
+      "centroide": {
+        "lat": -22.889885,
+        "lon": -43.276508
+      },
+      "bbox": {
+        "lat_min": -22.896776,
+        "lat_max": -22.885471,
+        "lon_min": -43.284402,
+        "lon_max": -43.269775
+      },
+      "area_km2": 1.312,
+      "n_celulas": 10,
+      "agentes_alocados": 29,
+      "score": 7.2783,
+      "pct_indice_semana": 1.09,
+      "ocorrencias": {
+        "total": 1011,
+        "top_tipos": [
+          {
+            "valor": "Roubo a transeunte",
+            "n": 672
+          },
+          {
+            "valor": "Roubo de aparelho celular",
+            "n": 289
+          },
+          {
+            "valor": "Roubo em coletivo",
+            "n": 50
+          }
+        ],
+        "top_horarios": [
+          {
+            "valor": 20,
+            "n": 105
+          },
+          {
+            "valor": 19,
+            "n": 100
+          },
+          {
+            "valor": 21,
+            "n": 91
+          },
+          {
+            "valor": 22,
+            "n": 73
+          },
+          {
+            "valor": 18,
+            "n": 72
+          },
+          {
+            "valor": 23,
+            "n": 54
+          },
+          {
+            "valor": 14,
+            "n": 43
+          },
+          {
+            "valor": 17,
+            "n": 43
+          },
+          {
+            "valor": 15,
+            "n": 41
+          },
+          {
+            "valor": 16,
+            "n": 39
+          },
+          {
+            "valor": 8,
+            "n": 39
+          },
+          {
+            "valor": 12,
+            "n": 39
+          },
+          {
+            "valor": 13,
+            "n": 36
+          },
+          {
+            "valor": 5,
+            "n": 34
+          },
+          {
+            "valor": 10,
+            "n": 33
+          }
+        ],
+        "top_dias_semana": [
+          {
+            "valor": "Quinta",
+            "n": 167
+          },
+          {
+            "valor": "Terca",
+            "n": 160
+          },
+          {
+            "valor": "Sexta",
+            "n": 159
+          },
+          {
+            "valor": "Segunda",
+            "n": 138
+          },
+          {
+            "valor": "Quarta",
+            "n": 134
+          },
+          {
+            "valor": "Domingo",
+            "n": 131
+          },
+          {
+            "valor": "Sabado",
+            "n": 121
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 239,
+          "2021": 231,
+          "2022": 205,
+          "2023": 172,
+          "2024": 164
+        },
+        "top_logradouros": [
+          {
+            "valor": "Avenida Dom Helder Camara",
+            "n": 117
+          },
+          {
+            "valor": "Rua Cachambi",
+            "n": 69
+          },
+          {
+            "valor": "Avenida Avenida Dom Helder Camara",
+            "n": 55
+          },
+          {
+            "valor": "Rua Getulio",
+            "n": 47
+          },
+          {
+            "valor": "Rua Honorio",
+            "n": 41
+          },
+          {
+            "valor": "Rua Coracao De Maria",
+            "n": 36
+          },
+          {
+            "valor": "Rua Vasco Da Gama",
+            "n": 35
+          },
+          {
+            "valor": "Rua Tenente Costa",
+            "n": 33
+          },
+          {
+            "valor": "Rua Garcia Redondo",
+            "n": 32
+          },
+          {
+            "valor": "Rua Silva Mourao",
+            "n": 29
+          },
+          {
+            "valor": "Rua Sao Gabriel",
+            "n": 22
+          },
+          {
+            "valor": "Rua Ferreira De Andrade",
+            "n": 21
+          },
+          {
+            "valor": "Rua Basilio De Brito",
+            "n": 20
+          },
+          {
+            "valor": "Rua Rua Cachambi",
+            "n": 19
+          },
+          {
+            "valor": "Rua Rua Honorio",
+            "n": 19
+          }
+        ]
+      },
+      "disque": {
+        "total": 62,
+        "top_tipos": [
+          {
+            "valor": "CONSUMO DE DROGAS",
+            "n": 30
+          },
+          {
+            "valor": "ROUBO/FURTO A TRANSEUNTES",
+            "n": 28
+          },
+          {
+            "valor": "ROUBO A MOTORISTAS",
+            "n": 2
+          },
+          {
+            "valor": "SUSPEITA DE ROUBO/FURTO",
+            "n": 2
+          }
+        ],
+        "top_classes": [
+          {
+            "valor": "CRIMES CONTRA O PATRIMÔNIO",
+            "n": 32
+          },
+          {
+            "valor": "SUBSTÂNCIAS ENTORPECENTES",
+            "n": 30
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Cachambi",
+            "n": 54
+          },
+          {
+            "valor": "Meier",
+            "n": 4
+          },
+          {
+            "valor": "Todos Os Santos",
+            "n": 3
+          },
+          {
+            "valor": "Del Castilho",
+            "n": 1
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "R Odilon Araujo",
+            "n": 7
+          },
+          {
+            "valor": "R Cachambi",
+            "n": 7
+          },
+          {
+            "valor": "R Menezes Vieira",
+            "n": 7
+          },
+          {
+            "valor": "AV Dom Helder Camara",
+            "n": 6
+          },
+          {
+            "valor": "R Sao Gabriel",
+            "n": 5
+          },
+          {
+            "valor": "R Getulio",
+            "n": 4
+          },
+          {
+            "valor": "R Estevao Silva",
+            "n": 4
+          },
+          {
+            "valor": "R Rio Grande Do Sul",
+            "n": 3
+          },
+          {
+            "valor": "R Garcia Redondo",
+            "n": 3
+          },
+          {
+            "valor": "R Honorio",
+            "n": 2
+          },
+          {
+            "valor": "R Ferreira De Andrade",
+            "n": 2
+          },
+          {
+            "valor": "R Cirne Maia",
+            "n": 2
+          },
+          {
+            "valor": "R Odorico Mendes",
+            "n": 1
+          },
+          {
+            "valor": "R Rocha Pita",
+            "n": 1
+          },
+          {
+            "valor": "R Vasco Da Gama",
+            "n": 1
+          }
+        ],
+        "distribuicao_anual": {
+          "2019": 13,
+          "2020": 8,
+          "2021": 9,
+          "2022": 3,
+          "2023": 7,
+          "2024": 8,
+          "2025": 10,
+          "2026": 4
+        },
+        "amostras_relato": [
+          "NO ENDERECO MENCIONADO PROXIMO A ESCOLA CENTRAL DO [NOME] AO LADO DE UMA [NOME] LOCALIZASE UMA CASA DE DOIS ANDARES COM MURO [NOME] PICHADO E UM PORTAO DE FERRO [NOME] ONDE DIARIAMENTE PODE SER ENCONTRADO O JOHALL [NOME] DOS [NOME] DAMAZIO VICIADO EM DRO",
+          "NA RUA CITADA NA ALTURA DO N 220 DUZENTOS E VINTE LOCALIZASE O BAR DO CARLINHOS QUE DE QUARTAFEIRA A DOMINGO MANTEM UM SOM EXTREMAMENTE ALTO PERTURBANDO O SOSSEGO DA LOCALIDADE ALEM DISSO OS FREQUENTADORES NAO IDENTIFICADOS COSTUMAM CONSUMIR ENTORPECENTE",
+          "NO ENDERECO CITADO ATRAS DA ESCOLA MUNICIPAL [NOME] LOCALIZASE UMA [NOME] DE CASAS ONDE RESIDE [NOME] QUE RECEBE CLIENTES PARA A REALIZACAO DA PRATICA DE BRONZEAMENTO ARTIFICIAL CLANDESTINA UTILIZANDO VARIAS MAQUINAS DE BRONZEAMENTOS NO LOCAL E UTILIZADO",
+          "NO ENDERECO CITADO DEPOIS DA COLEGIO PARTICULAR SANTA [NOME] LOCALIZASE UMA CASA ONDE RESIDEM BIA E [NOME] NAO CARACTERIZADAS QUE DIARIAMENTE DURANTE TODO O DIA AGRIDE SEUS FILHOS NAO IDENTIFICADOS ENTRE 5 E 13 ANOS [NOME] INFORMACOES BIA E [NOME] SAO US",
+          "NA RUA CITADA NA ALTURA DO N 285 DUZENTOS E OITENTA E CINCO ONDE HA DOIS BARES QUE NO PERIODO DA NOITE E MADRUGADA PROMOVEM EVENTOS COM MUSICAS EM VOLUME ALTO E INCOMODAM O DESCANSO DOS MORADORES TEM O BAR DO NENE CUJO PROPRIETARIO [NOME] NAO CARACTERIZA",
+          "NA RUA MENCIONADA ESQUINA COM A RUA [NOME] LOCALIZASE O BAR CHAMADO ON FIRE ONDE HA VENDA DE BEBIDAS ALCOOLICAS PARA MENORES DE IDADE E PERTURBACAO DA ORDEM PUBLICA COM MUSICA ALTA O BAR CONTA COM MESAS E CADEIRAS QUE FICAM ESPALHADAS [NOME] RUA CITADA O",
+          "NO ENDERECO CITADO PROXIMO AO BANCO DO [NOME] SITUASE A RESIDENCIA DE [NOME] E SUA AVO [NOME] NAO CARACTERIZADOS [NOME] E USUARIO DE DROGAS E FAZ MAUS TRATOS A UM CACHORRO O AGREDINDO BASTANTE O MESMO TAMBEM QUEBRA VARIOS OBJETOS DENTRO DE CASA E REALIZA",
+          "COMPLEMENTA A DENUNCIA 500232018 INFORMANDO QUE NO ENDERECO CITADOS NA DENUNCIA DE ORIGEM PRECISAMENTE NO TERRACO ONDE NESTE MOMENTO HA INDIVIDUOS FUMANDO MACONHA NO ENDERECO CITADO PROXIMO A RUA CIRNE [NOME] LOCALIZASE O EDIFICIO TELOS II QUE TODA AS SE",
+          "NO ENDERECO MENCIONADO PROXIMO A ESCOLA CENTRAL DO [NOME] AO LADO DE UMA [NOME] LOCALIZASE UMA CASA DE DOIS ANDARES COM MURO [NOME] PIXADO E UM PORTAO DE FERRO [NOME] ONDE DIARIAMENTE PODE SER ENCONTRADO O JOHALL [NOME] DOS [NOME] DAMAZIO VICIADO EM DROG",
+          "NA AVENIDA MENCIONADA PERTO DA RUA PEDRAS ALTAS DO NORTE SHOPPING E DA LOJA PROMO INFO EM FRENTE AO N 4977 QUATRO MIL NOVECENTOS E SETENTA E [NOME] NA PORTA DA BRILHAUTO DE SEGUNDAFEIRA A SABADO NO HORARIO DAS 13H AS 17H PODE SER ENCONTRADO UM USUARIO DE"
+        ]
+      },
+      "fatores_urbanos": {
+        "total": 124,
+        "top_tipos": [
+          {
+            "valor": "Vegetação encobrindo iluminação pública",
+            "n": 36
+          },
+          {
+            "valor": "Vegetação obstruindo a visibilidade do passeio",
+            "n": 35
+          },
+          {
+            "valor": "Área mal iluminada com circulação de pedestres",
+            "n": 7
+          },
+          {
+            "valor": "Pessoas em situação de rua",
+            "n": 6
+          },
+          {
+            "valor": "Comércio irregular obstruindo a visibilidade do passeio",
+            "n": 5
+          },
+          {
+            "valor": "Estacionamento irregular forçando pedestres à pista",
+            "n": 5
+          },
+          {
+            "valor": "Veículos de grande porte obstruindo a visibilidade",
+            "n": 4
+          },
+          {
+            "valor": "Mobiliário abandonado servindo de esconderijo",
+            "n": 4
+          },
+          {
+            "valor": "Lixo/entulho forçando pedestres à pista",
+            "n": 3
+          },
+          {
+            "valor": "Mobiliário/estrutura servindo de esconderijo",
+            "n": 3
+          },
+          {
+            "valor": "Cena de uso de drogas",
+            "n": 3
+          },
+          {
+            "valor": "Lixo/entulho obstruindo a visibilidade",
+            "n": 3
+          },
+          {
+            "valor": "Praças e Parques",
+            "n": 2
+          },
+          {
+            "valor": "Ponto de retenção do tráfego",
+            "n": 2
+          },
+          {
+            "valor": "Motocicletas trafegando no passeio",
+            "n": 2
+          }
+        ],
+        "top_orgaos_responsaveis": [
+          {
+            "valor": "COMLURB",
+            "n": 77
+          },
+          {
+            "valor": "SEOP",
+            "n": 14
+          },
+          {
+            "valor": "SMAS",
+            "n": 9
+          },
+          {
+            "valor": "SECONSERVA",
+            "n": 8
+          },
+          {
+            "valor": "Rio Luz",
+            "n": 7
+          },
+          {
+            "valor": "CET-Rio",
+            "n": 2
+          },
+          {
+            "valor": "GM-Rio",
+            "n": 2
+          },
+          {
+            "valor": "SMTR",
+            "n": 2
+          }
+        ],
+        "top_ruas": [
+          {
+            "valor": "Rua García Redondo",
+            "n": 39
+          },
+          {
+            "valor": "Rua Coração De Maria",
+            "n": 36
+          },
+          {
+            "valor": "Rua Tenente Costa",
+            "n": 21
+          },
+          {
+            "valor": "Rua Silva Mourão",
+            "n": 12
+          },
+          {
+            "valor": "Avenida Dom Hélder Câmara",
+            "n": 12
+          },
+          {
+            "valor": "Rua Rocha Pita",
+            "n": 2
+          },
+          {
+            "valor": "Coraçao De Maria",
+            "n": 1
+          },
+          {
+            "valor": "Praça Avaí",
+            "n": 1
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Cachambi",
+            "n": 75
+          },
+          {
+            "valor": "Meier",
+            "n": 49
+          }
+        ]
+      },
+      "cameras": {
+        "total": 0,
+        "top_areas": []
+      },
+      "cpsr": {
+        "total": 19,
+        "por_sexo": [
+          {
+            "valor": "Masculino",
+            "n": 12
+          },
+          {
+            "valor": "Feminino",
+            "n": 7
+          }
+        ],
+        "por_faixa_etaria": [
+          {
+            "valor": "18 a 30",
+            "n": 9
+          },
+          {
+            "valor": "12 a 17",
+            "n": 5
+          },
+          {
+            "valor": "31 a 49",
+            "n": 2
+          },
+          {
+            "valor": "50 a 59",
+            "n": 2
+          },
+          {
+            "valor": "60 a 69",
+            "n": 1
+          }
+        ],
+        "por_cor_raca": [
+          {
+            "valor": "Preta",
+            "n": 9
+          },
+          {
+            "valor": "Parda",
+            "n": 7
+          },
+          {
+            "valor": "Branca",
+            "n": 3
+          }
+        ],
+        "top_bairros": [
+          {
+            "valor": "Cachambi",
+            "n": 19
+          }
+        ],
+        "distribuicao_anual": {
+          "2020": 10,
+          "2022": 1,
+          "2024": 8
+        }
+      },
+      "dominio_territorial": {
+        "total": 0,
+        "por_faccao": [],
+        "territorios": []
+      },
+      "zona_id": 7,
+      "prioridade": 7
+    }
+  ]
+}

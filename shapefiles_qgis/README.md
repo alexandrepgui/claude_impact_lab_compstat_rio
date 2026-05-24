@@ -20,6 +20,7 @@ pesadas — só `pyshp`.
 | `gerar_visualizacao.py` | HTML animado para a v1 estática (slider de semanas, zonas fixas) | `distribuicao_fm/heatmap_semanal.shp`, `zonas_recomendadas.shp` | `distribuicao_fm/visualizacao_semanal_estatica.html` *(legado)* |
 | **`motor_bingo_semanal.py`** | **v2 configurável** — índice "bingo" composto, **zonas recalculadas a cada semana** | `<camada>/*.shp` + `config_pesos.json` | `distribuicao_fm/zonas_semanais.shp`, `visualizacao_semanal.html` |
 | `config_pesos.json` | Pesos editáveis das camadas e categorias do bingo | — | — |
+| **`relatorio_zonas.py`** | Compila um dossiê por zona da **última semana** (insumo p/ IA gerar RELINT) | `distribuicao_fm/zonas_semanais.shp` + `<camada>/*.shp` | `distribuicao_fm/relatorio_zonas_{compacto,rico}.{md,json}` |
 
 > O fluxo recomendado hoje é: rode `gerar_shapefiles.py` uma vez (gera as
 > camadas de pontos) e depois `motor_bingo_semanal.py` toda vez que mudar
@@ -32,6 +33,8 @@ pesadas — só `pyshp`.
 |---|---|---|
 | `zonas_semanais.shp` | motor v2 | ~400 KB |
 | `visualizacao_semanal.html` | motor v2 | ~7,6 MB (single file, abrir no navegador) |
+| `relatorio_zonas_compacto.{md,json}` | relatorio_zonas | ~80 KB — insumo curto p/ IA |
+| `relatorio_zonas_rico.{md,json}` | relatorio_zonas | ~140 KB — insumo detalhado p/ IA |
 | `heatmap_semanal.shp` | v1 estática | ~13 MB |
 | `zonas_recomendadas.shp` + `zonas_celulas.shp` | v1 estática | < 100 KB |
 
@@ -45,6 +48,7 @@ Requisitos: Python 3.10+ e `pyshp`.
 pip install pyshp
 python shapefiles_qgis/gerar_shapefiles.py        # 1× (já materializado no repo)
 python shapefiles_qgis/motor_bingo_semanal.py     # toda vez que mudar pesos
+python shapefiles_qgis/relatorio_zonas.py         # dossiê da última semana p/ IA
 ```
 
 A visualização sai em `shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html`
@@ -179,7 +183,36 @@ há mais nada para mexer no código.
 
 ---
 
-## 6. Pastas por camada (referência)
+## 6. Dossiê por zona — insumo para a IA gerar RELINT
+
+`relatorio_zonas.py` lê `zonas_semanais.shp`, pega a **última semana** e, para
+cada polígono daquela semana, compila tudo o que está acontecendo dentro do
+contorno: ocorrências, denúncias do Disque (com amostras de relato),
+fatores urbanos, câmeras, CPSR e domínio territorial.
+
+Gera 4 arquivos em `distribuicao_fm/`:
+
+- `relatorio_zonas_compacto.json` ← **principal insumo para a IA**
+- `relatorio_zonas_compacto.md`   ← versão legível por humano
+- `relatorio_zonas_rico.json`     ← versão com séries temporais e mais relatos
+- `relatorio_zonas_rico.md`
+
+Cada zona traz: rótulo, centróide, bbox, área, células, agentes, score, %
+do índice da semana, e por camada um **top N** de categorias / horários /
+dias / logradouros + uma amostra de relatos do Disque (3 no compacto, 10 no
+rico). Encoding de DBFs mistos (utf-8 + cp1252) é tratado automaticamente
+via `fix_mojibake`.
+
+```
+python shapefiles_qgis/relatorio_zonas.py
+```
+
+A ideia: a IA recebe um dos JSONs e produz um documento no estilo dos
+RELINTs em `relints/` — um relatório por polígono.
+
+---
+
+## 7. Pastas por camada (referência)
 
 Cada subpasta documenta a fonte e o shapefile gerado:
 
@@ -196,7 +229,7 @@ Cada subpasta documenta a fonte e o shapefile gerado:
 
 ---
 
-## 7. Como animar no QGIS
+## 8. Como animar no QGIS
 
 `distribuicao_fm/zonas_semanais.shp`:
 
@@ -209,7 +242,7 @@ Mesmo procedimento serve para `heatmap_semanal.shp` (v1) usando o campo
 
 ---
 
-## 8. Limites conhecidos
+## 9. Limites conhecidos
 
 - O `local` de cada zona é só o **bairro dominante** (pode cruzar divisas).
 - Camadas estáticas pesam o mesmo em todas as semanas — é o que faz sentido

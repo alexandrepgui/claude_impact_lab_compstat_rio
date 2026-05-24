@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="pt-br" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CompStat Rio — Inventário de Dados</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" id="hl-light">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" id="hl-dark">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f7f8fb;
+    --surface: #ffffff;
+    --surface-2: #f1f4f8;
+    --text: #172033;
+    --muted: #657286;
+    --line: #d7dee9;
+    --accent: #2563eb;
+    --accent-soft: #e7efff;
+    --code-bg: #f5f7fa;
+    --good: #12805c;
+    --warn: #a16207;
+    --bad: #b42318;
+    --shadow: 0 14px 40px rgba(23, 32, 51, .08);
+    --sidebar: 280px;
+    --radius: 8px;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f141b;
+    --surface: #151b24;
+    --surface-2: #1d2530;
+    --text: #e7ebf2;
+    --muted: #a8b3c2;
+    --line: #2c3745;
+    --accent: #7aa2ff;
+    --accent-soft: rgba(122, 162, 255, .14);
+    --code-bg: #10161f;
+    --good: #6ee7b7;
+    --warn: #f8d477;
+    --bad: #fca5a5;
+    --shadow: 0 18px 44px rgba(0, 0, 0, .28);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.68 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .88em; }
+  code:not(pre code) { background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; color: var(--text); padding: .1rem .34rem; white-space: normal; overflow-wrap: break-word; word-break: normal; }
+  pre { margin: 1rem 0; overflow: auto; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); }
+  pre code.hljs { background: transparent; padding: 1rem 1.1rem; line-height: 1.58; font-size: .82rem; }
+  h1, h2, h3, h4 { line-height: 1.22; letter-spacing: 0; }
+  h1 { margin: 0 0 .65rem; font-size: clamp(2rem, 4vw, 3.2rem); max-width: 980px; }
+  h2 { margin: 3rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: clamp(1.35rem, 2vw, 1.7rem); }
+  h3 { margin: 1.6rem 0 .55rem; font-size: 1.05rem; }
+  p { margin: .75rem 0 1rem; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1rem 0 1.25rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); font-size: .85rem; overflow: hidden; }
+  th, td { border-bottom: 1px solid var(--line); padding: .58rem .7rem; text-align: left; vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { background: var(--surface-2); color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .scroll-x { overflow-x: auto; }
+  .scroll-x table { min-width: 800px; }
+  .page { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+  .sidebar { position: sticky; top: 0; height: 100vh; overflow: auto; border-right: 1px solid var(--line); background: var(--surface); padding: 1.15rem; }
+  .sidebar h2 { margin: 0 0 .8rem; padding: 0; border: 0; font-size: 1rem; }
+  .theme-toggle { width: 100%; margin: .4rem 0 1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); color: var(--text); padding: .55rem .7rem; cursor: pointer; }
+  nav { display: grid; gap: .15rem; }
+  nav a { color: var(--muted); text-decoration: none; border-radius: 6px; padding: .42rem .55rem; font-size: .88rem; }
+  nav a:hover { background: var(--surface-2); color: var(--text); }
+  main { min-width: 0; width: 100%; max-width: 1400px; padding: 2rem clamp(1.5rem, 3.5vw, 4rem) 5rem; }
+  .sub { max-width: 760px; color: var(--muted); font-size: 1.05rem; }
+  .card, .callout { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.1rem; min-width: 0; }
+  .callout { border-left: 4px solid var(--accent); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad { border-left-color: var(--bad); }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; }
+  .kpi .num { font-size: 1.6rem; font-weight: 700; color: var(--accent); display: block; }
+  .kpi .lbl { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
+  .meta { display: grid; grid-template-columns: 130px 1fr; gap: .4rem 1rem; font-size: .9rem; }
+  .meta dt { color: var(--muted); }
+  .meta dd { margin: 0; word-break: break-all; }
+  .badge { display: inline-block; padding: .12rem .55rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: .72rem; font-weight: 600; letter-spacing: .03em; }
+  .badge.warn { background: rgba(161, 98, 7, .12); color: var(--warn); }
+  .badge.good { background: rgba(18, 128, 92, .12); color: var(--good); }
+  .badge.muted { background: var(--surface-2); color: var(--muted); }
+  .source-head { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; }
+  .truncate { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+  ul.tight { margin: .4rem 0 .8rem 1.2rem; }
+  ul.tight li { margin: .2rem 0; }
+  @media (max-width: 900px) { .page { display: block; } .sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); } main { padding: 1.35rem; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .meta { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="sidebar">
+    <h2>CompStat Rio · Dados</h2>
+    <button class="theme-toggle" id="theme-toggle" type="button">Toggle theme</button>
+    <nav id="toc"></nav>
+  </aside>
+  <main>
+    <header>
+      <h1>CompStat Rio — Inventário de Dados</h1>
+      <p class="sub">Hackathon Claude Impact Lab Rio · CompStat Municipal. Mapa de todas as fontes de dados disponíveis no repositório: caminho, schema, volume e 10 linhas de amostra por base.</p>
+    </header>
+
+    <section id="summary">
+      <h2>TL;DR</h2>
+      <div class="callout">
+        <p><strong>10 fontes de dados</strong> compõem o cruzamento que sustenta o CompStat Municipal: 4 CSVs principais, 1 shapefile (8 polígonos das áreas da Força Municipal), 8 RELINTs em <code>.docx</code>, 2 bases complementares (domínio territorial de facções, censo PSR), o dicionário de dados e o briefing do desafio. Tudo vive em <code>claude_impact_lab_compstat_rio/</code>.</p>
+        <p><strong>Sinal mais quente:</strong> 115 354 ocorrências georreferenciadas (2020–2024) cobrem 17 AISPs; <strong>83 549 denúncias</strong> qualitativas adicionam texto livre redigido; <strong>2 085 fatores urbanos</strong> mapeados em campo apontam o órgão responsável; <strong>985 câmeras</strong> distribuídas nas 8 áreas da FM. Cruzar isso com os 1 628 polígonos de domínio territorial e os 8 RELINTs é o cerne do desafio.</p>
+        <p><strong>Pegadinha rápida:</strong> o <code>disk_denuncia.csv</code> usa <code>;</code> como separador e <em>latin-1</em>, não UTF-8; em <code>fatores_urbanos.csv</code> as colunas vêm <strong>trocadas</strong> (<code>coordenada_x</code> = latitude, <code>coordenada_y</code> = longitude); em <code>df_ocorrencias_tratado</code> as colunas <code>data</code>, <code>hora</code> e <code>dia_semana</code> estão majoritariamente vazias.</p>
+      </div>
+    </section>
+
+    <section id="kpis">
+      <h2>Volume por fonte</h2>
+      <div class="grid-4">
+        <div class="kpi"><span class="num">115 354</span><span class="lbl">Ocorrências (2020–2024)</span></div>
+        <div class="kpi"><span class="num">83 549</span><span class="lbl">Disque Denúncia</span></div>
+        <div class="kpi"><span class="num">2 085</span><span class="lbl">Fatores urbanos</span></div>
+        <div class="kpi"><span class="num">985</span><span class="lbl">Câmeras nas áreas FM</span></div>
+        <div class="kpi"><span class="num">1 628</span><span class="lbl">Polígonos de domínio</span></div>
+        <div class="kpi"><span class="num">8</span><span class="lbl">Áreas FM (shapefile)</span></div>
+        <div class="kpi"><span class="num">8</span><span class="lbl">RELINTs (.docx)</span></div>
+        <div class="kpi"><span class="num">3</span><span class="lbl">Anos no Censo PSR</span></div>
+      </div>
+    </section>
+
+    <section id="inventory">
+      <h2>Inventário consolidado</h2>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>Fonte</th><th>Caminho</th><th>Formato</th><th>Volume</th><th>Papel no cruzamento</th></tr></thead>
+        <tbody>
+          <tr><td>Ocorrências criminais</td><td><code>dados/df_ocorrencias_tratado - Extração 1 .csv</code></td><td>CSV · UTF-8 · 23 MB</td><td>115 354 linhas · 14 colunas</td><td>Mancha criminal quantitativa (furto/roubo)</td></tr>
+          <tr><td>Disque Denúncia</td><td><code>dados/disk_denuncia.csv</code></td><td>CSV · <strong>;</strong> · latin-1 · 18 MB</td><td>83 549 linhas · 47 colunas</td><td>Dinâmica criminal qualitativa (texto livre)</td></tr>
+          <tr><td>Fatores urbanos</td><td><code>dados/fatores_urbanos.csv</code></td><td>CSV · UTF-8 · 1,3 MB</td><td>2 085 linhas · 31 colunas</td><td>Fatores ambientais por órgão responsável</td></tr>
+          <tr><td>Câmeras CIVITAS/COR</td><td><code>dados/cameras_areas_fm.csv</code></td><td>CSV · UTF-8 · 141 KB</td><td>985 pontos · 4 colunas</td><td>Cobertura de vigilância nas áreas FM</td></tr>
+          <tr><td>Áreas da Força Municipal</td><td><code>sh_area_forca/areas_forca_municipal.shp</code></td><td>Shapefile · WGS84 · 5 arquivos</td><td>8 polígonos</td><td>Perímetro operacional das 8 áreas prioritárias</td></tr>
+          <tr><td>RELINTs</td><td><code>relints/RI_0XX_2026_*.docx</code></td><td>DOCX · 8 arquivos</td><td>~12 KB cada</td><td>Inteligência qualitativa por área · gabarito de saída</td></tr>
+          <tr><td>Domínio territorial</td><td><code>dados/outros dados/dominio_territorial - Extração 1.csv</code></td><td>CSV · UTF-8</td><td>1 628 polígonos · 3 colunas</td><td>Influência de facções (CV, Milícia, TCP, ADA)</td></tr>
+          <tr><td>Censo PSR</td><td><code>dados/outros dados/CPSR_2020_2022_2024.xlsx</code></td><td>XLSX · 1 sheet</td><td>Histórico 2020/2022/2024</td><td>Pessoas em situação de rua (SMAS)</td></tr>
+          <tr><td>Dicionário de dados</td><td><code>dados/Dicionário de dados.xlsx</code></td><td>XLSX · 7 sheets</td><td>1 sheet por dataset</td><td>Referência canônica de schema</td></tr>
+          <tr><td>Briefing</td><td><code>Briefing_Hackathon_Desenvolvedores_CompStat-2.pdf</code></td><td>PDF · 2 MB</td><td>—</td><td>Contexto do desafio + exemplo de relatório</td></tr>
+          <tr><td>Central 1746 (externo)</td><td>BigQuery · <code>datario.adm_central_atendimento_1746.chamado</code></td><td>BigQuery público</td><td>desde 2010</td><td>Validação cruzada dos fatores urbanos</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section id="ocorrencias">
+      <h2>1 · Ocorrências criminais</h2>
+      <div class="source-head">
+        <span class="badge">CSV principal</span>
+        <span class="badge muted">UTF-8 · vírgula</span>
+        <span class="badge good">115 354 linhas</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/df_ocorrencias_tratado - Extração 1 .csv</code></dd>
+        <dt>Schema (14)</dt><dd><code>id_criptografado, ano, data, mes, hora, delito, longitude, latitude, desc_delito, aisp, risp, locf, dia_semana, geometria</code></dd>
+        <dt>Período</dt><dd>2020 (26 870) · 2021 (25 931) · 2022 (21 890) · 2023 (18 077) · 2024 (22 586)</dd>
+        <dt>Delitos</dt><dd>Roubo a transeunte (69 697) · Roubo de aparelho celular (33 288) · Roubo em coletivo (12 369)</dd>
+        <dt>Cobertura</dt><dd>17 AISPs distintas</dd>
+      </dl>
+      <p><strong>Papel:</strong> base quantitativa da mancha criminal. Cada registro georreferenciado (lat/long + WKT em <code>geometria</code>) com tipificação. <code>aisp</code> = Área Integrada de Segurança Pública (estadual, PMERJ); <code>risp</code> = Região Integrada.</p>
+      <p><strong>Cuidado:</strong> os campos <code>data</code>, <code>hora</code> e <code>dia_semana</code> aparecem majoritariamente <em>vazios</em> na extração. Granularidade temporal disponível é mês/ano. <code>locf</code> é o endereço em texto livre normalizado.</p>
+      <h3>Amostra (10 linhas)</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>ano</th><th>mês</th><th>delito</th><th>desc_delito</th><th>aisp</th><th>risp</th><th>logradouro (locf)</th><th>long</th><th>lat</th></tr></thead>
+        <tbody>
+          <tr><td>2023</td><td>5</td><td>15</td><td>Roubo a transeunte</td><td>16</td><td>1</td><td>Rua arapa</td><td>-43.26768</td><td>-22.86288</td></tr>
+          <tr><td>2021</td><td>12</td><td>15</td><td>Roubo a transeunte</td><td>5</td><td>1</td><td>Avenida treze de maio</td><td>-43.17721</td><td>-22.90885</td></tr>
+          <tr><td>2022</td><td>8</td><td>15</td><td>Roubo a transeunte</td><td>19</td><td>1</td><td>Rua duvivier</td><td>-43.17847</td><td>-22.96458</td></tr>
+          <tr><td>2022</td><td>3</td><td>15</td><td>Roubo a transeunte</td><td>23</td><td>1</td><td>Avenida ataulfo de paiva</td><td>-43.21968</td><td>-22.98387</td></tr>
+          <tr><td>2023</td><td>4</td><td>15</td><td>Roubo a transeunte</td><td>41</td><td>2</td><td>Avenida sargento de milicias</td><td>-43.35437</td><td>-22.80398</td></tr>
+          <tr><td>2022</td><td>12</td><td>15</td><td>Roubo a transeunte</td><td>6</td><td>1</td><td>Avenida edson passos</td><td>-43.25816</td><td>-22.95075</td></tr>
+          <tr><td>2022</td><td>7</td><td>15</td><td>Roubo a transeunte</td><td>14</td><td>2</td><td>Rua silva cardoso</td><td>-43.46368</td><td>-22.87680</td></tr>
+          <tr><td>2021</td><td>11</td><td>15</td><td>Roubo a transeunte</td><td>41</td><td>2</td><td>Rua embau</td><td>-43.33938</td><td>-22.81140</td></tr>
+          <tr><td>2022</td><td>7</td><td>15</td><td>Roubo a transeunte</td><td>6</td><td>1</td><td>Rua general canabarro</td><td>-43.22653</td><td>-22.91522</td></tr>
+          <tr><td>2022</td><td>7</td><td>15</td><td>Roubo a transeunte</td><td>5</td><td>1</td><td>Avenida presidente vargas</td><td>-43.18376</td><td>-22.90252</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section id="disk">
+      <h2>2 · Disque Denúncia</h2>
+      <div class="source-head">
+        <span class="badge">CSV principal</span>
+        <span class="badge warn">latin-1 · separador ;</span>
+        <span class="badge good">83 549 linhas</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/disk_denuncia.csv</code></dd>
+        <dt>Colunas</dt><dd>47 — denuncia, logradouro, bairro, lat/long, órgão receptor, classe/tipo do assunto, descrição de envolvidos, <code>relato_redacted</code> (texto livre com PII removida).</dd>
+        <dt>Classes (top)</dt><dd>SUBSTÂNCIAS ENTORPECENTES (9 233) · CRIMES CONTRA O PATRIMÔNIO (8 770)</dd>
+        <dt>Bairros (top)</dt><dd>CAMPO GRANDE (916) · CENTRO (710) · REALENGO (705) · BANGU (533) · JACAREPAGUA (501) · IRAJA (486) · COPACABANA (447) · TAQUARA (406) · SANTA CRUZ (399) · PAVUNA (369)</dd>
+      </dl>
+      <p><strong>Papel:</strong> sinal qualitativo. Cada denúncia pode gerar várias linhas (uma por órgão difundido), por isso o número total de <em>linhas</em> &gt; número de denúncias distintas. O ouro está em <code>relato_redacted</code> — texto livre que descreve modus operandi, horários, pontos de fuga.</p>
+      <p><strong>Cuidado:</strong> separador <code>;</code>, encoding <em>latin-1</em>, latitudes com vírgula decimal (<code>-22,899555</code>). Strings <code>SUBST�NCIAS</code> indicam onde o encoding já vazou em alguma etapa anterior.</p>
+      <h3>Amostra (10 linhas)</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>nº denúncia</th><th>data</th><th>bairro</th><th>classe</th><th>tipo</th><th>relato (trunc.)</th></tr></thead>
+        <tbody>
+          <tr><td>1024.6.2020</td><td>2020-06-04 08:16</td><td>SANTO CRISTO</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>Na rua citada, esquina com a via binário do [NOME], próximo à 2ª Vara da Infância…</td></tr>
+          <tr><td>1029.12.2022</td><td>2022-12-07 17:19</td><td>SANTISSIMO</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>No endereço citado, próximo à avenida [NOME], situa-se a residência de [NOME]…</td></tr>
+          <tr><td>1047.10.2019</td><td>2019-10-04 09:33</td><td>BONSUCESSO</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>Na rua citada, na altura do nº 107, ao lado de uma loja de refrigeração…</td></tr>
+          <tr><td>1083.11.2022</td><td>2022-11-07 17:09</td><td>TIJUCA</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>Na rua citada, próximo ao nº 66, atrás de um valão há um quiosque de cor verde…</td></tr>
+          <tr><td>115.6.2020</td><td>2020-06-01 11:54</td><td>GLORIA</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>No endereço citado, próximo ao Hospital [NOME] Dor, localiza-se o condomínio…</td></tr>
+          <tr><td>1173.1.2025</td><td>2025-01-05 19:00</td><td>CASCADURA</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>No endereço citado, em frente ao campo de grama sintética Beer Gol…</td></tr>
+          <tr><td>1243.12.2019</td><td>2019-12-06 08:55</td><td>PARADA DE LUCAS</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>TRÁFICO DE DROGAS</td><td>No endereço mencionado, em frente à avenida [NOME], próximo à estação de trem…</td></tr>
+          <tr><td>1245.9.2020</td><td>2020-09-05 16:28</td><td>CAMPO GRANDE</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>Na rua citada, esquina com a Rua Lagrange, próximo ao posto de saúde…</td></tr>
+          <tr><td>1321.2.2026</td><td>2026-02-03 23:33</td><td>CAMPO GRANDE</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>No endereço citado, próximo à pista de skate, localiza-se uma residência de muro bege…</td></tr>
+          <tr><td>1371.3.2026</td><td>2026-03-04 12:53</td><td>ROCHA MIRANDA</td><td>SUBSTÂNCIAS ENTORPECENTES</td><td>CONSUMO DE DROGAS</td><td>No endereço citado, próximo a uma praça onde residem o casal [NOME] e [NOME]…</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section id="fatores">
+      <h2>3 · Fatores urbanos</h2>
+      <div class="source-head">
+        <span class="badge">CSV principal</span>
+        <span class="badge muted">UTF-8 · vírgula</span>
+        <span class="badge good">2 085 linhas</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/fatores_urbanos.csv</code></dd>
+        <dt>Colunas (31)</dt><dd>logradouro, número, referência, <code>coordenada_x</code>/<code>coordenada_y</code>, bairro, subárea (= área FM), <code>tipo_ocorrencia_descricao</code>, <code>orgao_responsavel</code>, <code>ocorrencia_orgao_nome</code>, …</dd>
+        <dt>Top tipos</dt><dd>Vegetação encobrindo iluminação (327) · PSR (285) · Vegetação obstruindo passeio (213) · Área mal iluminada/pedestres (204) · Retenção de tráfego (191)</dd>
+        <dt>Top órgãos</dt><dd>COMLURB (583) · SMAS (341) · SEOP (308) · RioLuz (231) · SECONSERVA (216) · CET-Rio (191) · GM-Rio (84) · SMTR (40)</dd>
+        <dt>Top bairros</dt><dd>Botafogo (344) · Ipanema (199) · Madureira (180) · Méier (125) · Barra (103) · Leblon (101) · Centro (95) · Copacabana (92)</dd>
+      </dl>
+      <p><strong>Papel:</strong> levantamento de campo dos 20 fatores ambientais. Cada linha já vem com o órgão municipal responsável pela resolução — a ponte entre crime e ação operacional.</p>
+      <div class="callout warn">
+        <strong>Atenção (eixos invertidos):</strong> nesta base <code>coordenada_x</code> contém <em>latitude</em> (~ -22.x) e <code>coordenada_y</code> contém <em>longitude</em> (~ -43.x), oposto à convenção de <code>df_ocorrencias_tratado</code>. Normalize antes de plotar.
+      </div>
+      <h3>Amostra (10 linhas)</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>logradouro</th><th>bairro</th><th>subárea (área FM)</th><th>tipo</th><th>órgão</th><th>lat</th><th>long</th></tr></thead>
+        <tbody>
+          <tr><td>Rua Coração de Maria</td><td>Meier</td><td>Estação Méier - Cachambi</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.89158</td><td>-43.27426</td></tr>
+          <tr><td>Rua Coração de Maria</td><td>Meier</td><td>Estação Méier - Cachambi</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.89188</td><td>-43.27453</td></tr>
+          <tr><td>Rua Cabrália</td><td>Marechal Hermes</td><td>Estação Marechal Hermes</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.85846</td><td>-43.37446</td></tr>
+          <tr><td>Rua Miguel Fernandes</td><td>Meier</td><td>Estação Méier - Cachambi</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.89717</td><td>-43.26888</td></tr>
+          <tr><td>Rua Silva Mourão</td><td>Cachambi</td><td>Estação Del Castilho - Norte Shopping</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.88878</td><td>-43.27931</td></tr>
+          <tr><td>Rua García Redondo</td><td>Cachambi</td><td>Estação Méier - Cachambi</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.89025</td><td>-43.27530</td></tr>
+          <tr><td>Avenida Rio Branco</td><td>Centro</td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.91105</td><td>-43.17522</td></tr>
+          <tr><td>Avenida Francisco Bicalho</td><td>Santo Cristo</td><td>—</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.90751</td><td>-43.20923</td></tr>
+          <tr><td>Avenida Ayrton Senna</td><td>Barra da Tijuca</td><td>Av Ayrton Senna</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.98151</td><td>-43.36534</td></tr>
+          <tr><td>Avenida Ayrton Senna</td><td>Jacarepagua</td><td>—</td><td>Vegetação obstruindo a visibilidade do passeio</td><td>COMLURB</td><td>-22.99208</td><td>-43.36884</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section id="cameras">
+      <h2>4 · Câmeras nas áreas FM</h2>
+      <div class="source-head">
+        <span class="badge">CSV principal</span>
+        <span class="badge muted">UTF-8 · vírgula</span>
+        <span class="badge good">985 pontos</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/cameras_areas_fm.csv</code></dd>
+        <dt>Schema (4)</dt><dd><code>id_ponto, nome_area_fm, id_trecho, geometry</code> (WKT POINT)</dd>
+        <dt>Distribuição por área</dt><dd>Rodoviária – Term. Gentileza (310) · Pres. Vargas – Campo de Santana (230) · Praia Botafogo – Marquês de Abrantes (150) · Metrô Botafogo – S. Clemente (80) · SFX – Afonso Pena (60) · Lauro Müller – Gen. Severiano (50) · Campo Grande Calçadão (45) · Jardim de Alah (30) · Bangu Calçadão (30)</dd>
+      </dl>
+      <p><strong>Papel:</strong> mapa atual de cobertura CIVITAS/COR. Insumo direto para o <em>Desafio Extra 4 — Otimização de Cobertura</em>: cruzar câmeras com a mancha de ocorrências para encontrar pontos cegos.</p>
+      <h3>Amostra (10 linhas)</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>id_ponto</th><th>nome_area_fm</th><th>id_trecho</th><th>geometry</th></tr></thead>
+        <tbody>
+          <tr><td><code>8f30106e…9624a9</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>203724</td><td>POINT (-43.18022 -22.90937)</td></tr>
+          <tr><td><code>e1d1a5e7…6b5cba</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>46564</td><td>POINT (-43.18233 -22.90410)</td></tr>
+          <tr><td><code>39623659…d10181</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>306043</td><td>POINT (-43.18053 -22.90183)</td></tr>
+          <tr><td><code>62b1d57c…bc96e4</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>70354</td><td>POINT (-43.17652 -22.91052)</td></tr>
+          <tr><td><code>dfabd902…c35836</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>51517</td><td>POINT (-43.18307 -22.90483)</td></tr>
+          <tr><td><code>68579d97…48c6e8</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>70067</td><td>POINT (-43.18102 -22.90165)</td></tr>
+          <tr><td><code>ce5f7410…12bcb9</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>305635</td><td>POINT (-43.18222 -22.90628)</td></tr>
+          <tr><td><code>104ce8e2…fc6435b</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>70299</td><td>POINT (-43.18072 -22.90451)</td></tr>
+          <tr><td><code>3b458dd5…9da6</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>58749</td><td>POINT (-43.18130 -22.90506)</td></tr>
+          <tr><td><code>bc111746…357688</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>70314</td><td>POINT (-43.18095 -22.90280)</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section id="shapefile">
+      <h2>5 · Shapefile das áreas da Força Municipal</h2>
+      <div class="source-head">
+        <span class="badge">Geometria</span>
+        <span class="badge muted">WGS84 / EPSG:4326</span>
+        <span class="badge good">8 polígonos</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/sh_area_forca/areas_forca_municipal.{shp,shx,dbf,prj,cpg,qmd}</code></dd>
+        <dt>Schema do DBF</dt><dd><code>fid</code> (numérico) · <code>nome_subar</code> (string · 254 chars)</dd>
+        <dt>Projeção</dt><dd><code>GCS_WGS_1984</code> (graus decimais, lat/long padrão)</dd>
+      </dl>
+      <p><strong>Papel:</strong> perímetro operacional. Toda análise georreferenciada (ocorrências, denúncias, fatores, câmeras) deve ser intersectada com esses 8 polígonos para isolar a área FM. O briefing menciona 22 áreas prioritárias — o shapefile traz apenas as 8 com RELINTs entregues.</p>
+      <h3>Conteúdo completo do DBF (8 áreas)</h3>
+      <table>
+        <thead><tr><th>fid</th><th>nome_subar</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>Rodoviária – Terminal Gentileza – Estação Leopoldina</td></tr>
+          <tr><td>9</td><td>Metrô Botafogo – Rua São Clemente – Rua Voluntários da Pátria</td></tr>
+          <tr><td>10</td><td>Jardim de Alah</td></tr>
+          <tr><td>11</td><td>Campo Grande: Estação de Trem – Calçadão</td></tr>
+          <tr><td>12</td><td>Rio Sul</td></tr>
+          <tr><td>14</td><td>Praia de Botafogo – Rua Marquês de Abrantes</td></tr>
+          <tr><td>19</td><td>Estações São Francisco Xavier – Afonso Pena</td></tr>
+          <tr><td>20</td><td>Pres. Vargas – Campo de Santana – Central do Brasil – Cinelândia</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="relints">
+      <h2>6 · RELINTs (Relatórios de Inteligência)</h2>
+      <div class="source-head">
+        <span class="badge">DOCX</span>
+        <span class="badge muted">~12 KB cada</span>
+        <span class="badge good">8 arquivos</span>
+      </div>
+      <p><strong>Papel:</strong> <em>gabarito de saída</em> do desafio principal. Cada RELINT segue a estrutura: análise territorial → fatores urbanos identificados → dinâmica criminal → plano de ação por órgão. Esses são os documentos que a IA precisa gerar automaticamente.</p>
+      <dl class="meta">
+        <dt>Pasta</dt><dd><code>claude_impact_lab_compstat_rio/relints/</code></dd>
+        <dt>Pareamento</dt><dd>Há correspondência 1↔1 com o <code>fid</code> do shapefile (RI_010 ↔ fid 2, RI_011 ↔ fid 9, …, RI_017 ↔ fid 20).</dd>
+      </dl>
+      <h3>Os 8 RELINTs</h3>
+      <table>
+        <thead><tr><th>Arquivo</th><th>Área FM</th><th>Bytes</th></tr></thead>
+        <tbody>
+          <tr><td><code>Cópia de RI_010_2026_Rodoviaria_Terminal_Gentileza.docx</code></td><td>Rodoviária – Terminal Gentileza – Estação Leopoldina</td><td>12 802</td></tr>
+          <tr><td><code>Cópia de RI_011_2026_Metro_Botafogo_Sao_Clemente.docx</code></td><td>Metrô Botafogo – São Clemente – Voluntários da Pátria</td><td>12 646</td></tr>
+          <tr><td><code>Cópia de RI_012_2026_Jardim_de_Alah.docx</code></td><td>Jardim de Alah</td><td>12 614</td></tr>
+          <tr><td><code>Cópia de RI_013_2026_Campo_Grande_Estacao_Calcadao.docx</code></td><td>Campo Grande: Estação de Trem – Calçadão</td><td>12 632</td></tr>
+          <tr><td><code>Cópia de RI_014_2026_Rio_Sul.docx</code></td><td>Rio Sul</td><td>12 614</td></tr>
+          <tr><td><code>Cópia de RI_015_2026_Praia_Botafogo_Marques_Abrantes.docx</code></td><td>Praia de Botafogo – Marquês de Abrantes</td><td>12 533</td></tr>
+          <tr><td><code>Cópia de RI_016_2026_Estacoes_SFX_Afonso_Pena.docx</code></td><td>Estações São Francisco Xavier – Afonso Pena</td><td>12 679</td></tr>
+          <tr><td><code>Cópia de RI_017_2026_Presidente_Vargas_Campo_Santana.docx</code></td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>13 476</td></tr>
+        </tbody>
+      </table>
+      <h3>Trecho exemplar (RI_010 — Rodoviária)</h3>
+      <div class="callout">
+        <em>“A área da Rodoviária Novo Rio apresenta intenso fluxo diário de passageiros oriundos de diferentes regiões do estado… A infraestrutura degradada de calçadas e pistas de rolagem dificulta a vigilância móvel, favorecendo a ação de furtadores e estelionatários. Múltiplos acessos sem controle viabilizam dispersão imediata após a prática de delitos. O entorno concentra ambulantes sem licença e abordagens oportunistas a passageiros desatentos durante o desembarque de ônibus intermunicipais e interestaduais…”</em>
+      </div>
+    </section>
+
+    <section id="dominio">
+      <h2>7 · Domínio territorial (facções)</h2>
+      <div class="source-head">
+        <span class="badge">CSV complementar</span>
+        <span class="badge muted">UTF-8</span>
+        <span class="badge good">1 628 polígonos</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/outros dados/dominio_territorial - Extração 1.csv</code></dd>
+        <dt>Schema (3)</dt><dd><code>nome_territorio, dominio_orcrim, geometria</code> (WKT POLYGON)</dd>
+        <dt>Facções</dt><dd>CV (903) · Milícia (423) · TCP (229) · ADA (73)</dd>
+      </dl>
+      <p><strong>Papel:</strong> contexto para entender rotas de fuga, fronteiras de domínio e dinâmica de migração do crime quando a FM opera num perímetro (Desafio Extra 2).</p>
+      <h3>Amostra (10 linhas)</h3>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>nome_territorio</th><th>facção</th><th>geometria (truncada)</th></tr></thead>
+        <tbody>
+          <tr><td>MORRO SANTANA</td><td>ADA</td><td><code>POLYGON((-41.79023 -22.37154, -41.78909 -22.37249, …))</code></td></tr>
+          <tr><td>MORRO DO CARVÃO</td><td>ADA</td><td><code>POLYGON((-41.77519 -22.39000, -41.77565 -22.38862, …))</code></td></tr>
+          <tr><td>PARQUE SAO MATEUS</td><td>ADA</td><td><code>POLYGON((-41.31023 -21.71656, -41.30911 -21.71502, …))</code></td></tr>
+          <tr><td>FAVELA DAS ALMAS</td><td>ADA</td><td><code>POLYGON((-43.44969 -22.88669, -43.44915 -22.88645, …))</code></td></tr>
+          <tr><td>MIRAMAR</td><td>ADA</td><td><code>POLYGON((-41.79124 -22.38075, -41.79001 -22.38164, …))</code></td></tr>
+          <tr><td>COHAB REALENGO</td><td>ADA</td><td><code>POLYGON((-43.43013 -22.88474, -43.42887 -22.88396, …))</code></td></tr>
+          <tr><td>MORAR FELIZ DA ALDEIA II</td><td>ADA</td><td><code>POLYGON((-41.33779 -21.72369, -41.33732 -21.72411, …))</code></td></tr>
+          <tr><td>FAVELA DO SOBRAL</td><td>ADA</td><td><code>POLYGON((-43.40671 -22.88176, -43.40589 -22.88152, …))</code></td></tr>
+          <tr><td>FAVELA DA LIGHT</td><td>ADA</td><td><code>POLYGON((-43.42927 -22.89489, -43.42910 -22.89512, …))</code></td></tr>
+          <tr><td>JARDIM NOVO</td><td>ADA</td><td><code>POLYGON((-43.42337 -22.89809, -43.42290 -22.89809, …))</code></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><em>Observação:</em> o dataset cobre o estado do RJ inteiro (não só o município). Várias linhas estão fora da capital (lat ~ -21.7, long ~ -41.3 indica norte fluminense). Filtre por bounding box do município se a análise for só Rio.</p>
+    </section>
+
+    <section id="cpsr">
+      <h2>8 · Censo PSR 2020/2022/2024</h2>
+      <div class="source-head">
+        <span class="badge">XLSX complementar</span>
+        <span class="badge muted">1 sheet</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/outros dados/CPSR_2020_2022_2024.xlsx</code></dd>
+        <dt>Sheet</dt><dd><code>Censo_histórico</code> — série bienal de Pessoas em Situação de Rua mapeadas pela Prefeitura</dd>
+      </dl>
+      <p><strong>Papel:</strong> evolução temporal da PSR — um dos fatores de incidência criminal mapeados pelo CompStat sob responsabilidade da SMAS. Permite cruzar concentração de PSR × ocorrências × denúncias de uso de drogas em cena pública.</p>
+    </section>
+
+    <section id="dicionario">
+      <h2>9 · Dicionário de dados</h2>
+      <div class="source-head">
+        <span class="badge">XLSX referência</span>
+        <span class="badge muted">7 sheets</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/dados/Dicionário de dados.xlsx</code></dd>
+        <dt>Sheets</dt><dd><code>df_ocorrencias_tratado</code> · <code>disk_denuncia</code> · <code>areas_fm_entrada</code> · <code>fatores_urbanos</code> · <code>cameras_area_fm</code> · <code>CPSR_2020_2022_2024</code> · <code>dominio_territorial</code></dd>
+      </dl>
+      <p><strong>Papel:</strong> documenta nome, tipo e descrição de cada coluna em cada dataset. <strong>Consultar primeiro</strong> ao explorar qualquer base.</p>
+    </section>
+
+    <section id="briefing">
+      <h2>10 · Briefing</h2>
+      <div class="source-head">
+        <span class="badge">PDF</span>
+        <span class="badge muted">2,0 MB</span>
+      </div>
+      <dl class="meta">
+        <dt>Caminho</dt><dd><code>claude_impact_lab_compstat_rio/Briefing_Hackathon_Desenvolvedores_CompStat-2.pdf</code></dd>
+      </dl>
+      <p><strong>Papel:</strong> descreve o modelo CompStat Municipal aplicado no Rio (inspirado no CompStat NYPD), o emprego da Força Municipal (Divisão de Elite da Guarda Municipal — <strong>600 agentes</strong> para todas as áreas), os 20 fatores urbanos mapeados e contém um exemplo do relatório que subsidia as reuniões semanais.</p>
+    </section>
+
+    <section id="external">
+      <h2>11 · Central 1746 (externo · BigQuery)</h2>
+      <div class="source-head">
+        <span class="badge">Externo</span>
+        <span class="badge muted">BigQuery público</span>
+        <span class="badge muted">desde 2010</span>
+      </div>
+      <dl class="meta">
+        <dt>Projeto</dt><dd><code>datario</code></dd>
+        <dt>Dataset/Tabela</dt><dd><code>adm_central_atendimento_1746.chamado</code></dd>
+        <dt>Acesso</dt><dd>BigQuery console (auth Google) — projeto de bilhetagem do usuário</dd>
+      </dl>
+      <p><strong>Papel:</strong> camada de validação dos fatores urbanos. Quando um trecho aparece com alta incidência de roubo + iluminação deficiente no levantamento de campo + múltiplos chamados "poste apagado" no 1746, a coincidência reforça a priorização.</p>
+    </section>
+
+    <section id="gotchas">
+      <h2>Gotchas (não erre nessas)</h2>
+      <ul class="tight">
+        <li><strong><code>disk_denuncia.csv</code></strong> usa <code>;</code> como separador, encoding <em>latin-1</em>, e lat/long com vírgula decimal (<code>-22,899555</code>). Lendo com defaults do pandas, vai falhar ou virar lixo.</li>
+        <li><strong><code>fatores_urbanos.csv</code></strong> tem eixos invertidos: <code>coordenada_x</code> é <em>latitude</em>, <code>coordenada_y</code> é <em>longitude</em>. Confira pelos valores (~ -22 / ~ -43).</li>
+        <li><strong><code>df_ocorrencias_tratado</code></strong> tem <code>data</code>, <code>hora</code>, <code>dia_semana</code> majoritariamente <em>vazios</em>. Granularidade temporal real é mês/ano.</li>
+        <li>O nome do arquivo <code>df_ocorrencias_tratado - Extração 1 .csv</code> tem <strong>espaços e um espaço antes do <code>.csv</code></strong>. Sempre cite entre aspas no shell.</li>
+        <li><strong>Domínio territorial</strong> cobre o estado do RJ inteiro (1 628 polígonos), não só o município. Filtre por bbox da capital se a análise for só Rio.</li>
+        <li>O shapefile traz <strong>8 áreas FM</strong>, mas o briefing menciona <strong>22 áreas prioritárias</strong> — aqui só estão as 8 com RELINT entregue. Não assuma cobertura total.</li>
+        <li><strong>AISP ≠ Área FM.</strong> AISP/RISP são divisões da PMERJ (estaduais). Área FM é municipal, definida pela mancha criminal — o pareamento é via geometria, não por código.</li>
+        <li>Em <code>disk_denuncia.csv</code> uma única denúncia pode gerar várias linhas (uma por órgão difundido com células do logradouro vazias). Sempre agregue por <code>id_denuncia</code> antes de contar.</li>
+      </ul>
+    </section>
+
+    <section id="links">
+      <h2>Pareamento Área FM ↔ RELINT ↔ Câmeras</h2>
+      <div class="scroll-x">
+      <table>
+        <thead><tr><th>fid (shp)</th><th>Área FM</th><th>RELINT</th><th>Câmeras</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>Rodoviária – Term. Gentileza – Est. Leopoldina</td><td>RI_010_2026</td><td>310</td></tr>
+          <tr><td>9</td><td>Metrô Botafogo – S. Clemente – Voluntários da Pátria</td><td>RI_011_2026</td><td>80</td></tr>
+          <tr><td>10</td><td>Jardim de Alah</td><td>RI_012_2026</td><td>30</td></tr>
+          <tr><td>11</td><td>Campo Grande: Estação – Calçadão</td><td>RI_013_2026</td><td>45</td></tr>
+          <tr><td>12</td><td>Rio Sul</td><td>RI_014_2026</td><td>—</td></tr>
+          <tr><td>14</td><td>Praia de Botafogo – Marquês de Abrantes</td><td>RI_015_2026</td><td>150</td></tr>
+          <tr><td>19</td><td>Estações SFX – Afonso Pena</td><td>RI_016_2026</td><td>60</td></tr>
+          <tr><td>20</td><td>Pres. Vargas – Campo de Santana – Central – Cinelândia</td><td>RI_017_2026</td><td>230</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><em>Nota:</em> em <code>cameras_areas_fm.csv</code> aparecem 50 câmeras na área "Rua Lauro Müller – Av. Gen. Severiano – Av. Venceslau Brás", que <strong>não consta no shapefile entregue nem nos RELINTs</strong>. Vale checar com a organização do desafio se é uma área extra ou ruído.</p>
+    </section>
+
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script>
+  hljs.highlightAll();
+  const root = document.documentElement;
+  const saved = localStorage.getItem("artifact-theme");
+  if (saved) root.dataset.theme = saved;
+  function syncTheme() {
+    document.getElementById("hl-light").disabled = root.dataset.theme === "dark";
+    document.getElementById("hl-dark").disabled = root.dataset.theme !== "dark";
+  }
+  syncTheme();
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("artifact-theme", root.dataset.theme);
+    syncTheme();
+  });
+  const toc = document.getElementById("toc");
+  document.querySelectorAll("main section[id]").forEach(section => {
+    const h = section.querySelector("h2");
+    if (!h) return;
+    const a = document.createElement("a");
+    a.href = "#" + section.id;
+    a.textContent = h.textContent;
+    toc.appendChild(a);
+  });
+</script>
+</body>
+</html>

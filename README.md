@@ -1,141 +1,103 @@
 # Group 14 — ImpactHub · CompStat Rio
 
-> Solução para o desafio de **Segurança Pública (CompStat Rio)** no Claude Impact Lab Rio 2026.
-
----
+> Solução para o desafio **Segurança Pública (CompStat Rio)** no Claude Impact Lab Rio 2026.
 
 ## 👥 Equipe
 
-**Time**: Group 14
-**Tema**: Segurança Pública — CompStat Rio
-**Membros**:
-- Caio Tranjan
-- Alexandre Pinheiro Guimarães
-- Vinicius Henequim
-- D. Kligcar
-- (+ confirmar 5º membro se houver)
+**Group 14** · **Tema:** Segurança Pública — CompStat Rio
+**Membros:** Caio Tranjan · Alexandre Pinheiro Guimarães · Vinicius Henequim · D. Kligcar
 
 ---
 
 ## 🎯 Resumo da solução
 
-Pipeline **ETL Transform com human-in-the-loop** que cruza 5 fontes de dados do CompStat, detecta inconsistências (programáticas + agênticas + revisão humana), consolida uma base unificada e calcula um **índice de coincidência de risco** ("BINGO") por área operacional da Força Municipal.
+Pipeline **ETL agêntica (LLM-first, humano só audita)** que cruza 5 fontes do CompStat e gera, por **zona × semana**, um **índice BINGO** + **Relatórios Analíticos de Área em `.docx`** no estilo dos RELINTs oficiais.
 
-O índice ranqueia as áreas onde **três camadas se sobrepõem**: mancha criminal (ocorrências) ∩ dinâmica criminal (Disque Denúncia + RELINTs) ∩ fator urbano relevante. O output é o insumo direto pra geração dos **Relatórios Analíticos de Área** que hoje a equipe do CompStat monta manualmente para subsidiar as reuniões semanais com o alto escalão da Prefeitura.
+O BINGO é uma **soma ponderada por camada × categoria** em **janela móvel de 8 semanas**, sobre uma grade de 250 m. As **zonas FM são recalculadas a cada semana** e os **600 agentes** são distribuídos proporcionalmente ao score. Pesos editáveis em `config_pesos.json` sem refactor.
 
-**Resultado v0 (atual)**: ranking de risco das 8 áreas FM, com Presidente Vargas–Campo de Santana liderando (0.842). Quando a camada qualitativa (em curso) for plugada, o score recompõe (v1) com dimensões de modus operandi, horário, recepção e controle territorial extraídas via Claude.
+O output final (step 6) é o `.docx` por zona que substitui o relatório que a equipe da Duda hoje monta à mão pra reunião semanal de terça.
 
 ---
 
-## 🏗️ Arquitetura e uso do Claude
+## 🏗️ Pipeline em 6 passos
 
-### Pipeline em 5 passos
 ```
-Step 1: Load input files            → pipeline_steps/s1_load_inputs.py
-Step 2: Automatic treatments        → pipeline_steps/s2_auto_treatments.py
-Step 3: LLM + human + audit treats  → pipeline_steps/s3_assisted_treatments.py
-Step 4: Consolidated database       → pipeline_steps/s4_consolidate.py
-Step 5: Generate score              → pipeline_steps/s5_score.py
+S1  Load input files          → pipeline_steps/s1_load_inputs.py
+S2  Automatic treatments      → pipeline_steps/s2_auto_treatments.py
+S3  LLM extraction (DD)       → pipeline_steps/s3_assisted_treatments.py
+S4  Consolidated DB (v0+v1)   → pipeline_steps/s4_consolidate.py
+S5  Generate score            → pipeline_steps/s5_score.py
+S6  Generate report (.docx)   → pipeline_steps/s6_generate_report.py   ← Load
 ```
 
-Orquestrado por `pipeline.py` na raiz. Cada passo é um script independente, observável, com audit log JSONL. Suporta `--only`, `--skip`, `--from`, `--dry-run`.
+Orquestrado por `pipeline.py`. Cada passo é independente, observável, com **audit log JSONL** consumível pela UI web (`ui/pipeline_server.py`).
 
-### Como o Claude é usado
-- **Step 3 (assisted treatments)**: extração de padrões qualitativos dos relatos do Disque Denúncia e dos RELINTs (.docx) — modus operandi, rotas de fuga, pontos de recepção, horário pico, controle territorial. Cada extração vem com `confidence`; baixo → fila de revisão humana.
-- **Julgamento de inconsistências ambíguas**: quando regras determinísticas não decidem, Claude classifica + sugere correção, sempre logada no audit.
-- **Modelo default**: Claude Sonnet (econômico). Opus pontualmente em raciocínio crítico.
-
-### Estrutura do código
-```
-.
-├── pipeline.py                    # Orquestrador
-├── pipeline_steps/                # 1 script por passo
-│   └── s1..s5_*.py
-├── shapefiles_qgis/               # Tratamentos + análise espacial (pyshp)
-│   ├── gerar_shapefiles.py        # P1+P2: CSV → SHP com correções
-│   ├── analise_grade.py           # P4+P5: grid 250m + score v0
-│   └── {ocorrencias,disk_denuncia,fatores_urbanos,...}/  # SHP + .md por fonte
-├── docs/                          # Documentação de design
-└── notebooks/                     # EDA
-```
+**Como o Claude é usado:**
+- **S3**: extrai estrutura JSON dos relatos do Disque Denúncia (modus operandi, rotas, recepção, horários) classificada num vocabulário canônico de 60 IDs em 3 perspectivas (FATOR · EVENTO · VULNERABILIDADE). Auto-detect: stub sem `ANTHROPIC_API_KEY`, sample 5 default com key.
+- **S6**: lê dossiê por zona + RELINT exemplar → gera texto no estilo dos RELINTs oficiais → monta `.docx` com mapa Leaflet (Playwright headless) + texto IA + plano de ação por órgão.
+- **Modelo default**: `claude-sonnet-4-6` (econômico).
 
 ---
 
 ## 🚀 Como rodar
 
-### Pré-requisitos
+### Setup (uma vez só)
 ```bash
-pip install -r requirements.txt
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m playwright install chromium    # pra S6 (mapa do relatório)
+cp .env.example .env                                # editar e colar ANTHROPIC_API_KEY
 ```
 
-Python 3.11+ recomendado.
-
-### Configurar API key (para step 3 — LLM)
+Smoke test da API key (sem custo):
 ```bash
-cp .env.example .env
-# Editar .env, colar sua chave Anthropic (obtida em
-# https://console.anthropic.com/settings/keys)
+.venv/bin/python pipeline_steps/_llm_client.py
 ```
 
-O `.env` está no `.gitignore` — nunca commita. Testa que a chave foi
-carregada:
+### CLI
 ```bash
-python pipeline_steps/_llm_client.py
+.venv/bin/python pipeline.py                    # roda S1→S6 em sequência
+.venv/bin/python pipeline.py --dry-run          # mostra plano sem executar
+.venv/bin/python pipeline.py --only 5           # só rerun do score
+.venv/bin/python pipeline.py --from 3           # começa do S3
+.venv/bin/python pipeline.py --skip 3           # pula LLM extraction
 ```
 
-Saída esperada:
-```
-✓ ANTHROPIC_API_KEY presente (108 chars)
-✓ Model:       claude-sonnet-4-5
-...
-```
+Env vars opcionais: `PIPELINE_LLM_SAMPLE` (S3 sample size), `PIPELINE_REPORT_MAX_ZONAS` (S6 zonas).
 
-### Pipeline completa
+### UI local
 ```bash
-python pipeline.py             # roda os 5 passos em sequência
-python pipeline.py --dry-run   # mostra o plano sem executar
+make dev   # abre http://127.0.0.1:8787
 ```
 
-### UI local da pipeline
-```bash
-make dev
-```
+UI permite selecionar steps, rodar, acompanhar logs em tempo real (audit log JSONL), editar pesos do BINGO no `/lab` e baixar os `.docx` gerados na aba `/relatorio`.
 
-Abra `http://127.0.0.1:8787` para selecionar os steps, rodar dry-run, executar a pipeline e acompanhar logs/status por job. O comando valida a UI, limpa servidores antigos em `8787`/`8765` e reinicia automaticamente quando arquivos da UI mudam.
-
-### Comandos úteis
-```bash
-python pipeline.py --only 1        # só verifica inputs presentes
-python pipeline.py --only 1 2      # carrega + tratamentos automáticos
-python pipeline.py --from 4        # começa do consolidate até o final
-python pipeline.py --skip 3        # pula assisted treatments (atualmente stub)
-```
-
-### Outputs
-- `shapefiles_qgis/<fonte>/<fonte>.shp` — uma camada de pontos tratada por fonte
-- `shapefiles_qgis/analise/grade_risco.shp` — fact table (grid 250m, 7.534 células)
-- `shapefiles_qgis/analise/areas_fm_risco.shp` — 8 áreas FM com score agregado
-- `score_ranking.json` — ranking gerado pelo step 5
-- `pipeline_audit.jsonl` — audit log (uma entrada JSON por evento)
-
-### Visualizar no QGIS
-Abrir `shapefiles_qgis/analise/grade_risco.shp` e `areas_fm_risco.shp` e estilizar por `risco`. Instruções detalhadas em `shapefiles_qgis/analise/analise.md`.
+### Outputs principais
+- `shapefiles_qgis/<fonte>/*.shp` — camadas tratadas (S2)
+- `shapefiles_qgis/distribuicao_fm/zonas_semanais.shp` — fact table semanal (S4)
+- `score_ranking.json` — ranking S5
+- `shapefiles_qgis/distribuicao_fm/relatorios_ia/RA_*.docx` — relatórios finais (S6)
+- `pipeline_audit.jsonl` — audit log estruturado (consumido pela UI)
 
 ---
 
-## 📐 Conceito do BINGO
+## 📐 BINGO score (v1)
+
+Por **célula × semana**, em janela móvel de **8 semanas**:
 
 ```
-risco_celula = média(nrm_ocorrencias, nrm_disque, nrm_fator) × (n_camadas / 3)
+bingo(célula, semana) = Σ peso_camada × Σ (peso_categoria × n_normalizado_p95)
+                          ↑
+                    ocorrencias=1.0 · disque=0.6 · fatores=0.4
 ```
 
-Onde cada `nrm_*` é a contagem da camada na célula, normalizada pelo percentil 95. O fator `n_camadas/3` premia células onde as **três** camadas estão presentes (= 1.0) frente a células com apenas uma (= 0.33). Resultado: alta intensidade isolada não passa — precisa de **coincidência**.
+Boosts (em `config_pesos.json`): `ROUBO/FURTO A TRANSEUNTES = 2.0` (foco do CompStat) · `Iluminação ruim com pedestres = 2.0` · `CONSUMO DE DROGAS = 0.5`. Premia **coincidência** das 3 camadas, não intensidade isolada.
 
 ---
 
 ## 🔗 Links
 
-- **Repositório**: https://github.com/alexandrepgui/claude_impact_lab_compstat_rio
+- **Este repo**: https://github.com/alexandrepgui/claude_impact_lab_compstat_rio
 - **Repo oficial do desafio**: https://github.com/CompStat-Rio/claude_impact_lab_compstat_rio
 - **Regras do hackathon**: https://github.com/taicor-ai/claude-impact-lab-rio
 
@@ -143,28 +105,28 @@ Onde cada `nrm_*` é a contagem da camada na célula, normalizada pelo percentil
 
 - [`docs/project-brief.html`](docs/project-brief.html) — contexto do problema, datasets, critérios oficiais
 - [`docs/solution.html`](docs/solution.html) — design da solução, pipeline detalhada, decision log
-- [`docs/data-inventory.html`](docs/data-inventory.html) — inventário técnico das 11 fontes de dados
+- [`docs/data-inventory.html`](docs/data-inventory.html) — inventário técnico das fontes
 - [`docs/ImpactHub_Mapeamento_Canonico.md`](docs/ImpactHub_Mapeamento_Canonico.md) — modelo canônico das entidades
+- [`docs/analise_qualitativa_ocorrencias.md`](docs/analise_qualitativa_ocorrencias.md) — análise qualitativa DD + FU
+- [`shapefiles_qgis/README.md`](shapefiles_qgis/README.md) — scripts geoespaciais + como adicionar nova camada
 
 ## 🎥 Vídeo demo
 
-**BINGO semanal — evolução das zonas ótimas da FM ao longo de ~5 anos** (262 semanas, 2020–2024). Heatmap = índice composto por célula da grade 250 m (janela de 8 semanas, pesos em [`config_pesos.json`](shapefiles_qgis/config_pesos.json)). Polígonos = 8 zonas ótimas da Força Municipal recalculadas a cada semana, rotuladas por bairro × nº de agentes.
+**BINGO semanal — evolução das zonas ótimas da FM ao longo de 5 anos** (262 semanas, 2020–2024). Heatmap = índice composto por célula da grade. Polígonos = 8 zonas ótimas da Força Municipal **recalculadas a cada semana**, rotuladas por bairro × nº de agentes.
 
 ![Visualização semanal — BINGO + Zonas FM](docs/visualizacao_semanal.gif)
 
-> Fonte interativa: [`shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html`](shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html) (abrir no browser pra navegar com slider/play).
->
-> Pra regenerar o GIF: `python shapefiles_qgis/distribuicao_fm/gerar_gif_demo.py` (requer `playwright` + `python -m playwright install chromium`).
+Versão interativa: [`shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html`](shapefiles_qgis/distribuicao_fm/visualizacao_semanal.html).
 
 ---
 
-## 📚 Sobre o desafio (briefing oficial)
+## 📚 Sobre o desafio
 
-O **CompStat Municipal** é o modelo de gestão de segurança pública da Prefeitura do Rio de Janeiro, inspirado no CompStat NYPD e adaptado à realidade municipal. Combina análise de dados criminais, inteligência territorial e coordenação entre órgãos para orientar decisões operacionais baseadas em evidências. Opera sobre **22 áreas prioritárias** definidas pela mancha criminal de roubo e furto, com emprego estratégico da **Força Municipal** (Divisão de Elite da Guarda Municipal) e atuação sobre **20 fatores urbanos** mapeados (iluminação, vegetação, desordem urbana, obstrução de calçadas, etc.).
+O **CompStat Municipal** é o modelo de gestão de segurança pública da Prefeitura do Rio, inspirado no CompStat NYPD. Opera sobre 22 áreas prioritárias com a **Força Municipal** (Divisão de Elite da Guarda Municipal, 600 agentes) atuando sobre crime + 20 fatores urbanos coordenados com Comlurb, RioLuz, SEOP, SECONSERVA, SMAS, GM-Rio, CET-Rio e SMTR.
 
-**O problema:** os dados vivem em silos distintos (ocorrências georreferenciadas, denúncias qualitativas, fatores urbanos, RELINTs) e não há cruzamento automatizado entre eles. A produção dos relatórios analíticos semanais demanda horas de trabalho manual.
+**Problema:** dados em silos, sem cruzamento automatizado. Relatórios semanais da equipe da Duda são montados à mão.
 
-**O objetivo:** plataforma de inteligência criminal com IA que (1) integra as cinco fontes, (2) cruza mancha × dinâmica × fatores urbanos para identificar coincidências de alto risco, (3) gera automaticamente Relatórios Analíticos de Área em `.doc`, e (4) usa IA para recomendar cobertura da FM (rota, horário, modelo de emprego) e resolução dos fatores urbanos pelos órgãos responsáveis (Comlurb, RioLuz, SEOP, SECONSERVA, SMAS, GM-Rio, CET-Rio, SMTR).
+**Nossa solução:** pipeline ETL agêntica que cruza as 5 fontes (ocorrências, Disque Denúncia, RELINTs, fatores urbanos, polígonos FM), identifica **coincidências de alto risco** semanais, e gera automaticamente os Relatórios Analíticos de Área `.docx` no estilo dos RELINTs oficiais — pronto pra subsidiar a reunião de terça.
 
 Briefing completo: [`Briefing_Hackathon_Desenvolvedores_CompStat-2.pdf`](Briefing_Hackathon_Desenvolvedores_CompStat-2.pdf).
 

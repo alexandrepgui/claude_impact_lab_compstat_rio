@@ -218,20 +218,20 @@ RELINTs em `relints/` — um relatório por polígono.
 `gerar_relatorios_ia.py` fecha o ciclo: pega o `relatorio_zonas_compacto.json`,
 gera **um .docx por zona** no estilo dos arquivos em `relints/`, com:
 
-- um **mapa** Leaflet → screenshot PNG via Edge headless (polígono da zona +
-  pontos amostrados de ocorrências, Disque e fatores urbanos no entorno);
+- um **mapa** Leaflet → screenshot PNG via **Playwright headless** (cross-platform;
+  polígono da zona + pontos amostrados de ocorrências, Disque e fatores urbanos no entorno);
 - um **texto** redigido pelo **Claude Sonnet 4.6** a partir do dossiê + um
   RELINT real como exemplar de estilo (hard-coded no script).
 
 ### Requisitos
 
 ```
-pip install anthropic python-docx pyshp
-set ANTHROPIC_API_KEY=sk-ant-...       # sua chave da Anthropic
+pip install -r ../requirements.txt
+python -m playwright install chromium      # uma vez só
+export ANTHROPIC_API_KEY=sk-ant-...        # ou via .env (carregado pelo _llm_client)
 ```
 
-E ter o **Microsoft Edge** instalado (caminho fixo no topo do script;
-ajuste se estiver em outro path).
+Cross-platform (macOS/Linux/Windows) — Playwright cuida do browser headless.
 
 ### Uso
 

@@ -1,0 +1,18 @@
+# CompStat Rio — Group 14 · ImpactHub
+# Python 3.11+ recomendado.
+#
+# Instalação:
+#   pip install -r requirements.txt
+
+# --- Core: pipeline atual ---
+pandas>=2.0
+pyshp>=2.3
+openpyxl>=3.1
+
+# --- Opcional: leitura de score em step 5 (graceful fallback se ausente) ---
+geopandas>=0.14
+shapely>=2.0
+
+# --- Reservado para passos futuros (LLM + Load .doc) ---
+# anthropic>=0.40
+# python-docx>=1.1

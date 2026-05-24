@@ -141,124 +141,38 @@
       </div>
     </header>
 
-    <section id="tldr">
-      <h2>TL;DR — estratégia</h2>
-      <div class="callout core">
-        <p style="margin:0"><strong>Princípio mestre:</strong> <em>"Feijão com arroz primeiro."</em> O <strong>BINGO bem feito e confiável</strong> é o objetivo. Tudo o que vem depois — detecção de inconsistências, integração com Twitter, novas fontes — só ganha tempo de quem garantiu primeiro o core.</p>
-      </div>
-      <div class="grid" style="margin-top:1rem">
-        <div class="callout core">
-          <h3 style="margin-top:0"><span class="pill core">Core</span> BINGO confiável + dinâmico</h3>
-          <p>Cruzamento das 3 camadas (mancha · dinâmica · fator urbano relevante) feito de forma bem feita, reproduzível e atualizável ao longo do tempo. <strong>Áreas se movem</strong> — não tratamos como mapas estáticos.</p>
-        </div>
-        <div class="callout plus">
-          <h3 style="margin-top:0"><span class="pill plus">Plus 1</span> Inconsistências + revisão humana</h3>
-          <p>Forma parametrizada de detectar inconsistências nos dados e <strong>solicitar revisão humana</strong> quando confiança baixa. Não trate ruído como verdade.</p>
-        </div>
-        <div class="callout plus">
-          <h3 style="margin-top:0"><span class="pill plus">Plus 2</span> Integração fácil de novas fontes</h3>
-          <p>Arquitetura plugável pra absorver fontes adicionais sem reescrever. Exemplo concreto: <strong>Twitter / X</strong> (alinhado com Desafio Extra 1 do briefing oficial).</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="principio">
-      <h2>Princípio: feijão com arroz primeiro</h2>
+    <section id="executivo">
+      <h2>Resumo executivo</h2>
       <blockquote>
         "Antes de fazermos os <em>plus</em> a gente tem que fazer bem o feijão com arroz. O objetivo principal é o BINGO. O BINGO é o cruzamento dos dados de forma bem feita e confiável; a intenção das áreas não é estática, é dinâmica e se move ao longo do tempo."
       </blockquote>
-      <p>Critério de decisão pra qualquer feature: <strong>melhora o BINGO core ou é decoração?</strong> Decoração entra só depois que o core estiver sólido (testado, com saída em <code>.doc</code> pra pelo menos 1 área completa). Risco de inversão: investir em Twitter/inconsistências antes do core = demo bonito sem substância = nota baixa em <em>Impacto Real</em>.</p>
-    </section>
-
-    <section id="etl">
-      <h2>Visão ETL — onde está o trabalho real</h2>
-      <p>Enquadrando como pipeline ETL, a alocação de esforço fica clara: <strong>Extract não é o problema (os dados já estão entregues)</strong>. O peso fica no <strong>Transform</strong> — é onde mora o cruzamento das fontes e a garantia de qualidade. <strong>Load</strong> é importante mas direto (gerar <code>.doc</code>). Plus features se encaixam naturalmente em E ou L depois.</p>
-      <div class="grid-3">
+      <div class="callout core">
+        <p style="margin:0"><strong>O que estamos construindo:</strong> pipeline ETL — foco em <strong>Transform</strong> com <em>human-in-the-loop</em> — que cruza 5 fontes do CompStat, detecta inconsistências e produz <strong>Relatórios Analíticos em <code>.doc</code></strong> por área FM. Substitui o relatório que a Duda monta à mão pra reunião de terça.</p>
+      </div>
+      <div class="grid-3" style="margin-top:1rem">
         <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">E</span> Extract <span class="pill" style="float:right">não é o gargalo</span></h3>
-          <p>Os 4 CSVs + 1 shapefile + 8 RELINTs já estão no repo oficial. Ler bem (com os encodings/separadores certos do data inventory) é mecânica, não problema.</p>
-          <p><strong>Plus futuro (E):</strong> adapters pra Twitter / 1746 BigQuery / outras fontes públicas. Só entra depois do core.</p>
+          <h3 style="margin-top:0"><span class="pill">E</span> Extract</h3>
+          <p style="margin:0">Dados já entregues no repo oficial. <strong>Não é gargalo.</strong></p>
         </div>
         <div class="callout core" style="position:relative">
           <span class="pill core" style="position:absolute; top:.6rem; right:.6rem">FOCO</span>
           <h3 style="margin-top:0"><span class="pill core">T</span> Transform</h3>
-          <p><strong>O problema mora aqui.</strong> Não é "limpar coluna" — é cruzar mancha × dinâmica × fator urbano de forma <em>bem feita</em> e <em>confiável</em>. Inclui:</p>
-          <ul style="margin-top:.5rem">
-            <li>Pareamento geoespacial (intersecções com polígonos FM)</li>
-            <li>Síntese qualitativa dos relatos (DD + RELINTs → padrões)</li>
-            <li>Filtragem do fator urbano pela dinâmica</li>
-            <li>Score do BINGO e recompute dinâmico quando shapefile muda</li>
-            <li>Garantia de qualidade entre fontes distintas (mais difícil que dentro de uma fonte)</li>
-          </ul>
+          <p style="margin:0">Onde o trabalho está. Cruzamento + qualidade + score BINGO. <strong>Detalhe técnico abaixo.</strong></p>
         </div>
         <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">L</span> Load <span class="pill" style="float:right; background:var(--good); color:white; border-color:var(--good)">crítico</span></h3>
-          <p>Mecânica de gerar <code>.docx</code> é resolvida (python-docx), mas <strong>o output É o produto</strong> — é o artefato que vai pra mesa da reunião de terça e que os jurados abrem em 3 min.</p>
-          <p><strong>O que importa no Load:</strong></p>
-          <ul style="margin-top:.4rem">
-            <li><strong>Fidelidade ao template</strong> do anexo do briefing PDF (estrutura que a Duda já usa)</li>
-            <li><strong>4 norteadoras respondidas claramente</strong> no resumo executivo</li>
-            <li><strong>Plano de ação acionável</strong> por órgão — não relatório, instrução</li>
-            <li><strong>Mapa de calor + temporal + dinâmica</strong> embutidos no .doc (figuras, não links)</li>
-            <li><strong>Honestidade analítica</strong> — onde confiança é baixa, sinaliza ao invés de esconder</li>
-          </ul>
-          <p><strong>Por que crítico:</strong> Impacto Real (40 pts) é avaliado pelo que vai pra prefeitura usar. Transform sem Load bom = análise correta que ninguém consome.</p>
-          <p><strong>Plus futuro (L):</strong> dashboard interativo · endpoint API · entrega via email. Tudo depois do <code>.doc</code> sólido.</p>
+          <h3 style="margin-top:0"><span class="pill">L</span> Load <span class="pill" style="background:var(--good); color:white; border-color:var(--good)">crítico</span></h3>
+          <p style="margin:0">O <code>.doc</code> É o produto que a Prefeitura consome. Anda em <strong>paralelo</strong> ao Transform.</p>
         </div>
       </div>
-      <div class="callout core" style="margin-top:1rem">
-        <strong>Ordem de batalha:</strong> Transform <em>e</em> Load andam <strong>em paralelo</strong> — ter BINGO confiável que produz <code>.doc</code> útil pra 1 área é o objetivo conjunto do feijão com arroz. Sem Load bom, Transform vira análise órfã. Sem Transform sólido, Load vira template vazio. <strong>Extract expansion (novas fontes) só depois disso.</strong>
-      </div>
-    </section>
-
-    <section id="core">
-      <h2>Core — BINGO confiável e dinâmico</h2>
-      <p>O que constitui "feito bem":</p>
-      <div class="layer-stack">
-        <div class="layer core">
-          <div class="badge">Camada 1</div>
-          <div>
-            <h3>Mancha criminal — sólida</h3>
-            <p>Heatmap espacial das 115k ocorrências agregado por mês/ano (granularidade real do dataset). Intersecção com polígonos das áreas FM via geometria. <strong>Não confiar em código AISP</strong> — pareamento espacial obrigatório.</p>
-          </div>
-        </div>
-        <div class="layer core">
-          <div class="badge">Camada 2</div>
-          <div>
-            <h3>Dinâmica criminal — qualitativa</h3>
-            <p>Extração de padrões dos relatos: <code>disk_denuncia.csv</code> (texto livre em <code>relato_redacted</code>) + RELINTs (.docx). Sintetizar: modus operandi, rotas fuga, pontos recepção, horários, controle territorial. Por área.</p>
-          </div>
-        </div>
-        <div class="layer core">
-          <div class="badge">Camada 3</div>
-          <div>
-            <h3>Fator urbano — filtrado pela dinâmica</h3>
-            <p>2.085 fatores já vêm com órgão responsável. <strong>Filtrar pelos relevantes</strong>: iluminação só importa se a dinâmica é noturna; calçadão só importa se é roubo a pé. Camada 3 só conta quando coincide com camada 2.</p>
-          </div>
-        </div>
-        <div class="layer core">
-          <div class="badge">Output</div>
-          <div>
-            <h3>Relatório Analítico em <code>.doc</code></h3>
-            <p>Por área. Estrutura definida pelo briefing: resumo executivo (4 norteadoras) + análise temporal + dinâmica + fatores relevantes + painel coincidências (BINGO) + plano de ação por órgão. <strong>1 área completa &gt; 8 áreas pela metade.</strong></p>
-          </div>
-        </div>
-        <div class="layer core">
-          <div class="badge">Dinâmica</div>
-          <div>
-            <h3>Áreas não são estáticas</h3>
-            <p>O briefing afirma: quando a FM aciona uma área, o crime migra. <strong>BINGO precisa ser recomputável</strong> a cada novo ciclo de dados. Sem hardcode dos 9/22 polígonos. Pipeline = entrada de dados → recálculo → novo relatório.</p>
-          </div>
-        </div>
-      </div>
-      <h3>Critérios de "core pronto"</h3>
+      <h3 style="margin-top:1.8rem">Critério de "core pronto" (feijão com arroz)</h3>
       <ul>
-        <li>✅ Pelo menos <strong>1 área tem relatório <code>.doc</code> end-to-end</strong> gerado pelo pipeline (sem retrabalho manual)</li>
-        <li>✅ As 3 camadas se conectam por <strong>geometria</strong> (não código)</li>
-        <li>✅ Pipeline é <strong>reproduzível</strong>: rodar com dados novos = sai relatório novo</li>
-        <li>✅ Saída faz sentido pro humano que valida (mentor Ramon ou Duda em revisão)</li>
-        <li>✅ Sem hardcode de quais são as áreas — feed do shapefile ou parametrizado</li>
+        <li>✅ <strong>1 área tem relatório <code>.doc</code> end-to-end</strong> gerado pelo pipeline (sem retrabalho manual)</li>
+        <li>✅ Pipeline <strong>reproduzível</strong>: dados novos → relatório novo</li>
+        <li>✅ Camadas conectadas por <strong>geometria</strong>, não código AISP</li>
+        <li>✅ <strong>Sem hardcode</strong> de áreas — feed do shapefile parametrizado</li>
+        <li>✅ Saída faz sentido pro humano que valida (mentor Ramon)</li>
       </ul>
+      <p style="margin-top:1rem; color:var(--muted); font-size:.95rem">Plus features (Twitter · BigQuery 1746 · novas fontes) ficam <a href="#plus-deferred">deferidas</a>. Foco aqui é o pipeline Transform abaixo.</p>
     </section>
 
 <section id="transform-pipeline">
@@ -650,6 +564,7 @@
           <tr><td>11:00~</td><td>Linguagem unificada = registro "área-snapshot" por (área × período).</td><td>Schema único pra todas as camadas — facilita auditoria, reuso, e regeneração quando shapefile muda.</td></tr>
           <tr><td>11:30~</td><td>Plano de execução em 4 tracks paralelos (Data Eng, LLM, Output, PM).</td><td>Caminho crítico = LLM extraction de DD (90+ min imprevisível). Pode-se cortar 3-4h em paralelo se cada track for executado por owner dedicado.</td></tr>
           <tr><td>11:30~</td><td>Solution.html podado: removida "Áreas dinâmicas" (já no Pipeline) e Plus 1/Plus 2 expandidos viraram callout único.</td><td>Foco em accionabilidade. Documento de estratégia + execução, não enciclopédia.</td></tr>
+          <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
           <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
         </tbody>

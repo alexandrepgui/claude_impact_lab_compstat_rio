@@ -258,7 +258,74 @@
       <p style="margin-top:.6rem; color:var(--muted); font-size:.9rem">Padrão consistente com o princípio "feijão com arroz primeiro": novas fontes (plus) entram sem mexer no motor.</p>
     </section>
 
-<section id="transform-pipeline">
+    <section id="fontes-estruturado-vs-nao">
+      <h2>Fontes: estruturado vs desestruturado — onde o LLM atua</h2>
+      <p>Nem toda fonte precisa de LLM. Critério: tem <strong>texto livre</strong> ou narrativa que precisa ser interpretada? Sim → LLM. Não → tratamento programático determinístico.</p>
+      <table>
+        <thead><tr><th style="width:20%">Fonte</th><th style="width:18%">Tipo</th><th style="width:25%">Tratamento</th><th>Status no pipeline</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Ocorrências</strong> <br><code>df_ocorrencias_tratado</code></td>
+            <td>Estruturado</td>
+            <td>S2 — programático. Campos <code>delito</code>, <code>desc_delito</code>, <code>aisp</code>, lat/long já vêm categorizados pela PMERJ.</td>
+            <td>✅ S2 produz <code>ocorrencias.shp</code></td>
+          </tr>
+          <tr style="background:var(--core-soft)">
+            <td><strong>Disque Denúncia</strong> <br><code>disk_denuncia</code> · <code>relato_redacted</code></td>
+            <td><strong>Desestruturado</strong> — texto livre 254 chars</td>
+            <td>S2 trata CSV (encoding, separador, axis). <strong>S3 LLM extrai</strong> JSON estruturado de cada relato.</td>
+            <td>✅ S3 implementado (auto-detect, sample default 5)</td>
+          </tr>
+          <tr style="background:var(--plus-soft)">
+            <td><strong>RELINTs</strong> <br><code>relints/*.docx</code></td>
+            <td><strong>Desestruturado</strong> — narrativa qualitativa por área FM</td>
+            <td>S3 deveria parsear .docx + extrair via LLM patterns por área. Hoje serve só como gabarito/ground truth.</td>
+            <td>⚠️ <strong>GAP</strong> — S3 atual processa só DD, não os 8 .docx</td>
+          </tr>
+          <tr>
+            <td><strong>Fatores urbanos</strong> <br><code>fatores_urbanos.csv</code></td>
+            <td>Estruturado</td>
+            <td>S2 — corrige axis invertido, mantém categoria + órgão responsável.</td>
+            <td>✅ S2 produz <code>fatores_urbanos.shp</code></td>
+          </tr>
+          <tr>
+            <td><strong>Câmeras</strong> <br><code>cameras_areas_fm.csv</code></td>
+            <td>Estruturado</td>
+            <td>S2 — só geo + nome da área.</td>
+            <td>✅ S2 produz <code>cameras.shp</code></td>
+          </tr>
+          <tr>
+            <td><strong>Áreas FM</strong> <br><code>sh_area_forca/*.shp</code></td>
+            <td>Estruturado (shapefile)</td>
+            <td>S2 lê direto. Define o "esqueleto territorial".</td>
+            <td>✅ Pronto</td>
+          </tr>
+          <tr>
+            <td><strong>Domínio territorial</strong> <br><code>dominio_territorial</code></td>
+            <td>Estruturado</td>
+            <td>S2 — filtrar bbox município. <em>Não entra no score</em> (sensível).</td>
+            <td>✅ Pronto</td>
+          </tr>
+          <tr>
+            <td><strong>CPSR</strong> <br><code>CPSR_2020_2022_2024.xlsx</code></td>
+            <td>Estruturado (Excel)</td>
+            <td>S2 — XLSX → SHP, 3 anos.</td>
+            <td>✅ Pronto</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout warn">
+        <h3 style="margin-top:0">⚠️ Gap conhecido: RELINTs (.docx)</h3>
+        <p>Os 8 RELINTs (RI_010..RI_017) são <strong>narrativa qualitativa por área</strong> descrevendo dinâmica criminal, modus operandi, fatores ambientais e plano de ação. Hoje servem como:</p>
+        <ul>
+          <li><strong>Ground truth</strong> — template do que o <code>.doc</code> final deve produzir</li>
+          <li><strong>Validação cross-source</strong> — comparar nossa síntese (de DD) com o RELINT da mesma área</li>
+        </ul>
+        <p style="margin-bottom:0">Mas <strong>não estão sendo processados via LLM hoje no S3</strong>. Próximo upgrade: parse <code>.docx</code> (python-docx) + chamada Claude com prompt diferente (documento inteiro, não relato linha-a-linha) → produz <code>relint_estruturado.json</code> com 1 entrada por área. Útil pra enriquecer dinâmica por área no relatório final + cross-validar a extração de DD na mesma região.</p>
+      </div>
+    </section>
+
+    <section id="transform-pipeline">
       <h2>Pipeline Transform — design detalhado</h2>
       <div class="callout core">
         <p style="margin:0"><strong>Princípio:</strong> pipeline 100% <em>automatizada</em> mas <em>auditável</em> por humanos. Cada passo deixa rastro. Inconsistências viram fila de revisão (auto-resolvida por IA quando seguro · escalada pra humano quando ambígua). Resultado: <strong>base consolidada confiável</strong> sobre a qual o score do BINGO é calculado.</p>
@@ -792,6 +859,8 @@
           <tr><td>13:00~</td><td>Motor BINGO evoluiu para <strong>semanal + ponderado por camada × categoria</strong> (config em <code>config_pesos.json</code>, código em <code>motor_bingo_semanal.py</code>).</td><td>Áreas FM viraram dinâmicas (recalculadas por semana), score paramétrizável sem refactor, animação no QGIS. Alinha briefing ("polígonos não-estáticos") e dá extensibilidade pra novas camadas.</td></tr>
           <tr><td>13:00~</td><td>Período da fact table mudou de <code>YYYY-MM</code> para <code>YYYY-WW</code> + janela móvel de 8 semanas.</td><td>Granularidade do motor real. Mensal era proxy do mes/ano vazio em ocorrências; semana é a unidade operacional do CompStat (reunião terça).</td></tr>
           <tr><td>13:00~</td><td>Pesos por camada: ocorrências=1.0, disque=0.6, fatores=0.4. Pesos por categoria: roubo transeunte=2.0, iluminação ruim=2.0, consumo drogas=0.5.</td><td>Codifica prioridades do CompStat (foco máximo em roubo a transeunte, iluminação ligada a noturno) em vez de média uniforme.</td></tr>
+          <tr><td>13:30~</td><td>Pipeline fechada: S3 LLM extraction real (auto-detect API key, sample 5 default, vocab 30 IDs) · S4 v0+v1 (analise_grade + motor_bingo_semanal) · S5 v1-first com fallback v0.</td><td>End-to-end runnable. <code>python pipeline.py</code> sem args funciona. Time pode iterar nos pesos do config_pesos.json sem mexer no código.</td></tr>
+          <tr><td>14:00~</td><td>Esclarecido: <strong>S3 processa só DD</strong> (texto livre). Ocorrências/fatores/câmeras são estruturados (S2 só). <strong>RELINTs ainda fora do S3</strong> — gap conhecido pra upgrade futuro.</td><td>Confusão potencial: "desestruturado" ≠ "todos os dados textuais". DD tem free text por denúncia; RELINTs têm narrativa por área. São cargas diferentes que precisam de prompts diferentes.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
           <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>

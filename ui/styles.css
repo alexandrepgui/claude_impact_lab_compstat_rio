@@ -47,16 +47,22 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  gap: 24px;
-  height: auto;
-  min-height: 64px;
+  height: 64px;
   padding: 0 max(24px, calc((100vw - 1220px) / 2));
   border-bottom: 1px solid #cfd5da;
   background: #ffffff;
   box-shadow: var(--shadow);
+}
+
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 24px;
+  width: min(1220px, calc(100vw - 48px));
+  height: 64px;
+  margin: 0 auto;
+  overflow: visible;
 }
 
 .brand-mark {
@@ -88,7 +94,6 @@ body {
   gap: 6px;
   min-width: 0;
   height: 46px;
-  align-self: stretch;
   margin-left: 24px;
 }
 

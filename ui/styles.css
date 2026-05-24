@@ -1,18 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap");
+
 :root {
-  --ink: #1f1f24;
-  --muted: #626168;
-  --subtle: #89888d;
-  --line: #dcdcde;
-  --paper: #f7f7f8;
+  --ink: #2f3941;
+  --muted: #5a6d7c;
+  --subtle: #68737d;
+  --line: #dddddd;
+  --paper: #f7f7f7;
   --panel: #ffffff;
   --field: #ffffff;
-  --accent: #fc6d26;
-  --accent-strong: #c93d12;
-  --green: #108548;
-  --red: #dd2b0e;
-  --amber: #ab6100;
-  --blue: #1f75cb;
-  --radius: 6px;
+  --accent: #004a80;
+  --accent-strong: #00345c;
+  --accent-soft: #358fbc;
+  --tab: #d6d6d6;
+  --tab-hover: #eeeeee;
+  --green: #038153;
+  --red: #cc3340;
+  --amber: #ad5918;
+  --blue: #004a80;
+  --radius: 2px;
+  --shadow: 0 2px 5px -2px rgb(0 0 0 / 85%);
 }
 
 * {
@@ -24,54 +30,76 @@ body {
   min-height: 100vh;
   color: var(--ink);
   background: var(--paper);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial,
+  font-family: "PT Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
     sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app-frame {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 1fr;
   min-height: 100vh;
 }
 
 .app-sidebar {
   position: sticky;
   top: 0;
-  height: 100vh;
-  padding: 16px 12px;
-  border-right: 1px solid var(--line);
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(180px, auto) minmax(0, 1fr);
+  align-items: end;
+  gap: 22px;
+  height: auto;
+  min-height: 96px;
+  padding: 0 max(24px, calc((100vw - 1220px) / 2));
   background: var(--paper);
+  box-shadow: var(--shadow);
 }
 
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  margin: 0 0 18px 4px;
-  border-radius: 8px;
-  background: var(--accent);
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: 76px;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 2.45rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.brand-mark::after {
+  content: "ompStat Rio";
+  margin-left: 1px;
+  color: #19171b;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .app-nav {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
 }
 
 .nav-item {
+  position: relative;
   justify-content: start;
-  width: 100%;
-  min-height: 36px;
-  padding: 0 10px;
+  width: auto;
+  min-height: 52px;
+  padding: 0 18px;
   border-color: transparent;
-  background: transparent;
-  color: var(--muted);
-  font-size: 0.88rem;
-  font-weight: 600;
+  border-radius: 0;
+  background: var(--tab);
+  color: #19171b;
+  font-size: 0.96rem;
+  font-weight: 700;
 }
 
 .nav-item,
@@ -86,13 +114,23 @@ body {
 
 .nav-item:hover {
   border-color: transparent;
-  background: #ececef;
-  color: var(--ink);
+  background: var(--tab-hover);
+  color: #19171b;
 }
 
 .nav-item.active {
-  background: #f6f3f1;
-  color: var(--accent-strong);
+  background: #ffffff;
+  color: #19171b;
+}
+
+.nav-item.active::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--accent);
+  content: "";
 }
 
 .nav-icon {
@@ -122,9 +160,9 @@ select {
 }
 
 .shell {
-  width: min(1220px, calc(100vw - 260px));
+  width: min(1220px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 20px 0 40px;
+  padding: 24px 0 46px;
 }
 
 .topbar {
@@ -132,14 +170,15 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 0 0 16px;
-  border-bottom: 1px solid var(--line);
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  background: var(--panel);
 }
 
 .kicker {
   margin: 0 0 4px;
-  color: var(--subtle);
-  font-size: 0.73rem;
+  color: var(--accent);
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -157,7 +196,7 @@ h2 {
 }
 
 h1 {
-  font-size: 1.75rem;
+  font-size: 2rem;
   line-height: 1.15;
   font-weight: 700;
 }
@@ -170,10 +209,10 @@ h2 {
 
 .run-badge {
   min-width: 118px;
-  padding: 7px 10px;
+  padding: 8px 12px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #ececef;
+  border-radius: var(--radius);
+  background: #f3f3f3;
   text-align: center;
   font-size: 0.76rem;
   font-weight: 700;
@@ -205,7 +244,7 @@ h2 {
   align-items: end;
   gap: 10px;
   margin: 16px 0;
-  padding: 12px;
+  padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
@@ -218,7 +257,7 @@ h2 {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--field);
+  background: var(--tab);
 }
 
 .mode-control label,
@@ -238,7 +277,7 @@ button {
   gap: 8px;
   padding: 0 10px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -253,8 +292,8 @@ button {
 }
 
 .mode-control label:has(input:checked) {
-  background: #f6f3f1;
-  color: var(--accent-strong);
+  background: var(--accent);
+  color: #ffffff;
 }
 
 .mode-control input,

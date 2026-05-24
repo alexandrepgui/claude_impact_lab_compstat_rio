@@ -75,6 +75,15 @@ def _fail_missing_key() -> None:
     raise SystemExit(2)
 
 
+def is_configured() -> bool:
+    """Devolve True se ANTHROPIC_API_KEY está setada com valor válido.
+    Não falha — só inspeciona. Use antes de get_client() pra decidir
+    fluxo (ex.: cair em stub se não tem key)."""
+    _load_env_once()
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    return bool(api_key) and not api_key.startswith("sk-ant-api03-COLE")
+
+
 @lru_cache(maxsize=1)
 def get_client():
     """Devolve um cliente Anthropic configurado. Cacheia entre chamadas."""

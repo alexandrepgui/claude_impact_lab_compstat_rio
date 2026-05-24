@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CompStat Rio — Solução (Group 14)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" id="hl-light">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" id="hl-dark">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f7f8fb;
+    --surface: #ffffff;
+    --surface-2: #f1f4f8;
+    --text: #172033;
+    --muted: #657286;
+    --line: #d7dee9;
+    --accent: #2563eb;
+    --accent-soft: #e7efff;
+    --code-bg: #f5f7fa;
+    --good: #12805c;
+    --warn: #a16207;
+    --bad: #b42318;
+    --shadow: 0 14px 40px rgba(23, 32, 51, .08);
+    --sidebar: 280px;
+    --radius: 8px;
+    --core: #1d4ed8;
+    --core-soft: #dbeafe;
+    --plus: #d97706;
+    --plus-soft: #fef3c7;
+    --tbd: #94a3b8;
+    --tbd-soft: #f1f5f9;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f141b;
+    --surface: #151b24;
+    --surface-2: #1d2530;
+    --text: #e7ebf2;
+    --muted: #a8b3c2;
+    --line: #2c3745;
+    --accent: #7aa2ff;
+    --accent-soft: rgba(122, 162, 255, .14);
+    --code-bg: #10161f;
+    --good: #6ee7b7;
+    --warn: #f8d477;
+    --bad: #fca5a5;
+    --shadow: 0 18px 44px rgba(0, 0, 0, .28);
+    --core: #93c5fd;
+    --core-soft: rgba(147, 197, 253, .14);
+    --plus: #fbbf24;
+    --plus-soft: rgba(251, 191, 36, .14);
+    --tbd: #64748b;
+    --tbd-soft: rgba(100, 116, 139, .2);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.68 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .88em; }
+  code:not(pre code) { background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; color: var(--text); padding: .1rem .34rem; white-space: normal; overflow-wrap: break-word; word-break: normal; }
+  pre { margin: 1rem 0; overflow: auto; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); }
+  pre code.hljs { background: transparent; padding: 1rem 1.1rem; line-height: 1.58; font-size: .84rem; }
+  h1, h2, h3, h4 { line-height: 1.22; letter-spacing: 0; }
+  h1 { margin: 0 0 .65rem; font-size: clamp(2rem, 4vw, 3.2rem); max-width: 980px; }
+  h2 { margin: 3rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: clamp(1.35rem, 2vw, 1.7rem); }
+  h3 { margin: 1.6rem 0 .55rem; font-size: 1.05rem; }
+  p { margin: .75rem 0 1rem; }
+  ul, ol { margin: .5rem 0 1rem; padding-left: 1.4rem; }
+  li { margin: .25rem 0; }
+  blockquote { margin: 1.2rem 0; padding: 1rem 1.25rem; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: var(--radius); font-style: italic; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1rem 0 1.25rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); font-size: .9rem; overflow: hidden; }
+  th, td { border-bottom: 1px solid var(--line); padding: .68rem .8rem; text-align: left; vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { background: var(--surface-2); color: var(--muted); font-size: .73rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .page { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+  .sidebar { position: sticky; top: 0; height: 100vh; overflow: auto; border-right: 1px solid var(--line); background: var(--surface); padding: 1.15rem; }
+  .sidebar h2 { margin: 0 0 .8rem; padding: 0; border: 0; font-size: 1rem; }
+  .theme-toggle { width: 100%; margin: .4rem 0 1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); color: var(--text); padding: .55rem .7rem; cursor: pointer; font-size: .85rem; }
+  nav { display: grid; gap: .15rem; }
+  nav a { color: var(--muted); text-decoration: none; border-radius: 6px; padding: .42rem .55rem; font-size: .9rem; }
+  nav a:hover { background: var(--surface-2); color: var(--text); }
+  main { min-width: 0; width: 100%; max-width: 1400px; padding: 2rem clamp(2rem, 4vw, 4rem) 5rem; }
+  .sub { max-width: 760px; color: var(--muted); font-size: 1.05rem; }
+  .card, .callout { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.1rem; min-width: 0; }
+  .callout { border-left: 4px solid var(--accent); }
+  .callout.core { border-left-color: var(--core); background: var(--core-soft); }
+  .callout.plus { border-left-color: var(--plus); background: var(--plus-soft); }
+  .callout.good { border-left-color: var(--good); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad { border-left-color: var(--bad); }
+  .callout.tbd { border-left-color: var(--tbd); background: var(--tbd-soft); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
+  .pill { display: inline-block; padding: .15rem .6rem; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .pill.core { background: var(--core); border-color: var(--core); color: white; }
+  .pill.plus { background: var(--plus); border-color: var(--plus); color: white; }
+  .pill.tbd { background: var(--tbd); border-color: var(--tbd); color: white; }
+  .pill.good { background: var(--good); border-color: var(--good); color: white; }
+  .meta-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .8rem; margin: 1.2rem 0; }
+  .meta-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; }
+  .meta-item .k { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .meta-item .v { font-size: 1.02rem; font-weight: 600; margin-top: .2rem; }
+  .tbd-marker { color: var(--muted); font-style: italic; }
+  .layer-stack { display: grid; gap: .7rem; margin: 1.2rem 0; }
+  .layer { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; align-items: start; padding: .9rem 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); border-left: 4px solid var(--accent); }
+  .layer.core { border-left-color: var(--core); }
+  .layer.plus { border-left-color: var(--plus); }
+  .layer .badge { width: 60px; text-align: center; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding-top: .15rem; }
+  .layer.core .badge { color: var(--core); }
+  .layer.plus .badge { color: var(--plus); }
+  .layer h3 { margin: 0 0 .35rem; }
+  .layer p { margin: 0; color: var(--text); }
+  footer.page-foot { margin-top: 4rem; padding: 1.5rem 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .86rem; }
+  .input-slot { background: var(--tbd-soft); border: 1px dashed var(--tbd); border-radius: var(--radius); padding: .8rem 1rem; font-style: italic; color: var(--muted); margin: .6rem 0; }
+  @media (max-width: 900px) {
+    .page { display: block; }
+    .sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 1.35rem; }
+    .grid, .grid-3 { grid-template-columns: 1fr; }
+    .layer { grid-template-columns: 1fr; }
+    .layer .badge { width: auto; text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="sidebar">
+    <h2>Solução · Group 14</h2>
+    <button class="theme-toggle" id="theme-toggle" type="button">Alternar tema</button>
+    <nav id="toc"></nav>
+  </aside>
+  <main>
+    <header>
+      <h1>CompStat Rio — Solução</h1>
+      <p class="sub">Group 14 · documento vivo da estratégia. Atualizado conforme decisões do time evoluem.</p>
+      <div class="meta-bar">
+        <div class="meta-item"><div class="k">Status</div><div class="v"><span class="pill core">Em construção</span></div></div>
+        <div class="meta-item"><div class="k">Foco</div><div class="v">Feijão com arroz</div></div>
+        <div class="meta-item"><div class="k">Deadline</div><div class="v">16:15 (firm)</div></div>
+        <div class="meta-item"><div class="k">Última edição</div><div class="v">2026-05-24 manhã</div></div>
+      </div>
+    </header>
+
+    <section id="tldr">
+      <h2>TL;DR — estratégia</h2>
+      <div class="callout core">
+        <p style="margin:0"><strong>Princípio mestre:</strong> <em>"Feijão com arroz primeiro."</em> O <strong>BINGO bem feito e confiável</strong> é o objetivo. Tudo o que vem depois — detecção de inconsistências, integração com Twitter, novas fontes — só ganha tempo de quem garantiu primeiro o core.</p>
+      </div>
+      <div class="grid" style="margin-top:1rem">
+        <div class="callout core">
+          <h3 style="margin-top:0"><span class="pill core">Core</span> BINGO confiável + dinâmico</h3>
+          <p>Cruzamento das 3 camadas (mancha · dinâmica · fator urbano relevante) feito de forma bem feita, reproduzível e atualizável ao longo do tempo. <strong>Áreas se movem</strong> — não tratamos como mapas estáticos.</p>
+        </div>
+        <div class="callout plus">
+          <h3 style="margin-top:0"><span class="pill plus">Plus 1</span> Inconsistências + revisão humana</h3>
+          <p>Forma parametrizada de detectar inconsistências nos dados e <strong>solicitar revisão humana</strong> quando confiança baixa. Não trate ruído como verdade.</p>
+        </div>
+        <div class="callout plus">
+          <h3 style="margin-top:0"><span class="pill plus">Plus 2</span> Integração fácil de novas fontes</h3>
+          <p>Arquitetura plugável pra absorver fontes adicionais sem reescrever. Exemplo concreto: <strong>Twitter / X</strong> (alinhado com Desafio Extra 1 do briefing oficial).</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="principio">
+      <h2>Princípio: feijão com arroz primeiro</h2>
+      <blockquote>
+        "Antes de fazermos os <em>plus</em> a gente tem que fazer bem o feijão com arroz. O objetivo principal é o BINGO. O BINGO é o cruzamento dos dados de forma bem feita e confiável; a intenção das áreas não é estática, é dinâmica e se move ao longo do tempo."
+      </blockquote>
+      <p>Critério de decisão pra qualquer feature: <strong>melhora o BINGO core ou é decoração?</strong> Decoração entra só depois que o core estiver sólido (testado, com saída em <code>.doc</code> pra pelo menos 1 área completa). Risco de inversão: investir em Twitter/inconsistências antes do core = demo bonito sem substância = nota baixa em <em>Impacto Real</em>.</p>
+    </section>
+
+    <section id="etl">
+      <h2>Visão ETL — onde está o trabalho real</h2>
+      <p>Enquadrando como pipeline ETL, a alocação de esforço fica clara: <strong>Extract não é o problema (os dados já estão entregues)</strong>. O peso fica no <strong>Transform</strong> — é onde mora o cruzamento das fontes e a garantia de qualidade. <strong>Load</strong> é importante mas direto (gerar <code>.doc</code>). Plus features se encaixam naturalmente em E ou L depois.</p>
+      <div class="grid-3">
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">E</span> Extract <span class="pill" style="float:right">não é o gargalo</span></h3>
+          <p>Os 4 CSVs + 1 shapefile + 8 RELINTs já estão no repo oficial. Ler bem (com os encodings/separadores certos do data inventory) é mecânica, não problema.</p>
+          <p><strong>Plus futuro (E):</strong> adapters pra Twitter / 1746 BigQuery / outras fontes públicas. Só entra depois do core.</p>
+        </div>
+        <div class="callout core" style="position:relative">
+          <span class="pill core" style="position:absolute; top:.6rem; right:.6rem">FOCO</span>
+          <h3 style="margin-top:0"><span class="pill core">T</span> Transform</h3>
+          <p><strong>O problema mora aqui.</strong> Não é "limpar coluna" — é cruzar mancha × dinâmica × fator urbano de forma <em>bem feita</em> e <em>confiável</em>. Inclui:</p>
+          <ul style="margin-top:.5rem">
+            <li>Pareamento geoespacial (intersecções com polígonos FM)</li>
+            <li>Síntese qualitativa dos relatos (DD + RELINTs → padrões)</li>
+            <li>Filtragem do fator urbano pela dinâmica</li>
+            <li>Score do BINGO e recompute dinâmico quando shapefile muda</li>
+            <li>Garantia de qualidade entre fontes distintas (mais difícil que dentro de uma fonte)</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">L</span> Load <span class="pill" style="float:right; background:var(--good); color:white; border-color:var(--good)">crítico</span></h3>
+          <p>Mecânica de gerar <code>.docx</code> é resolvida (python-docx), mas <strong>o output É o produto</strong> — é o artefato que vai pra mesa da reunião de terça e que os jurados abrem em 3 min.</p>
+          <p><strong>O que importa no Load:</strong></p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Fidelidade ao template</strong> do anexo do briefing PDF (estrutura que a Duda já usa)</li>
+            <li><strong>4 norteadoras respondidas claramente</strong> no resumo executivo</li>
+            <li><strong>Plano de ação acionável</strong> por órgão — não relatório, instrução</li>
+            <li><strong>Mapa de calor + temporal + dinâmica</strong> embutidos no .doc (figuras, não links)</li>
+            <li><strong>Honestidade analítica</strong> — onde confiança é baixa, sinaliza ao invés de esconder</li>
+          </ul>
+          <p><strong>Por que crítico:</strong> Impacto Real (40 pts) é avaliado pelo que vai pra prefeitura usar. Transform sem Load bom = análise correta que ninguém consome.</p>
+          <p><strong>Plus futuro (L):</strong> dashboard interativo · endpoint API · entrega via email. Tudo depois do <code>.doc</code> sólido.</p>
+        </div>
+      </div>
+      <div class="callout core" style="margin-top:1rem">
+        <strong>Ordem de batalha:</strong> Transform <em>e</em> Load andam <strong>em paralelo</strong> — ter BINGO confiável que produz <code>.doc</code> útil pra 1 área é o objetivo conjunto do feijão com arroz. Sem Load bom, Transform vira análise órfã. Sem Transform sólido, Load vira template vazio. <strong>Extract expansion (novas fontes) só depois disso.</strong>
+      </div>
+    </section>
+
+    <section id="core">
+      <h2>Core — BINGO confiável e dinâmico</h2>
+      <p>O que constitui "feito bem":</p>
+      <div class="layer-stack">
+        <div class="layer core">
+          <div class="badge">Camada 1</div>
+          <div>
+            <h3>Mancha criminal — sólida</h3>
+            <p>Heatmap espacial das 115k ocorrências agregado por mês/ano (granularidade real do dataset). Intersecção com polígonos das áreas FM via geometria. <strong>Não confiar em código AISP</strong> — pareamento espacial obrigatório.</p>
+          </div>
+        </div>
+        <div class="layer core">
+          <div class="badge">Camada 2</div>
+          <div>
+            <h3>Dinâmica criminal — qualitativa</h3>
+            <p>Extração de padrões dos relatos: <code>disk_denuncia.csv</code> (texto livre em <code>relato_redacted</code>) + RELINTs (.docx). Sintetizar: modus operandi, rotas fuga, pontos recepção, horários, controle territorial. Por área.</p>
+          </div>
+        </div>
+        <div class="layer core">
+          <div class="badge">Camada 3</div>
+          <div>
+            <h3>Fator urbano — filtrado pela dinâmica</h3>
+            <p>2.085 fatores já vêm com órgão responsável. <strong>Filtrar pelos relevantes</strong>: iluminação só importa se a dinâmica é noturna; calçadão só importa se é roubo a pé. Camada 3 só conta quando coincide com camada 2.</p>
+          </div>
+        </div>
+        <div class="layer core">
+          <div class="badge">Output</div>
+          <div>
+            <h3>Relatório Analítico em <code>.doc</code></h3>
+            <p>Por área. Estrutura definida pelo briefing: resumo executivo (4 norteadoras) + análise temporal + dinâmica + fatores relevantes + painel coincidências (BINGO) + plano de ação por órgão. <strong>1 área completa &gt; 8 áreas pela metade.</strong></p>
+          </div>
+        </div>
+        <div class="layer core">
+          <div class="badge">Dinâmica</div>
+          <div>
+            <h3>Áreas não são estáticas</h3>
+            <p>O briefing afirma: quando a FM aciona uma área, o crime migra. <strong>BINGO precisa ser recomputável</strong> a cada novo ciclo de dados. Sem hardcode dos 9/22 polígonos. Pipeline = entrada de dados → recálculo → novo relatório.</p>
+          </div>
+        </div>
+      </div>
+      <h3>Critérios de "core pronto"</h3>
+      <ul>
+        <li>✅ Pelo menos <strong>1 área tem relatório <code>.doc</code> end-to-end</strong> gerado pelo pipeline (sem retrabalho manual)</li>
+        <li>✅ As 3 camadas se conectam por <strong>geometria</strong> (não código)</li>
+        <li>✅ Pipeline é <strong>reproduzível</strong>: rodar com dados novos = sai relatório novo</li>
+        <li>✅ Saída faz sentido pro humano que valida (mentor Ramon ou Duda em revisão)</li>
+        <li>✅ Sem hardcode de quais são as áreas — feed do shapefile ou parametrizado</li>
+      </ul>
+    </section>
+
+    <section id="dinamica">
+      <h2>Áreas dinâmicas — como tratar</h2>
+      <p>O briefing é explícito: "polígonos não são estáticos... a gente também visa analisar esses dados para eventualmente atualizar esses novos polígonos, porque a gente sabe que o crime pode migrar uma vez que a gente está acionando um componente novo."</p>
+      <div class="grid">
+        <div class="callout">
+          <h3 style="margin-top:0">Onde isso aparece no pipeline</h3>
+          <ul>
+            <li>Polígonos como <strong>input parametrizado</strong>, não constante hardcoded</li>
+            <li>Pipeline reaceita shapefile atualizado sem código novo</li>
+            <li>Score de BINGO recalcula automaticamente quando shapefile muda</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0">Possíveis abordagens (a discutir)</h3>
+          <ul>
+            <li>Detectar migração: ocorrências fora do polígono atual mas adjacentes</li>
+            <li>Sugerir novos polígonos baseado em cluster espacial recente</li>
+            <li>Alerta quando densidade fora-polígono &gt; densidade dentro-polígono</li>
+          </ul>
+          <p class="tbd-marker">Quem decide isso → time. Não escopear sem alinhamento.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="plus1">
+      <h2><span class="pill plus">Plus 1</span> Detecção de inconsistências + revisão humana</h2>
+      <p><strong>Problema:</strong> dados têm ruído real (ex.: eixos invertidos em <code>fatores_urbanos.csv</code>, datas vazias em <code>df_ocorrencias_tratado</code>, encoding latin-1 em DD, áreas que aparecem em câmeras mas não no shapefile). Tratar tudo como verdade = recomendação errada.</p>
+      <h3>Forma desejada (parametrizada)</h3>
+      <ul>
+        <li>Regras de validação configuráveis (range geográfico, completude de colunas, consistência cross-source)</li>
+        <li>Score de confiança por registro / por área</li>
+        <li>Quando confiança &lt; threshold → <strong>fila de revisão humana</strong> (não esconder, expor)</li>
+        <li>Operador da prefeitura vê: "X registros precisam revisão antes de virar ação" — decide manter/descartar/corrigir</li>
+      </ul>
+      <h3>Inconsistências já identificadas (data inventory)</h3>
+      <ul>
+        <li>Áreas extras nas câmeras (Lauro Müller 50, Bangu Calçadão 30) sem RELINT ou shapefile</li>
+        <li>Eixos invertidos em <code>fatores_urbanos.csv</code></li>
+        <li>1 denúncia → várias linhas em DD (uma por órgão difundido)</li>
+        <li>Domínio territorial cobre estado inteiro, contamina análise se não filtrar bbox</li>
+      </ul>
+      <div class="callout warn">
+        <strong>Cuidado:</strong> Plus 1 não substitui o core. Inconsistência sem ação não vale. Pense "humano vê problema → resolve em 30s → pipeline continua". Não construir validação que ninguém vai usar.
+      </div>
+    </section>
+
+    <section id="plus2">
+      <h2><span class="pill plus">Plus 2</span> Integração fácil de novas fontes (Twitter/X)</h2>
+      <p><strong>Premissa arquitetural:</strong> tratar fontes como <em>adapters plugáveis</em>. Cada fonte → normalizada para o formato interno → entra no pipeline de BINGO sem mudar lógica central.</p>
+      <h3>Twitter como exemplo concreto</h3>
+      <ul>
+        <li>Alinhado com <strong>Desafio Extra 1</strong> do briefing oficial (Inteligência de Redes Sociais)</li>
+        <li>Twitter/X é interessante porque: timing real, geolocalização aproximada (bairros), narrativa qualitativa que complementa DD/RELINTs</li>
+        <li>Adapter ideal: termos relevantes (FM, nomes de áreas, padrões de roubo) → georreferenciar → enriquecer dinâmica criminal</li>
+      </ul>
+      <h3>Outras fontes possíveis (futuras)</h3>
+      <ul>
+        <li>Central 1746 (BigQuery, já referenciada como camada de validação)</li>
+        <li>Dados climáticos / sensores meteorológicos (correlação clima × crime)</li>
+        <li>Mobilidade urbana (Mobilidade Rio, Uber, BRT) — fluxos de pedestre</li>
+        <li>Eventos (calendário Maracanã, COR Eventos) — picos sazonais</li>
+      </ul>
+      <div class="callout warn">
+        <strong>Não escopar Twitter no day 1 sem core pronto.</strong> Twitter API tem fricção (rate limit, auth), facilmente consome 2-3h. Só entra depois que pelo menos 1 área tem relatório completo end-to-end.
+      </div>
+    </section>
+
+    <section id="nao-fazemos">
+      <h2>O que <em>não</em> fazemos (até o core estar pronto)</h2>
+      <ul>
+        <li>❌ Adapter Twitter / scraping de redes sociais</li>
+        <li>❌ Dashboard interativo bonito (output oficial é <code>.doc</code>)</li>
+        <li>❌ ML model treinado do zero — usar Claude pra síntese qualitativa, não pra classificação supervisionada</li>
+        <li>❌ Análise de domínio territorial faccional como feature (alto risco político, baixo valor pro BINGO)</li>
+        <li>❌ Cobertura das 22 áreas (só 8 têm dados — focar nelas)</li>
+        <li>❌ Censo PSR como camada principal (é só 1 dos 20 fatores, não trate como protagonista)</li>
+      </ul>
+    </section>
+
+    <section id="time-input">
+      <h2>Inputs do time <span class="pill tbd">A preencher</span></h2>
+      <p>Atualizar conforme decisões são tomadas. Cada slot tem nome do owner quando for definido.</p>
+
+      <h3>Stack técnica</h3>
+      <div class="input-slot">TBD — Python? FastAPI? Streamlit pra UX? Quem decide?</div>
+
+      <h3>Área de demo (1-2 das 8)</h3>
+      <div class="input-slot">TBD — sugestão prévia: RI_017 Pres. Vargas (230 câmeras + narrativa Uruguaiana pronta) ou RI_010 Rodoviária (310 câmeras + alto fluxo). Time decide.</div>
+
+      <h3>Owner por componente</h3>
+      <table>
+        <thead><tr><th>Componente</th><th>Owner</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Data loading / EDA</td><td>Alexandre (data inventory feito ✓)</td><td><span class="pill good">Iniciado</span></td></tr>
+          <tr><td>Mancha criminal (geo)</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
+          <tr><td>Dinâmica (NLP DD + RELINTs)</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
+          <tr><td>Fatores urbanos (joins)</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
+          <tr><td>BINGO score + .doc output</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
+          <tr><td>UI / demo / vídeo 60s</td><td class="tbd-marker">TBD</td><td><span class="pill tbd">Pending</span></td></tr>
+          <tr><td>PM / scope guard / mentor sync</td><td>Caio</td><td><span class="pill good">Em andamento</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Próximas perguntas pro mentor</h3>
+      <div class="input-slot">TBD — captura aqui depois da próxima sync com Ramon. Já existe lista em <code>project-brief.html</code> seção "Perguntas para o mentor".</div>
+
+      <h3>Riscos abertos</h3>
+      <div class="input-slot">TBD — adicionar conforme aparecem.</div>
+    </section>
+
+    <section id="checkpoints">
+      <h2>Checkpoints sugeridos do dia</h2>
+      <table>
+        <thead><tr><th>Horário</th><th>O que tem que estar de pé</th></tr></thead>
+        <tbody>
+          <tr><td>~11:00</td><td>Datasets carregados sem erro. Bounding box / áreas FM intersectadas. EDA completo.</td></tr>
+          <tr><td>~12:30</td><td>Mancha criminal pra 1 área + dinâmica extraída de DD/RELINT pra essa área. Mentor checkpoint c/ Ramon.</td></tr>
+          <tr><td>~14:00</td><td>Fatores filtrados + score BINGO calculado pra 1 área. Saída <code>.doc</code> primeiro draft.</td></tr>
+          <tr><td>~15:00</td><td>Draft do relatório fechado. UI básica funcional. Começar vídeo 60s.</td></tr>
+          <tr><td>~15:45</td><td>Vídeo gravado. README do repo time completo (8 campos obrigatórios). Dry-run.</td></tr>
+          <tr><td><strong>16:00</strong></td><td>Buffer de 15 min. <strong>Push final.</strong></td></tr>
+          <tr><td>16:15</td><td>🔥 Deadline. Não passa.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="decision-log">
+      <h2>Decision log</h2>
+      <p>Log append-only de decisões do time. Stamp HH:MM — decisão — por quê.</p>
+      <table>
+        <thead><tr><th style="width:80px">Hora</th><th>Decisão</th><th>Por quê</th></tr></thead>
+        <tbody>
+          <tr><td>10:30~</td><td>Core = BINGO confiável e dinâmico. Plus = inconsistências + Twitter (deferred).</td><td>Feijão com arroz primeiro. Plus sem core = nota baixa em Impacto Real.</td></tr>
+          <tr><td>10:30~</td><td>Áreas tratadas como dinâmicas (não hardcode).</td><td>Briefing explícito: crime migra quando FM aciona.</td></tr>
+          <tr><td>10:30~</td><td>Output oficial = <code>.doc</code> (não dashboard).</td><td>README oficial pede <code>.doc</code>. Substituir o relatório manual da Duda.</td></tr>
+          <tr><td>10:45~</td><td>Estratégia framada como ETL. Transform é o gargalo, não Extract.</td><td>Dados já entregues — o problema real é cruzar fontes distintas com qualidade. Plus features se encaixam em E ou L depois.</td></tr>
+          <tr><td>10:50~</td><td>Load reclassificado como crítico (paralelo ao Transform), não "direto".</td><td>O <code>.doc</code> É o produto que a Prefeitura consome — qualidade de Load determina Impacto Real (40 pts). Transform sem Load bom = análise órfã.</td></tr>
+          <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
+          <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="page-foot">
+      <p>Documento vivo · atualizar conforme decisões do time evoluem · sibling: <code>docs/project-brief.html</code> (contexto do problema).</p>
+      <p>Group 14 · Claude Impact Lab Rio 2026 · Deadline GitHub: <strong>16:15</strong></p>
+    </footer>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script>
+  hljs.highlightAll();
+  const root = document.documentElement;
+  const saved = localStorage.getItem("artifact-theme");
+  if (saved) root.dataset.theme = saved;
+  function syncTheme() {
+    document.getElementById("hl-light").disabled = root.dataset.theme === "dark";
+    document.getElementById("hl-dark").disabled = root.dataset.theme !== "dark";
+  }
+  syncTheme();
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("artifact-theme", root.dataset.theme);
+    syncTheme();
+  });
+  const toc = document.getElementById("toc");
+  document.querySelectorAll("main section[id]").forEach(section => {
+    const h = section.querySelector("h2");
+    if (!h) return;
+    const a = document.createElement("a");
+    a.href = "#" + section.id;
+    a.textContent = h.textContent;
+    toc.appendChild(a);
+  });
+</script>
+</body>
+</html>

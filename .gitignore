@@ -17,3 +17,10 @@ __pycache__/
 pipeline_audit.jsonl
 review_queue.json
 score_ranking.json
+
+# Secrets — NUNCA committar API keys
+.env
+.env.local
+.env.*.local
+*.key
+secrets.json

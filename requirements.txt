@@ -13,6 +13,9 @@ openpyxl>=3.1
 geopandas>=0.14
 shapely>=2.0
 
-# --- Reservado para passos futuros (LLM + Load .doc) ---
-# anthropic>=0.40
+# --- LLM (step 3 — análise qualitativa de DD relatos + RELINTs) ---
+anthropic>=0.40
+python-dotenv>=1.0
+
+# --- Reservado para passos futuros (Load .doc) ---
 # python-docx>=1.1

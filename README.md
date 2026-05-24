@@ -70,6 +70,26 @@ pip install -r requirements.txt
 
 Python 3.11+ recomendado.
 
+### Configurar API key (para step 3 — LLM)
+```bash
+cp .env.example .env
+# Editar .env, colar sua chave Anthropic (obtida em
+# https://console.anthropic.com/settings/keys)
+```
+
+O `.env` está no `.gitignore` — nunca commita. Testa que a chave foi
+carregada:
+```bash
+python pipeline_steps/_llm_client.py
+```
+
+Saída esperada:
+```
+✓ ANTHROPIC_API_KEY presente (108 chars)
+✓ Model:       claude-sonnet-4-5
+...
+```
+
 ### Pipeline completa
 ```bash
 python pipeline.py             # roda os 5 passos em sequência

@@ -19,6 +19,9 @@ review_queue.json
 score_ranking.json
 relato_estruturado.jsonl
 
+# Backups/refs locais de docs antes do refactor
+*_BAD_BACKUP.docx
+
 # Secrets — NUNCA committar API keys
 .env
 .env.local

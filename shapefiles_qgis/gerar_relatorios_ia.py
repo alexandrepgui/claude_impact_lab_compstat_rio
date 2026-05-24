@@ -1,48 +1,49 @@
 # -*- coding: utf-8 -*-
 """
-Gera RELINTs (.docx) por zona usando Claude Sonnet 4.6.
+Gera RELINTs (.docx + .pdf) por zona usando Claude Sonnet.
 
 Para cada zona da última semana (limitado por --max-zonas):
   1) Lê o dossiê compacto (distribuicao_fm/relatorio_zonas_compacto.json)
-  2) Renderiza um mapa Leaflet → screenshot PNG via Edge headless
+  2) Renderiza um mapa Leaflet → screenshot PNG via Playwright (cross-platform)
   3) Chama Claude com (dossiê + RELINT exemplar) e gera texto no estilo dos
      documentos em relints/
-  4) Monta .docx com texto + mapa
+  4) Renderiza .docx (estrutura editável) e .pdf (estilo sóbrio corporativo)
+     a partir do mesmo texto, via shapefiles_qgis/relatorio_render.py
 
 Saídas em distribuicao_fm/relatorios_ia/:
   - RA_<prioridade>_<local>.docx
+  - RA_<prioridade>_<local>.pdf
   - RA_<prioridade>_<local>_mapa.png
 
 Requisitos:
-  pip install anthropic python-docx
-  set ANTHROPIC_API_KEY=sk-ant-...
-  Edge instalado (caminho hard-coded abaixo)
+  pip install -r requirements.txt
+  python -m playwright install chromium
+  Configurar ANTHROPIC_API_KEY no .env (ver .env.example)
 """
 from __future__ import annotations
 import argparse
 import json
 import math
-import os
 import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 import shapefile  # pyshp
-import anthropic
-from docx import Document
-from docx.shared import Cm, Pt, RGBColor
+
+from relatorio_render import parse_relint, render_docx, render_pdf
 
 BASE = Path(__file__).resolve().parent
+REPO_ROOT = BASE.parent
+# Reusa o client do pipeline (carrega .env automaticamente, modelo configurável
+# via ANTHROPIC_MODEL).
+sys.path.insert(0, str(REPO_ROOT))
+from pipeline_steps._llm_client import get_client, get_model, is_configured  # noqa: E402
+
 FM = BASE / "distribuicao_fm"
 RELATORIO_JSON = FM / "relatorio_zonas_compacto.json"
 ZONAS_SHP = FM / "zonas_semanais"
 OUT_DIR = FM / "relatorios_ia"
-
-# Renderização do mapa usa Playwright (cross-platform). Instalar:
-#   pip install playwright && python -m playwright install chromium
-MODEL = "claude-sonnet-4-6"
 
 # Camadas de pontos pra plotar no mapa (latin-1 universal — vide relatorio_zonas.py)
 # (nome_logico, path, cor, max_amostra_no_mapa)
@@ -223,7 +224,7 @@ setTimeout(()=>window.__ready=true, 500);
 
 
 def renderizar_mapa(out_png, titulo, ring_lonlat, pontos_layers, n_oc, n_dq, n_ft):
-    """Gera o HTML e dispara o Edge headless pra screenshot."""
+    """Gera o HTML e captura screenshot via Playwright (cross-platform)."""
     data = {
         "label": titulo,
         # Leaflet espera [lat, lon]
@@ -241,7 +242,6 @@ def renderizar_mapa(out_png, titulo, ring_lonlat, pontos_layers, n_oc, n_dq, n_f
         tmp_html = Path(tmp_dir) / "mapa.html"
         tmp_html.write_text(html, encoding="utf-8")
 
-        # Playwright headless: cross-platform, renderiza Leaflet + tiles + estilos.
         try:
             from playwright.sync_api import sync_playwright  # type: ignore
         except ImportError as e:
@@ -271,7 +271,7 @@ def renderizar_mapa(out_png, titulo, ring_lonlat, pontos_layers, n_oc, n_dq, n_f
 # --------------------------------------------------------------------------- #
 # LLM
 # --------------------------------------------------------------------------- #
-def gerar_texto_relint(client, dossie, semana):
+def gerar_texto_relint(client, model, dossie, semana):
     user_msg = (
         f"Gere o RELINT para a zona abaixo, da semana {semana['iso_ano']}-S"
         f"{semana['iso_sem']:02d} (segunda-feira: {semana['segunda_feira']}).\n\n"
@@ -282,7 +282,7 @@ def gerar_texto_relint(client, dossie, semana):
         "endereços, datas ou estatísticas não presentes nele."
     )
     response = client.messages.create(
-        model=MODEL,
+        model=model,
         max_tokens=16000,
         system=[
             {"type": "text", "text": SYSTEM_PROMPT,
@@ -295,67 +295,6 @@ def gerar_texto_relint(client, dossie, semana):
 
 
 # --------------------------------------------------------------------------- #
-# DOCX
-# --------------------------------------------------------------------------- #
-def montar_docx(texto, mapa_png, dossie, semana, out_docx):
-    doc = Document()
-    # margens
-    for sec in doc.sections:
-        sec.top_margin = Cm(1.8)
-        sec.bottom_margin = Cm(1.8)
-        sec.left_margin = Cm(2.0)
-        sec.right_margin = Cm(2.0)
-
-    # metadado curtinho no topo
-    p = doc.add_paragraph()
-    r = p.add_run(
-        f"Semana {semana['iso_ano']}-S{semana['iso_sem']:02d} · "
-        f"Segunda-feira: {semana['segunda_feira']} · "
-        f"Zona #{dossie['prioridade']} ({dossie['local_rotulo']}) · "
-        f"{dossie['agentes_alocados']} agentes alocados · "
-        f"{dossie['n_celulas']} células · {dossie['area_km2']} km²"
-    )
-    r.font.size = Pt(9)
-    r.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
-
-    # mapa
-    if mapa_png and Path(mapa_png).exists():
-        doc.add_picture(str(mapa_png), width=Cm(16))
-        cap = doc.add_paragraph()
-        cr = cap.add_run(
-            f"Mapa: polígono da zona com ocorrências (vermelho), denúncias do "
-            f"Disque (laranja) e fatores urbanos (azul) no entorno. "
-            f"Centróide: {dossie['centroide']['lat']}, "
-            f"{dossie['centroide']['lon']}."
-        )
-        cr.font.size = Pt(9)
-        cr.italic = True
-        cr.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
-
-    # corpo: parsea o texto retornado pelo LLM em parágrafos / títulos / bullets
-    for raw_line in texto.split("\n"):
-        line = raw_line.rstrip()
-        if not line:
-            doc.add_paragraph()
-            continue
-        # heurística simples: linhas em UPPER ou começando com "CONCLUSÃO"/
-        # "RELATÓRIO" viram títulos
-        stripped = line.strip()
-        if stripped == stripped.upper() and len(stripped) > 5 and not stripped.startswith(("-", "•", "*")):
-            h = doc.add_paragraph()
-            run = h.add_run(stripped)
-            run.bold = True
-            run.font.size = Pt(12)
-            continue
-        if stripped.startswith(("- ", "• ", "* ")):
-            doc.add_paragraph(stripped[2:].strip(), style="List Bullet")
-            continue
-        doc.add_paragraph(stripped)
-
-    doc.save(str(out_docx))
-
-
-# --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
 def slug(s):
@@ -363,44 +302,47 @@ def slug(s):
 
 
 def main():
-    # PIPELINE_REPORT_MAX_ZONAS env: default 8 (todas), 0 = todas, N = primeiras N
-    env_max = int(os.environ.get("PIPELINE_REPORT_MAX_ZONAS", "8"))
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max-zonas", type=int, default=env_max,
-                        help=f"Quantas zonas processar (default {env_max}; "
-                             f"env PIPELINE_REPORT_MAX_ZONAS; 0 = todas).")
+    parser.add_argument("--max-zonas", type=int, default=None,
+                        help="Quantas zonas processar (default: todas).")
     parser.add_argument("--zonas", type=str, default=None,
                         help="IDs específicos separados por vírgula (ex.: 1,3).")
+    parser.add_argument("--skip-existentes", action="store_true",
+                        help="Pula zonas que já têm .docx gerado em OUT_DIR.")
     args = parser.parse_args()
 
-    # Carrega .env via _llm_client (handles fallback se python-dotenv não estiver)
-    try:
-        sys.path.insert(0, str(BASE.parent))
-        from pipeline_steps._llm_client import get_client, is_configured  # type: ignore
-        if not is_configured():
-            sys.exit("ERRO: ANTHROPIC_API_KEY não configurada. cp .env.example .env")
-        client = get_client()
-    except ImportError:
-        if not os.environ.get("ANTHROPIC_API_KEY"):
-            sys.exit("ERRO: ANTHROPIC_API_KEY não configurada.")
-        client = anthropic.Anthropic()
-
+    if not is_configured():
+        sys.exit("ERRO: ANTHROPIC_API_KEY ausente. Crie .env (copiando de .env.example) "
+                 "ou exporte a variável no shell.")
     if not RELATORIO_JSON.exists():
         sys.exit(f"ERRO: rode relatorio_zonas.py antes; falta {RELATORIO_JSON}")
 
     payload = json.loads(RELATORIO_JSON.read_text(encoding="utf-8"))
     semana = payload["semana"]
+    n_zonas_total = payload["parametros"]["n_zonas"]
     zonas = payload["zonas"]
     if args.zonas:
         alvo = set(int(x) for x in args.zonas.split(","))
         zonas = [z for z in zonas if z["zona_id"] in alvo]
-    elif args.max_zonas > 0:
+    elif args.max_zonas is not None:
         zonas = zonas[:args.max_zonas]
-    # se max_zonas == 0, processa todas
+    for z in zonas:
+        z["n_zonas_sem"] = n_zonas_total
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Modelo: {MODEL}")
+    if args.skip_existentes:
+        antes = len(zonas)
+        zonas = [
+            z for z in zonas
+            if not (OUT_DIR / f"RA_{z['prioridade']:03d}_{slug(z['local_rotulo'])}.docx").exists()
+        ]
+        print(f"--skip-existentes: {antes - len(zonas)} zona(s) puladas (já têm docx)")
+
+    client = get_client()
+    model = get_model()
+
+    print(f"Modelo: {model}")
     print(f"Processando {len(zonas)} zona(s) da semana "
           f"{semana['iso_ano']}-S{semana['iso_sem']:02d}")
 
@@ -433,18 +375,23 @@ def main():
         )
 
         # 2) LLM
-        print(f"  chamando {MODEL}...")
-        texto, usage = gerar_texto_relint(client, z, semana)
+        print(f"  chamando {model}...")
+        texto, usage = gerar_texto_relint(client, model, z, semana)
         cache_read = getattr(usage, "cache_read_input_tokens", 0) or 0
         cache_write = getattr(usage, "cache_creation_input_tokens", 0) or 0
         print(f"    tokens: in={usage.input_tokens} out={usage.output_tokens} "
               f"cache_w={cache_write} cache_r={cache_read}")
 
-        # 3) DOCX
+        # 3) DOCX + PDF (parser único + dois renderers)
+        doc_ir = parse_relint(texto)
         out_docx = OUT_DIR / f"{nome}.docx"
-        montar_docx(texto, mapa_png, z, semana, out_docx)
-        print(f"  docx → {out_docx.name} "
+        out_pdf = OUT_DIR / f"{nome}.pdf"
+        render_docx(doc_ir, mapa_png, z, semana, out_docx)
+        render_pdf(doc_ir, mapa_png, z, semana, out_pdf)
+        print(f"  docx -> {out_docx.name} "
               f"({out_docx.stat().st_size/1024:.1f} KB)")
+        print(f"  pdf  -> {out_pdf.name} "
+              f"({out_pdf.stat().st_size/1024:.1f} KB)")
 
 
 if __name__ == "__main__":

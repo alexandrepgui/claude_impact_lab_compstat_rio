@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CompStat Rio Pipeline</title>
-    <link rel="stylesheet" href="/styles.css?v=13" />
+    <link rel="stylesheet" href="/styles.css?v=14" />
   </head>
   <body>
     <div class="app-frame">
@@ -23,6 +23,10 @@
             <button class="nav-item" type="button" data-page="relatorio">
               <i class="nav-icon" data-lucide="file-text" aria-hidden="true"></i>
               <span>Relatorio</span>
+            </button>
+            <button class="nav-item" type="button" data-page="datasets">
+              <i class="nav-icon" data-lucide="database" aria-hidden="true"></i>
+              <span>Datasets</span>
             </button>
             <button class="nav-item" type="button" data-page="lab">
               <i class="nav-icon" data-lucide="flask-conical" aria-hidden="true"></i>
@@ -140,6 +144,31 @@
                 <div id="auditTopEvents" class="audit-top-events"></div>
               </section>
             </aside>
+          </section>
+        </section>
+
+        <section class="app-page" data-page-panel="datasets" aria-labelledby="datasets-title">
+          <section class="topbar" aria-labelledby="datasets-title">
+            <div>
+              <p class="kicker">CompStat Rio · Grupo 14</p>
+              <h1 id="datasets-title">Datasets carregados</h1>
+            </div>
+            <button id="datasetsRefresh" class="ghost" type="button">Atualizar lista</button>
+          </section>
+
+          <section class="dataset-overview" aria-label="Resumo dos datasets">
+            <div id="datasetMetrics" class="dataset-metrics"></div>
+          </section>
+
+          <section class="stage dataset-stage" aria-label="Inventario de datasets">
+            <div class="stage-header">
+              <div>
+                <p class="kicker">Inventario</p>
+                <h2>Arquivos detectados</h2>
+              </div>
+              <p id="datasetsStatus" class="dataset-status muted">Carregando datasets...</p>
+            </div>
+            <div id="datasetsTable" class="datasets-table"></div>
           </section>
         </section>
 

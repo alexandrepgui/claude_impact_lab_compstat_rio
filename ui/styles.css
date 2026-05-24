@@ -644,6 +644,16 @@ button:disabled {
   gap: 10px;
 }
 
+.dataset-overview {
+  margin-top: 16px;
+}
+
+.dataset-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .metric-card {
   display: grid;
   gap: 6px;
@@ -684,6 +694,67 @@ button:disabled {
 .audit-artifacts {
   display: grid;
   gap: 10px;
+}
+
+.dataset-stage {
+  margin-top: 16px;
+}
+
+.dataset-status {
+  margin: 0;
+  text-align: right;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.datasets-table {
+  display: grid;
+}
+
+.dataset-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.6fr) minmax(110px, 0.6fr) minmax(130px, 0.7fr) minmax(90px, 0.45fr) minmax(132px, 0.65fr);
+  gap: 12px;
+  align-items: center;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 0.82rem;
+}
+
+.dataset-row:last-child {
+  border-bottom: 0;
+}
+
+.dataset-row-head {
+  position: sticky;
+  top: 64px;
+  z-index: 1;
+  background: #f8f9f9;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dataset-name {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dataset-name strong,
+.dataset-name code,
+.dataset-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dataset-name code {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
 }
 
 .artifact-row,
@@ -1362,7 +1433,8 @@ button:disabled {
     border-bottom: 0;
   }
 
-  .audit-metrics {
+  .audit-metrics,
+  .dataset-metrics {
     grid-template-columns: 1fr;
   }
 
@@ -1395,6 +1467,15 @@ button:disabled {
 
   .outputs code {
     width: 100%;
+  }
+
+  .dataset-row,
+  .dataset-row-head {
+    grid-template-columns: 1fr;
+  }
+
+  .dataset-row-head {
+    display: none;
   }
 }
 

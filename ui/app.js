@@ -126,6 +126,10 @@ const els = {
   relatoriosGrid: document.querySelector("#relatoriosGrid"),
   relatoriosStatus: document.querySelector("#relatoriosStatus"),
   relatoriosRefresh: document.querySelector("#relatoriosRefresh"),
+  datasetMetrics: document.querySelector("#datasetMetrics"),
+  datasetsTable: document.querySelector("#datasetsTable"),
+  datasetsStatus: document.querySelector("#datasetsStatus"),
+  datasetsRefresh: document.querySelector("#datasetsRefresh"),
 };
 
 const routes = {
@@ -133,6 +137,7 @@ const routes = {
   "/pipeline": "pipeline",
   "/auditoria": "auditoria",
   "/relatorio": "relatorio",
+  "/datasets": "datasets",
   "/lab": "lab",
 };
 
@@ -175,6 +180,9 @@ function showPage(page, options = {}) {
   if (targetPage === "relatorio") {
     loadRelatorios();
   }
+  if (targetPage === "datasets") {
+    loadDatasets();
+  }
 
   if (options.updateHistory !== false) {
     const nextPath = pagePaths[targetPage];
@@ -182,6 +190,93 @@ function showPage(page, options = {}) {
       window.history.pushState({ page: targetPage }, "", nextPath);
     }
   }
+}
+
+function formatBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  if (value < 1024 * 1024 * 1024) return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(value / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
+async function loadDatasets() {
+  if (els.datasetsStatus) {
+    els.datasetsStatus.textContent = "Carregando datasets...";
+  }
+  try {
+    const response = await fetch("/api/datasets");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    renderDatasets(data);
+  } catch (error) {
+    if (els.datasetsStatus) {
+      els.datasetsStatus.textContent = `Falha ao carregar: ${error.message}`;
+    }
+  }
+}
+
+function renderDatasets(data) {
+  if (!els.datasetsTable || !els.datasetMetrics) return;
+  const datasets = data.datasets || [];
+  const byKind = data.byKind || {};
+  const bySource = data.bySource || {};
+
+  if (els.datasetsStatus) {
+    els.datasetsStatus.textContent = `${datasets.length} dataset(s) detectados.`;
+  }
+
+  els.datasetMetrics.innerHTML = `
+    <article class="metric-card">
+      <span>Total</span>
+      <strong>${Number(data.total || 0).toLocaleString("pt-BR")}</strong>
+      <small>${formatBytes(data.totalBytes || 0)}</small>
+    </article>
+    <article class="metric-card ok">
+      <span>Tabulares</span>
+      <strong>${Number((byKind.csv || 0) + (byKind.xlsx || 0)).toLocaleString("pt-BR")}</strong>
+      <small>CSV/XLSX</small>
+    </article>
+    <article class="metric-card warn">
+      <span>Geoespaciais</span>
+      <strong>${Number(byKind.shp || 0).toLocaleString("pt-BR")}</strong>
+      <small>shapefiles</small>
+    </article>
+    <article class="metric-card">
+      <span>Fontes brutas</span>
+      <strong>${Number(bySource.raw || 0).toLocaleString("pt-BR")}</strong>
+      <small>dados, relints, sh_area_forca</small>
+    </article>
+  `;
+
+  if (!datasets.length) {
+    els.datasetsTable.innerHTML = `<div class="empty-state">Nenhum dataset encontrado.</div>`;
+    return;
+  }
+
+  els.datasetsTable.innerHTML = `
+    <div class="dataset-row dataset-row-head">
+      <span>Dataset</span>
+      <span>Origem</span>
+      <span>Tipo</span>
+      <span>Tamanho</span>
+      <span>Modificado</span>
+    </div>
+    ${datasets
+      .map((item) => `
+        <article class="dataset-row">
+          <div class="dataset-name">
+            <strong title="${escapeHtml(item.path)}">${escapeHtml(item.name)}</strong>
+            <code>${escapeHtml(item.path)}</code>
+          </div>
+          <span>${escapeHtml(item.sourceLabel || item.source || "-")}</span>
+          <span>${escapeHtml(item.kindLabel || item.kind || "-")}${item.sidecarCount ? ` · ${item.sidecarCount} arquivos` : ""}</span>
+          <span>${formatBytes(item.bytes)}</span>
+          <span>${formatDateTime(item.mtime)}</span>
+        </article>
+      `)
+      .join("")}
+  `;
 }
 
 async function loadRelatorios() {
@@ -1089,6 +1184,7 @@ if (els.labSave) els.labSave.addEventListener("click", saveLabConfig);
 if (els.labRerun) els.labRerun.addEventListener("click", saveAndRerun);
 if (els.labReset) els.labReset.addEventListener("click", resetLab);
 if (els.refreshAuditButton) els.refreshAuditButton.addEventListener("click", loadAudit);
+if (els.datasetsRefresh) els.datasetsRefresh.addEventListener("click", loadDatasets);
 if (els.relatoriosRefresh) {
   els.relatoriosRefresh.addEventListener("click", () => {
     state.relatorios.loaded = false;

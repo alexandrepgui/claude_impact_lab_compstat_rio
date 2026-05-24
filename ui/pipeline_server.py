@@ -789,6 +789,22 @@ class Handler(SimpleHTTPRequestHandler):
             name = unquote(clean_path[len("/api/relatorios/file/"):])
             return self._serve_relatorio_file(name)
 
+        if clean_path == "/visualizacao-semanal":
+            viz_path = REPO_ROOT / "shapefiles_qgis" / "distribuicao_fm" / "visualizacao_semanal.html"
+            if not viz_path.exists():
+                self.write_json(
+                    {"error": "visualizacao_semanal.html nao gerada ainda (rode step 4 primeiro)"},
+                    HTTPStatus.NOT_FOUND,
+                )
+                return
+            data = viz_path.read_bytes()
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
         if clean_path in PAGE_ROUTES or (not clean_path.startswith("/api/") and Path(clean_path).suffix == ""):
             self.path = "/index.html"
         return super().do_GET()

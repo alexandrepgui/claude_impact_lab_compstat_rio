@@ -2,8 +2,10 @@
 .claude/
 
 # Python
+.venv/
 __pycache__/
 *.pyc
+.ipynb_checkpoints/
 
 # Arquivos temporários do Office (lock)
 ~$*

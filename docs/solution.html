@@ -385,7 +385,7 @@ log("s3_llm_low_confidence", {"id_denun": "X", "confidence": 0.45},
     <section id="transform-pipeline">
       <h2>Pipeline Transform — design detalhado</h2>
       <div class="callout core">
-        <p style="margin:0"><strong>Princípio:</strong> pipeline 100% <em>automatizada</em> mas <em>auditável</em> por humanos. Cada passo deixa rastro. Inconsistências viram fila de revisão (auto-resolvida por IA quando seguro · escalada pra humano quando ambígua). Resultado: <strong>base consolidada confiável</strong> sobre a qual o score do BINGO é calculado.</p>
+        <p style="margin:0"><strong>Princípio: LLM-first, humano só audita.</strong> Pipeline 100% <em>automatizada e agêntica</em> — a IA decide TUDO (extração + correção + classificação + resolução de conflitos). O humano <strong>não bloqueia</strong> a pipeline; ele <strong>audita depois</strong>, lendo o <code>pipeline_audit.jsonl</code>. Cada decisão da IA fica logada com confidence + rationale → revisão pós-hoc identifica padrões problemáticos. Resultado: pipeline roda end-to-end sem intervenção, decisões rastreáveis.</p>
       </div>
 
       <h3>Estado atual (12:00)</h3>
@@ -666,22 +666,25 @@ log("s3_llm_low_confidence", {"id_denun": "X", "confidence": 0.45},
         </div>
       </div>
 
-      <h3>5. Matriz auto vs humano — quem resolve o quê</h3>
+      <h3>5. Matriz IA-decide vs humano-audita</h3>
+      <div class="callout core">
+        <p style="margin:0"><strong>Update arquitetural:</strong> Mudamos o modelo. Antes era "auto pra trivial · humano decide pra ambíguo". Agora é <strong>"LLM decide tudo + flag pra auditoria pós-hoc"</strong>. Nada bloqueia a pipeline. O humano lê o audit log depois — não no caminho crítico.</p>
+      </div>
       <div class="scroll-x">
       <table>
         <thead><tr><th>Inconsistência</th><th>Auto (IA)</th><th>Humano</th><th>Por quê</th></tr></thead>
         <tbody>
-          <tr><td>Encoding latin-1 em DD</td><td>✅</td><td>—</td><td>Correção determinística, sem ambiguidade</td></tr>
-          <tr><td>Eixos invertidos em fatores</td><td>✅</td><td>—</td><td>Range bate, correção segura</td></tr>
-          <tr><td>Data/hora vazias em ocorrências</td><td>✅</td><td>—</td><td>Cair pra granularidade mês/ano</td></tr>
-          <tr><td>Domínio territorial fora bbox município</td><td>✅</td><td>—</td><td>Filtro programático claro</td></tr>
-          <tr><td>DD multi-row por denúncia</td><td>✅</td><td>—</td><td>Agregar por id é determinístico</td></tr>
-          <tr><td>Câmeras área "Lauro Müller" sem RELINT</td><td>—</td><td>✅</td><td>Decisão de escopo: incluir ou ignorar?</td></tr>
-          <tr><td>Geo point longe do bairro listado</td><td>⚠️ flag</td><td>✅ se &gt; 1km</td><td>Pode ser erro de campo, decisão depende de magnitude</td></tr>
-          <tr><td>Padrão LLM com confidence &lt; 0.6</td><td>—</td><td>✅</td><td>Pattern fraco — humano valida ou descarta</td></tr>
-          <tr><td>RELINT discorda da extração DD</td><td>—</td><td>✅ ou LLM se trivial</td><td>Conflito qualitativo — entender qual ganha</td></tr>
-          <tr><td>Zero ocorrências em área ativa</td><td>—</td><td>✅</td><td>Suspeito de dado faltando, não conclui</td></tr>
-          <tr><td>Recomendação ofende sensibilidade política</td><td>—</td><td>✅ obrigatório</td><td>Risco reputacional — humano sempre revisa</td></tr>
+          <tr><td>Encoding latin-1 em DD</td><td>✅ auto</td><td>auditoria opcional</td><td>Correção determinística aplicada · log do antes/depois</td></tr>
+          <tr><td>Eixos invertidos em fatores</td><td>✅ auto</td><td>auditoria opcional</td><td>Range check + swap · log "x→lat, y→long"</td></tr>
+          <tr><td>Data/hora vazias em ocorrências</td><td>✅ auto</td><td>auditoria opcional</td><td>Fallback mes/ano · log com contagem de vazios</td></tr>
+          <tr><td>Domínio territorial fora bbox município</td><td>✅ auto</td><td>auditoria opcional</td><td>Filtro bbox · log dos N descartados</td></tr>
+          <tr><td>DD multi-row por denúncia</td><td>✅ auto</td><td>auditoria opcional</td><td>Agrega por id_denuncia · log da consolidação</td></tr>
+          <tr><td>Câmeras área "Lauro Müller" sem RELINT</td><td>✅ LLM decide</td><td>auditoria <strong>recomendada</strong></td><td>LLM avalia se inclui/exclui + rationale · flag pra spot-check humano</td></tr>
+          <tr><td>Geo point longe do bairro listado</td><td>✅ LLM decide</td><td>auditoria <strong>recomendada</strong> se &gt; 1km</td><td>LLM decide manter/corrigir/descartar · log com magnitude e decisão</td></tr>
+          <tr><td>Padrão LLM com confidence &lt; threshold</td><td>✅ LLM decide</td><td>auditoria <strong>recomendada</strong></td><td>LLM tenta interpretação alternativa · marca como needs_audit no jsonl</td></tr>
+          <tr><td>RELINT discorda da extração DD</td><td>✅ LLM reconcilia</td><td>auditoria opcional</td><td>LLM resolve conflito qualitativo · log do raciocínio</td></tr>
+          <tr><td>Zero ocorrências em área ativa</td><td>✅ LLM diagnostica</td><td>auditoria <strong>recomendada</strong></td><td>LLM identifica causa provável (dado faltando, área sem operação, etc.)</td></tr>
+          <tr><td>Recomendação ofende sensibilidade política</td><td>✅ LLM auto-modera</td><td>auditoria <strong>obrigatória</strong></td><td>LLM aplica framing oficial · flag forte pra humano confirmar tom</td></tr>
         </tbody>
       </table>
       </div>
@@ -920,6 +923,7 @@ log("s3_llm_low_confidence", {"id_denun": "X", "confidence": 0.45},
           <tr><td>14:00~</td><td>Esclarecido: <strong>S3 processa só DD</strong> (texto livre). Ocorrências/fatores/câmeras são estruturados (S2 só).</td><td>"Desestruturado" no sentido pipeline ≠ "qualquer texto". DD tem free text por denúncia.</td></tr>
           <tr><td>14:15~</td><td>Correção: <strong>RELINTs são OUTPUT, não input</strong>. Gabarito do .doc final que vamos gerar (Load), não fonte de dados qualitativos pra ingerir.</td><td>Eu havia categorizado RELINTs como "desestruturado pra LLM ingerir" — errado. Eles definem a forma do output, não alimentam o score.</td></tr>
           <tr><td>14:30~</td><td>Logging estruturado: criado <code>pipeline_steps/_audit.py</code> com schema JSONL estável. Todos os steps emitem eventos consumíveis pela visualização web.</td><td>Visualização web é trabalho paralelo do time. Padronizar evento (ts, event, level, data) é o contrato pra integração — web só tail no arquivo, sem parsear stdout.</td></tr>
+          <tr><td>14:45~</td><td>Mudança de filosofia: <strong>LLM decide tudo</strong>, humano <strong>não bloqueia</strong>, só audita pós-hoc. Matriz reescrita.</td><td>Antes existia "humano decide pra ambíguo" — bloqueava pipeline. Agora 100% agêntica: cada decisão da IA fica logada com rationale + confidence, humano lê audit log depois sem caminho crítico.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
           <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>

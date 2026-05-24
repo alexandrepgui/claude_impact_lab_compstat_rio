@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CompStat Rio Pipeline</title>
-    <link rel="stylesheet" href="/styles.css?v=6" />
+    <link rel="stylesheet" href="/styles.css?v=8" />
   </head>
   <body>
     <div class="app-frame">
@@ -102,12 +102,47 @@
           </section>
         </section>
 
-        <section class="app-page placeholder-page" data-page-panel="auditoria" aria-labelledby="audit-title">
-          <p class="kicker">CompStat Rio · Grupo 14</p>
-          <h1 id="audit-title">Auditoria</h1>
-          <div class="placeholder-panel">
-            <p>Secao dummy para consulta de eventos, historico de execucoes e trilhas de auditoria.</p>
-          </div>
+        <section class="app-page" data-page-panel="auditoria" aria-labelledby="audit-title">
+          <section class="topbar">
+            <div>
+              <p class="kicker">CompStat Rio · Grupo 14</p>
+              <h1 id="audit-title">Auditoria</h1>
+            </div>
+            <div class="run-badge" id="auditBadge">pipeline_audit.jsonl</div>
+          </section>
+
+          <section class="audit-overview" aria-label="Resumo dos artefatos de auditoria">
+            <div class="audit-metrics" id="auditMetrics"></div>
+            <aside class="panel audit-artifacts" id="auditArtifacts"></aside>
+          </section>
+
+          <section class="audit-layout" aria-label="Eventos auditaveis">
+            <div class="stage">
+              <div class="stage-header">
+                <div>
+                  <p class="kicker">Timeline</p>
+                  <h2>Eventos recentes</h2>
+                </div>
+                <button id="refreshAuditButton" class="ghost" type="button">Atualizar</button>
+              </div>
+              <div id="auditEvents" class="audit-events"></div>
+            </div>
+
+            <aside class="side" aria-label="Sumarios de auditoria">
+              <section class="panel">
+                <p class="kicker">Steps</p>
+                <div id="auditSteps" class="audit-steps"></div>
+              </section>
+              <section class="panel">
+                <p class="kicker">Execucoes</p>
+                <div id="auditRuns" class="audit-runs"></div>
+              </section>
+              <section class="panel">
+                <p class="kicker">Eventos frequentes</p>
+                <div id="auditTopEvents" class="audit-top-events"></div>
+              </section>
+            </aside>
+          </section>
         </section>
 
         <section class="app-page placeholder-page" data-page-panel="relatorio" aria-labelledby="report-title">
@@ -128,6 +163,6 @@
       </main>
     </div>
 
-    <script src="/app.js?v=6"></script>
+    <script src="/app.js?v=8"></script>
   </body>
 </html>

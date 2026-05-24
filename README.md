@@ -96,6 +96,13 @@ python pipeline.py             # roda os 5 passos em sequência
 python pipeline.py --dry-run   # mostra o plano sem executar
 ```
 
+### UI local da pipeline
+```bash
+make dev
+```
+
+Abra `http://127.0.0.1:8787` para selecionar os steps, rodar dry-run, executar a pipeline e acompanhar logs/status por job. O comando valida a UI, limpa servidores antigos em `8787`/`8765` e reinicia automaticamente quando arquivos da UI mudam.
+
 ### Comandos úteis
 ```bash
 python pipeline.py --only 1        # só verifica inputs presentes

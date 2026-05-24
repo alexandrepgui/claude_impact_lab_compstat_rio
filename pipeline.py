@@ -35,6 +35,13 @@ REPO_ROOT = Path(__file__).resolve().parent
 STEPS_DIR = REPO_ROOT / "pipeline_steps"
 AUDIT_LOG = REPO_ROOT / "pipeline_audit.jsonl"
 
+# Deps usadas pelos scripts da pipeline (verificadas em pre-check)
+REQUIRED_DEPS = {
+    "pandas": "pandas",
+    "pyshp": "shapefile",     # pip install pyshp → import shapefile
+    "openpyxl": "openpyxl",
+}
+
 
 STEPS = [
     {
@@ -90,6 +97,29 @@ def log_event(event: str, data: dict | None = None, level: str = "INFO") -> None
     print(f"  {icon} {event}{msg}")
 
 
+def check_deps() -> bool:
+    """Verifica que as deps Python estão instaladas antes de tentar rodar."""
+    missing = []
+    for pkg_name, import_name in REQUIRED_DEPS.items():
+        try:
+            __import__(import_name)
+        except ImportError:
+            missing.append(pkg_name)
+    if missing:
+        log_event("pre_check_failed", {"missing_packages": missing}, level="ERR")
+        print(
+            f"\n✗ Dependências Python faltando: {', '.join(missing)}",
+            file=sys.stderr,
+        )
+        print(
+            "  Rode: pip install -r requirements.txt\n",
+            file=sys.stderr,
+        )
+        return False
+    log_event("pre_check_ok", {"packages": list(REQUIRED_DEPS)}, level="OK")
+    return True
+
+
 def run_step(step: dict) -> bool:
     script: Path = step["script"]
     sid = step["id"]
@@ -103,9 +133,23 @@ def run_step(step: dict) -> bool:
     proc = subprocess.run(
         [sys.executable, str(script)],
         cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
     )
+    # Echo stdout to user (preserve visibility durante execução).
+    if proc.stdout:
+        sys.stdout.write(proc.stdout)
     if proc.returncode != 0:
-        log_event(f"{label}_failed", {"returncode": proc.returncode}, level="ERR")
+        # Captura cauda de stderr (ou stdout fallback) pro audit log.
+        tail_src = proc.stderr if proc.stderr else proc.stdout
+        tail = (tail_src or "")[-2000:]
+        log_event(
+            f"{label}_failed",
+            {"returncode": proc.returncode, "stderr_tail": tail},
+            level="ERR",
+        )
+        if proc.stderr:
+            sys.stderr.write(proc.stderr)
         return False
 
     log_event(f"{label}_done", level="OK")
@@ -157,6 +201,11 @@ def main() -> int:
         return 0
 
     log_event("pipeline_start", {"steps": [s["id"] for s in selected]})
+
+    if not check_deps():
+        log_event("pipeline_aborted_missing_deps", level="ERR")
+        return 1
+
     failed: list[str] = []
     for s in selected:
         print(f"\n▶ Step {s['id']} · {s['name']}")

@@ -19,6 +19,17 @@ import shapefile  # pyshp
 BASE = os.path.dirname(os.path.abspath(__file__))
 DADOS = os.path.normpath(os.path.join(BASE, "..", "dados"))
 
+# Garante existência das subpastas de saída (cada fonte tem a sua).
+for _subdir in (
+    "ocorrencias",
+    "disk_denuncia",
+    "cameras",
+    "fatores_urbanos",
+    "dominio_territorial",
+    "cpsr",
+):
+    os.makedirs(os.path.join(BASE, _subdir), exist_ok=True)
+
 # CRS WGS84 (mesmo do shapefile de áreas da Força Municipal)
 PRJ_WGS84 = (
     'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",'

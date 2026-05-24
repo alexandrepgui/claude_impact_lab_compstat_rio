@@ -25,6 +25,7 @@ import shapefile  # pyshp
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, "analise")
+os.makedirs(OUT, exist_ok=True)
 
 PRJ_WGS84 = (
     'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",'

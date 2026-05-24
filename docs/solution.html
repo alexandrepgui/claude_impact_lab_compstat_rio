@@ -226,8 +226,42 @@
         </div>
       </div>
 
-      <h3>2. Linguagem unificada — schema tabular (star schema)</h3>
-      <p>A base consolidada é <strong>uma fact table flat</strong> com PK composta <code>(area_fm_id, grid_cell, periodo)</code>. Cada linha = uma célula de uma área em um período. Colunas são contagens por tipo de ocorrência + métricas derivadas. Qualitativo (dinâmica de LLM, RELINTs) e referência (matriz fator×órgão) entram como <strong>tabelas auxiliares</strong> joinadas por essas chaves.</p>
+      <h3>2. Linguagem unificada — schema tabular (star schema) + vocabulário canônico</h3>
+      <div class="callout core">
+        <p style="margin:0"><strong>Update 2026-05-24 ~12:30:</strong> integrado o trabalho de análise qualitativa do colega (ver <a href="analise_qualitativa_ocorrencias.md">docs/analise_qualitativa_ocorrencias.md</a>). Vocabulário canônico de <strong>3 perspectivas</strong> + ~60 IDs canônicos passa a ser parte do schema. Os <strong>7 pontos de sobreposição</strong> FU↔DD mapeados (OV-01 a OV-07) são <strong>os hotspots do BINGO por excelência</strong> — onde condição ambiental e evento criminal coincidem geograficamente.</p>
+      </div>
+      <p>A base consolidada é <strong>uma fact table flat</strong> com PK composta <code>(area_fm_id, grid_cell, periodo)</code>. Cada linha = uma célula de uma área em um período. Colunas são contagens por tipo de ocorrência + métricas derivadas. Qualitativo (dinâmica de LLM, RELINTs) e referência (vocab canônico + matriz fator×órgão) entram como <strong>tabelas auxiliares</strong> joinadas por essas chaves.</p>
+
+      <h4>Vocabulário canônico (3 perspectivas)</h4>
+      <p>Toda entrada do vocab carrega um <code>tipo_perspectiva</code> que define a lógica de classificação:</p>
+      <div class="grid-3">
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">FA</span> FATOR_AMBIENTAL</h3>
+          <p>Condição física do espaço que <em>facilita</em> crime. Lógica <strong>CPTED</strong> (prevenção pelo design). Origem: <code>fatores_urbanos.csv</code> (17 tipos canônicos prefixo <code>INF-*</code>).</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">EC</span> EVENTO_CRIMINAL</h3>
+          <p>Ato criminal denunciado ou registrado. Lógica <strong>law enforcement</strong>. Origem: <code>disk_denuncia.csv</code> (assuntos.*) + ocorrências. ~40 tipos canônicos (VIO-*, PAT-*, DRG-*, ARM-*, etc.).</p>
+        </div>
+        <div class="callout">
+          <h3 style="margin-top:0"><span class="pill">VS</span> VULNERABILIDADE_SOCIAL</h3>
+          <p>Condição de vulnerabilidade de pessoas. Origem: FU tipo 19 (PSR) + CPSR + DD classes específicas. Tipos canônicos prefixo <code>VSO-*</code>.</p>
+        </div>
+      </div>
+      <p>Os 7 pontos de sobreposição entre as duas taxonomias (FU vs DD) representam onde <strong>condição ambiental + evento criminal existem no mesmo espaço</strong> — exatamente os hotspots de maior valor analítico pro CompStat:</p>
+      <table>
+        <thead><tr><th style="width:14%">Overlap</th><th>Fator urbano</th><th>Evento criminal</th></tr></thead>
+        <tbody>
+          <tr><td><code>OV-01</code></td><td>Cena de uso de drogas (FU 20)</td><td>Consumo de drogas (DD 12/84)</td></tr>
+          <tr><td><code>OV-02</code></td><td>Pessoas em situação de rua (FU 19)</td><td>PSR contextualizada em DD 1/2/12</td></tr>
+          <tr><td><code>OV-03</code></td><td>Estacionamento irregular (FU 15)</td><td>Estacionamento irregular (DD 6/52)</td></tr>
+          <tr><td><code>OV-04</code></td><td>Motos no passeio (FU 23)</td><td>Direção perigosa (DD 6/51)</td></tr>
+          <tr><td><code>OV-05</code></td><td>Ponto de ônibus vandalizado (FU 26)</td><td>Vandalismo (DD 5/48)</td></tr>
+          <tr><td><code>OV-06</code></td><td>Lixo/entulho (FU 6, 28)</td><td>Lixo acumulado (DD 10/77)</td></tr>
+          <tr><td><code>OV-07</code></td><td>Comércio irregular (FU 14)</td><td>Est. sem alvará (DD 8/66)</td></tr>
+        </tbody>
+      </table>
+      <p><strong>No score BINGO</strong>: célula com pelo menos 1 overlap ativo recebe boost — onde FU e DD se encontram, prioridade máxima.</p>
 
       <h4>Fact table principal: <code>area_grid_periodo</code></h4>
       <div class="scroll-x">
@@ -255,6 +289,10 @@
           <tr><td><code>bingo_score</code></td><td>float [0-1]</td><td></td><td>calculado a partir de (mancha × dinâmica × fator) — fórmula a definir</td></tr>
           <tr><td><code>confidence</code></td><td>float [0-1]</td><td></td><td>confiança agregada das camadas</td></tr>
           <tr><td><code>pendencias_revisao</code></td><td>int</td><td></td><td>contador de inconsistências não resolvidas que afetam essa célula</td></tr>
+          <tr style="background:var(--core-soft)"><td><code>overlap_cross_fonte</code></td><td>bool</td><td></td><td><strong>NOVO</strong> Flag: célula tem ao menos 1 dos 7 pares OV-01..OV-07 (FU + DD do mesmo fenômeno). Boost no BINGO.</td></tr>
+          <tr style="background:var(--core-soft)"><td><code>n_psr_severo</code></td><td>int</td><td></td><td><strong>NOVO</strong> Contagem de registros PSR (FU 19) com <code>score_severidade_psr ≥ 4</code> nessa célula (moradia + crônica + drogas).</td></tr>
+          <tr style="background:var(--core-soft)"><td><code>tipos_canonicos_ec</code></td><td>list[string]</td><td></td><td><strong>NOVO</strong> Lista de <code>id_canonico</code> (perspectiva EVENTO_CRIMINAL) ativos na célula no período.</td></tr>
+          <tr style="background:var(--core-soft)"><td><code>tipos_canonicos_fa</code></td><td>list[string]</td><td></td><td><strong>NOVO</strong> Lista de <code>id_canonico</code> (perspectiva FATOR_AMBIENTAL) ativos na célula.</td></tr>
         </tbody>
       </table>
       </div>
@@ -268,6 +306,26 @@
             <td><code>area_fm_meta</code></td>
             <td>area_fm_id</td>
             <td>nome, polígono (geometria), RELINT associado (RI_010..RI_017), n_cameras_total</td>
+          </tr>
+          <tr style="background:var(--core-soft)">
+            <td><code>vocab_tipo_ocorrencia</code> <strong>NOVO</strong></td>
+            <td>id_canonico</td>
+            <td>categoria, subcategoria, tipo canônico, <code>tipo_perspectiva</code> (FA/EC/VS), descricao_tecnica_agente (movido de <code>ocorrencia_informacao</code>), origem(s) (FU id, DD class/tipo). ~60 entradas mapeadas no MD do colega.</td>
+          </tr>
+          <tr style="background:var(--core-soft)">
+            <td><code>vocab_overlap_ov</code> <strong>NOVO</strong></td>
+            <td>ov_id (OV-01..OV-07)</td>
+            <td>par canônico FU↔DD, fator urbano (id + tipo), evento criminal (DD class/tipo), tipo de sobreposição (Exata/Alta/Contextual/Fraca). Usado pelo flag <code>overlap_cross_fonte</code>.</td>
+          </tr>
+          <tr style="background:var(--core-soft)">
+            <td><code>fator_urbano_psr</code> <strong>NOVO</strong></td>
+            <td>(area_fm_id, grid_cell, fator_id)</td>
+            <td>Subset de <code>fatores_urbanos_detalhe</code> só pra tipo 19 (PSR), com <code>score_severidade_psr</code> computado dos subcampos (ocupacao × frequencia × drogas × tipo_pessoa).</td>
+          </tr>
+          <tr style="background:var(--core-soft)">
+            <td><code>relato_estruturado</code> <strong>NOVO</strong></td>
+            <td>id_denuncia</td>
+            <td>Saída JSON da extração LLM sobre <code>relato_redacted</code> seguindo template de 5 elementos (locação, sujeitos, atividade principal, atividades secundárias, temporalidade, indicadores de risco). Confidence por campo.</td>
           </tr>
           <tr>
             <td><code>dinamica_padroes</code></td>
@@ -518,13 +576,16 @@
         <div class="callout warn">
           <h3 style="margin-top:0"><span class="pill" style="background:var(--warn);color:white;border-color:var(--warn)">B 🔄</span> Desestruturado — colegas em curso</h3>
           <ul style="margin-bottom:0">
-            <li>🔄 Detectar inconsistências em <strong>DD relatos</strong> (texto livre 254 chars + tipos/órgãos)</li>
-            <li>🔄 Detectar inconsistências em <strong>RELINTs .docx</strong> (texto qualitativo, 8 arquivos)</li>
-            <li>🔄 Extração de novas dimensões (modus operandi, horário, recepção, controle)</li>
-            <li>🔄 Tratamento: agente IA (auto) ou humano (queue), conforme confiança</li>
-            <li>🔄 Output: novas contagens/camadas pra entrar na fact table do Alexandre</li>
+            <li>✅ <strong>Análise qualitativa entregue</strong> (<a href="analise_qualitativa_ocorrencias.md">analise_qualitativa_ocorrencias.md</a>): vocabulário canônico de 60 IDs em 3 perspectivas + 7 overlaps mapeados</li>
+            <li>🔄 Construir <code>vocab_tipo_ocorrencia</code> seed table com os ~60 IDs</li>
+            <li>🔄 Detectar inconsistências em <strong>DD relatos</strong> usando template de 5 elementos</li>
+            <li>🔄 Detectar inconsistências em <strong>RELINTs .docx</strong> (8 arquivos)</li>
+            <li>🔄 LLM extraction estruturada de <code>relato_redacted</code> → JSON com sujeitos, atividade, temporalidade</li>
+            <li>🔄 Computar <code>score_severidade_psr</code> (subcampos do FU tipo 19)</li>
+            <li>🔄 Computar flag <code>overlap_cross_fonte</code> (OV-01..OV-07 ativos por célula)</li>
+            <li>🔄 Tratamento de inconsistências: agente IA (auto) ou humano (queue), conforme confiança</li>
           </ul>
-          <p style="margin-top:.6rem"><strong>Owner:</strong> colegas do time (em curso). <strong>Critério done:</strong> camada nova alimentando recompute.</p>
+          <p style="margin-top:.6rem"><strong>Owner:</strong> colegas do time (em curso). <strong>Critério done:</strong> tabelas vocab + flags + relato_estruturado alimentando recompute do score.</p>
         </div>
         <div class="callout">
           <h3 style="margin-top:0"><span class="pill">C ⏸</span> Load (.doc) — deferido</h3>
@@ -634,6 +695,9 @@
           <tr><td>11:00~</td><td>Linguagem unificada = registro "área-snapshot" por (área × período).</td><td>Schema único pra todas as camadas — facilita auditoria, reuso, e regeneração quando shapefile muda.</td></tr>
           <tr><td>11:30~</td><td>Plano de execução em 4 tracks paralelos (Data Eng, LLM, Output, PM).</td><td>Caminho crítico = LLM extraction de DD (90+ min imprevisível). Pode-se cortar 3-4h em paralelo se cada track for executado por owner dedicado.</td></tr>
           <tr><td>11:30~</td><td>Solution.html podado: removida "Áreas dinâmicas" (já no Pipeline) e Plus 1/Plus 2 expandidos viraram callout único.</td><td>Foco em accionabilidade. Documento de estratégia + execução, não enciclopédia.</td></tr>
+          <tr><td>12:30~</td><td>Integrada a <strong>análise qualitativa</strong> do colega (<code>docs/analise_qualitativa_ocorrencias.md</code>): vocabulário canônico de 60 IDs em 3 perspectivas (FATOR_AMBIENTAL · EVENTO_CRIMINAL · VULN_SOCIAL) + 7 overlaps FU↔DD mapeados.</td><td>Fundamento conceitual pra step 3 — LLM extraction tem template de 5 elementos pra extrair de cada relato. Overlaps são os hotspots reais do BINGO.</td></tr>
+          <tr><td>12:30~</td><td>Schema da fact table ganha 4 novos campos: <code>overlap_cross_fonte</code>, <code>n_psr_severo</code>, <code>tipos_canonicos_ec</code>, <code>tipos_canonicos_fa</code>.</td><td>Materializa o vocab canônico na fact table sem quebrar o schema flat. Score BINGO ganha boost por overlap.</td></tr>
+          <tr><td>12:30~</td><td>4 novas tabelas auxiliares: <code>vocab_tipo_ocorrencia</code>, <code>vocab_overlap_ov</code>, <code>fator_urbano_psr</code>, <code>relato_estruturado</code>.</td><td>Star schema clássico: fact stays flat, dimensão e qualitativo ricos em tabelas separadas.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
           <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>

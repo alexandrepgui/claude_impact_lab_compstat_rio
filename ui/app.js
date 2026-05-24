@@ -834,12 +834,50 @@ function onStructuralInput(event) {
   refreshDirtyIndicator();
 }
 
+function renderWeightDistribution() {
+  const camadas = state.lab.draft?.camadas || {};
+  const entries = Object.entries(camadas).map(([name, layer]) => ({
+    name,
+    label: layerDisplay(name).title,
+    peso: (layer.ativa !== false ? (layer.peso ?? 1.0) : 0),
+  }));
+  const total = entries.reduce((acc, e) => acc + e.peso, 0);
+  const allOff = total <= 0;
+  const segs = entries
+    .map((e) => {
+      const pct = allOff ? 100 / entries.length : (e.peso / total) * 100;
+      return { ...e, pct };
+    })
+    .filter((s) => s.peso > 0 || allOff);
+
+  const segHtml = segs
+    .map(
+      (s) => `
+      <div class="seg seg-${s.name}" style="flex: ${s.pct}" title="${escapeHtml(s.label)}: peso ${s.peso.toFixed(2)} (${s.pct.toFixed(0)}%)">
+        <span class="seg-label">${escapeHtml(s.label)}</span>
+        <span class="seg-pct">${s.pct.toFixed(0)}%</span>
+      </div>
+    `,
+    )
+    .join("");
+
+  return `
+    <div class="lab-weight-distribution">
+      <p class="lab-dist-title">Distribuicao relativa do score do BINGO</p>
+      <div class="lab-weight-bar">${segHtml}</div>
+      <p class="lab-dist-help muted">Cada cor representa quanto cada fonte pesa no calculo. Mude os pesos abaixo para ver a barra reagir.</p>
+    </div>
+  `;
+}
+
 function renderLabLayers() {
   if (!els.labLayersBody) return;
   const camadas = state.lab.draft.camadas || {};
-  els.labLayersBody.innerHTML = Object.entries(camadas)
-    .map(([name, layer]) => renderLayerCard(name, layer))
-    .join("");
+  els.labLayersBody.innerHTML =
+    renderWeightDistribution() +
+    Object.entries(camadas)
+      .map(([name, layer]) => renderLayerCard(name, layer))
+      .join("");
 
   els.labLayersBody.querySelectorAll("[data-lab-action='toggle-active']").forEach((input) => {
     input.addEventListener("change", (event) => {
@@ -850,12 +888,46 @@ function renderLabLayers() {
     });
   });
 
-  els.labLayersBody.querySelectorAll("[data-lab-action='layer-number']").forEach((input) => {
+  // Live sync between slider, number input, readout, and distribution bar.
+  const syncLayerWeight = (layerName, value) => {
+    const card = els.labLayersBody.querySelector(`article[data-layer="${layerName}"]`);
+    if (card) {
+      const slider = card.querySelector("input[data-lab-action='layer-slider']");
+      const number = card.querySelector("input[data-lab-action='layer-number']");
+      const readout = card.querySelector(`[data-layer-readout="${layerName}"]`);
+      if (slider && slider !== document.activeElement) slider.value = value;
+      if (number && number !== document.activeElement) number.value = value;
+      if (readout) readout.textContent = Number(value).toFixed(2);
+    }
+    const bar = els.labLayersBody.querySelector(".lab-weight-distribution");
+    if (bar) {
+      const next = document.createElement("div");
+      next.innerHTML = renderWeightDistribution().trim();
+      const newBar = next.firstChild;
+      if (newBar) bar.replaceWith(newBar);
+    }
+  };
+
+  els.labLayersBody.querySelectorAll("[data-lab-action='layer-slider']").forEach((input) => {
     input.addEventListener("input", (event) => {
       const path = event.target.dataset.labField;
+      const layerName = event.target.dataset.layer;
       const value = parseFloat(event.target.value);
       if (Number.isNaN(value)) return;
       setPath(state.lab.draft, path, value);
+      syncLayerWeight(layerName, value);
+      refreshDirtyIndicator();
+    });
+  });
+
+  els.labLayersBody.querySelectorAll("[data-lab-action='layer-number']").forEach((input) => {
+    input.addEventListener("input", (event) => {
+      const path = event.target.dataset.labField;
+      const layerName = event.target.dataset.layer;
+      const value = parseFloat(event.target.value);
+      if (Number.isNaN(value)) return;
+      setPath(state.lab.draft, path, value);
+      if (layerName) syncLayerWeight(layerName, value);
       refreshDirtyIndicator();
     });
   });
@@ -977,12 +1049,23 @@ function renderLayerCard(name, layer) {
     })
     .join("");
 
+  const helpInline = meta.help
+    ? `<p class="lab-layer-help">${escapeHtml(meta.help)}</p>`
+    : "";
+
+  // Color swatch tied to .seg-<name> color (matches the distribution bar)
+  const swatchClass = `lab-color-swatch swatch-${name}`;
+
   return `
     <article class="lab-layer ${ativa ? "" : "inactive"}" data-layer="${name}">
       <header class="lab-layer-head">
         <div class="lab-layer-name">
-          <strong>${escapeHtml(meta.title)}</strong>
+          <div class="lab-layer-title">
+            <span class="${swatchClass}" aria-hidden="true"></span>
+            <strong>${escapeHtml(meta.title)}</strong>
+          </div>
           <span class="lab-source">${escapeHtml(meta.subtitle)}</span>
+          ${helpInline}
         </div>
         <label class="lab-toggle ${ativa ? "active" : ""}" title="Ativa ou desliga esta fonte no calculo">
           <input
@@ -997,16 +1080,31 @@ function renderLayerCard(name, layer) {
 
       <div class="lab-layer-grid">
         <div class="lab-field" data-lab-field="camadas.${name}.peso">
-          <label>Peso total da fonte</label>
-          <input
-            type="number"
-            step="0.05"
-            min="0"
-            value="${peso}"
-            data-lab-action="layer-number"
-            data-lab-field="camadas.${name}.peso"
-          />
-          <p class="lab-help">Importancia relativa entre as 3 fontes.</p>
+          <label>Peso total da fonte <strong class="lab-weight-readout" data-layer-readout="${name}">${peso.toFixed(2)}</strong></label>
+          <div class="lab-weight-control">
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              value="${peso}"
+              data-lab-action="layer-slider"
+              data-lab-field="camadas.${name}.peso"
+              data-layer="${name}"
+              aria-label="Peso da fonte ${escapeHtml(meta.title)}"
+            />
+            <input
+              type="number"
+              step="0.05"
+              min="0"
+              value="${peso}"
+              data-lab-action="layer-number"
+              data-lab-field="camadas.${name}.peso"
+              data-layer="${name}"
+              aria-label="Valor numerico do peso"
+            />
+          </div>
+          <p class="lab-help">0 = ignora · 1 = padrao · 2 = duplica peso</p>
         </div>
         <div class="lab-field" data-lab-field="camadas.${name}.peso_categoria_default">
           <label>Peso padrao por subcategoria</label>

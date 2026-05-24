@@ -1075,6 +1075,123 @@ button:disabled {
   gap: 0;
 }
 
+/* ----- Distribuicao relativa (barra no topo) ----- */
+.lab-weight-distribution {
+  padding: 14px 18px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.lab-dist-title {
+  margin: 0 0 8px;
+  font-size: 0.74rem;
+  color: var(--subtle);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lab-weight-bar {
+  display: flex;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.lab-weight-bar .seg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: white;
+  padding: 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: flex-grow 0.2s ease;
+  min-width: 0;
+}
+
+.lab-weight-bar .seg .seg-label {
+  font-size: 0.7rem;
+  opacity: 0.95;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.lab-weight-bar .seg .seg-pct {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lab-weight-bar .seg-ocorrencias { background: #d62728; }
+.lab-weight-bar .seg-disque { background: #ff7f0e; }
+.lab-weight-bar .seg-fatores { background: #1f77b4; }
+
+.lab-dist-help {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+}
+
+/* ----- Color swatch + slider control ----- */
+.lab-layer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lab-color-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.lab-color-swatch.swatch-ocorrencias { background: #d62728; }
+.lab-color-swatch.swatch-disque { background: #ff7f0e; }
+.lab-color-swatch.swatch-fatores { background: #1f77b4; }
+
+.lab-layer-help {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.lab-weight-control {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 10px;
+  align-items: center;
+}
+
+.lab-weight-control input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  height: 4px;
+}
+
+.lab-weight-control input[type="number"] {
+  width: 100%;
+  text-align: center;
+}
+
+.lab-weight-readout {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background: var(--accent);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .lab-layer {
   display: grid;
   gap: 14px;

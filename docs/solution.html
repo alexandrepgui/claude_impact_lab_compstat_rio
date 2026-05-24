@@ -175,6 +175,89 @@
       <p style="margin-top:1rem; color:var(--muted); font-size:.95rem">Plus features (Twitter · BigQuery 1746 · novas fontes) ficam <a href="#plus-deferred">deferidas</a>. Foco aqui é o pipeline Transform abaixo.</p>
     </section>
 
+    <section id="score-logica">
+      <h2>Lógica do score — motor BINGO semanal (configurável)</h2>
+      <div class="callout core">
+        <p style="margin:0"><strong>Update 2026-05-24 ~13:00:</strong> motor evoluiu de "média uniforme × n_camadas/3" pra <strong>soma ponderada por camada × categoria com janela temporal móvel</strong>. Config em <code>shapefiles_qgis/config_pesos.json</code>, código em <code>shapefiles_qgis/motor_bingo_semanal.py</code>. Tudo parametrizável (não tem fórmula hardcoded no script).</p>
+      </div>
+
+      <h3>1. Estrutura do score</h3>
+      <p>Por <strong>célula × semana</strong>, o score é:</p>
+      <pre><code>bingo[célula, semana] = Σ (peso_camada × Σ (peso_categoria × n_eventos_normalizados))
+                                     ↑                ↑
+                            ocorrencias=1.0     dentro de cada camada,
+                            disque=0.6          categorias têm pesos próprios
+                            fatores=0.4         (default 1.0; alguns boost)</code></pre>
+      <p>Score normalizado por <strong>percentil 95</strong> dentro da janela pra reduzir efeito de outliers. Resultado: célula com sinal forte em 1 camada não atropela; valor alto exige <strong>convergência ponderada</strong>.</p>
+
+      <h3>2. Parâmetros configuráveis (config_pesos.json)</h3>
+      <table>
+        <thead><tr><th>Parâmetro</th><th>Valor atual</th><th>O que controla</th></tr></thead>
+        <tbody>
+          <tr><td><code>janela_semanas</code></td><td>8</td><td>Tamanho da janela móvel pro cálculo do score (8 semanas = ~2 meses)</td></tr>
+          <tr><td><code>grade_m</code></td><td>250</td><td>Aresta da célula (metros)</td></tr>
+          <tr><td><code>cobertura</code></td><td>0.50</td><td>Threshold de cobertura territorial pelos agentes na alocação semanal</td></tr>
+          <tr><td><code>min_share_zona</code></td><td>0.01</td><td>Share mínimo (1%) pra zona entrar na alocação — descarta ruído</td></tr>
+          <tr><td><code>n_agentes</code></td><td>600</td><td>Total de agentes FM disponíveis (do briefing)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3. Pesos por camada</h3>
+      <table>
+        <thead><tr><th>Camada</th><th>Peso global</th><th>Campo de categoria</th><th>Lógica</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ocorrencias</strong></td><td>1.0</td><td><code>desc_delit</code></td><td>Quantitativo, é o "anchor" — eventos registrados pela PMERJ</td></tr>
+          <tr><td><strong>disque</strong></td><td>0.6</td><td><code>tipo_pr</code></td><td>Qualitativo, complementa mas tem menos peso (denúncias têm ruído + viés)</td></tr>
+          <tr><td><strong>fatores</strong></td><td>0.4</td><td><code>tp_ocorr</code></td><td>Contextual — condição que facilita, não evento. Peso menor porque condição sem evento ≠ urgência</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4. Pesos por categoria (dentro de cada camada)</h3>
+      <p>Pesos default = 1.0. Alguns boost porque são prioridade explícita do CompStat (foco da FM):</p>
+      <table>
+        <thead><tr><th>Camada</th><th>Categoria</th><th>Peso</th><th>Por quê</th></tr></thead>
+        <tbody>
+          <tr><td>disque</td><td>ROUBO/FURTO A TRANSEUNTES</td><td>2.0</td><td>Foco máximo do CompStat (briefing)</td></tr>
+          <tr><td>disque</td><td>ROUBO A MOTORISTAS</td><td>1.5</td><td>Roubo de carga / segmento crítico</td></tr>
+          <tr><td>disque</td><td>ROUBO EM TRANSP COLETIVOS</td><td>1.5</td><td>Subset confirmado nas ocorrências</td></tr>
+          <tr><td>disque</td><td>CONSUMO DE DROGAS</td><td>0.5</td><td>Reduzido — denúncia comum mas não é foco operacional da FM</td></tr>
+          <tr><td>fatores</td><td>Área mal iluminada / pedestres</td><td>2.0</td><td>Ligação direta com roubo noturno</td></tr>
+          <tr><td>fatores</td><td>Vegetação encobrindo iluminação</td><td>1.5</td><td>Comlurb cobre poste → fator de iluminação amplificado</td></tr>
+          <tr><td>fatores</td><td>Comércio irregular obstr. visibilidade</td><td>1.5</td><td>Cria pontos cegos físicos pra roubo a transeunte</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5. Janela temporal móvel (semanal)</h3>
+      <p>Score recalculado <strong>a cada semana</strong> usando a janela das 8 semanas anteriores. Vantagens:</p>
+      <ul>
+        <li><strong>Áreas dinâmicas:</strong> quando crime migra (FM aciona um perímetro, crime vaza pra adjacente), o score atualiza naturalmente — sem hardcode</li>
+        <li><strong>Sazonalidade:</strong> mês ruim em um ano não trava o score por anos</li>
+        <li><strong>Animação no QGIS:</strong> <code>visualizacao_semanal.html</code> mostra evolução temporal — judges + Prefeitura veem o "filme", não foto</li>
+      </ul>
+
+      <h3>6. Alocação dos 600 agentes (output operacional)</h3>
+      <p>Por semana, o motor escolhe as <strong>zonas ótimas de atuação da FM</strong> e distribui os 600 agentes proporcional ao score. Output em <code>shapefiles_qgis/distribuicao_fm/zonas_semanais.shp</code>. Cada feição = uma zona daquela semana com geometria recalculada, score agregado, nº de agentes alocados e semana de referência.</p>
+
+      <h3>7. Como o LLM (DD desestruturado) se pluga aqui</h3>
+      <p>O motor lê DD pelo campo <code>tipo_pr</code>. Hoje esse campo já vem do CSV plano (com só 2 classes top). Quando step 3 (LLM extraction) terminar:</p>
+      <ul>
+        <li>LLM classifica cada relato em um <code>id_canonico</code> do vocab</li>
+        <li>Mapeia <code>id_canonico</code> → <code>tipo_pr</code> consistente (ou substitui <code>tipo_pr</code> pelo id_canonico direto)</li>
+        <li>Motor não muda — só lê dado mais rico</li>
+        <li>Pesos por categoria ganham granularidade (em vez de só "CONSUMO DE DROGAS", separa "consumo em cena pública crônica" vs "consumo eventual")</li>
+      </ul>
+
+      <h3>8. Extensibilidade — adicionar nova camada</h3>
+      <p>O motor é <strong>plug-in</strong> (sem refactor). Para adicionar uma camada nova (ex.: 1746 BigQuery, Twitter):</p>
+      <ol>
+        <li>Gera shapefile de pontos da camada em <code>shapefiles_qgis/&lt;nova_camada&gt;/</code></li>
+        <li>Acrescenta entrada em <code>LAYER_SPECS</code> do motor (path, campo de data, campo de categoria, se temporal)</li>
+        <li>Acrescenta bloco em <code>config_pesos.json</code> com peso da camada + pesos por categoria</li>
+        <li>Roda <code>python motor_bingo_semanal.py</code></li>
+      </ol>
+      <p style="margin-top:.6rem; color:var(--muted); font-size:.9rem">Padrão consistente com o princípio "feijão com arroz primeiro": novas fontes (plus) entram sem mexer no motor.</p>
+    </section>
+
 <section id="transform-pipeline">
       <h2>Pipeline Transform — design detalhado</h2>
       <div class="callout core">
@@ -184,9 +267,17 @@
       <h3>Estado atual (12:00)</h3>
       <div class="grid">
         <div class="callout good">
-          <h3 style="margin-top:0">✅ Estruturado — Alexandre (entregue)</h3>
-          <p>Em <code>shapefiles_qgis/</code>: shapefiles tratados das 5 fontes + <code>analise_grade.py</code> que produz <strong>grade_risco.shp</strong> (250m, 7534 células, 229 hotspots c/ 3 camadas) e <strong>areas_fm_risco.shp</strong> (8 áreas com risco agregado).</p>
-          <p style="margin:0"><strong>Score v0</strong>: <code>media(nrm_ocor, nrm_disq, nrm_fator) × (n_camadas/3)</code>. Ranking: Pres. Vargas <strong>0.842</strong> → Campo Grande 0.249. <em>Isso é o BINGO v0 — camada estruturada do P5.</em></p>
+          <h3 style="margin-top:0">✅ Estruturado — Alexandre + time (entregue)</h3>
+          <p>Em <code>shapefiles_qgis/</code>:</p>
+          <ul style="margin:.4rem 0">
+            <li><code>gerar_shapefiles.py</code> — shapefiles tratados das 5 fontes (axis swap, encoding, etc.)</li>
+            <li><code>analise_grade.py</code> — grade_risco.shp v0 (250m, 7534 células) + areas_fm_risco.shp</li>
+            <li><strong><code>motor_bingo_semanal.py</code></strong> — motor evoluído, score ponderado por camada × categoria em janela móvel de 8 semanas</li>
+            <li><strong><code>config_pesos.json</code></strong> — todos os pesos parametrizáveis sem mexer no código</li>
+            <li><code>distribuicao_fm/zonas_semanais.shp</code> — zonas FM recalculadas por semana + alocação dos 600 agentes</li>
+            <li><code>visualizacao_semanal.html</code> — mapa animado da evolução temporal</li>
+          </ul>
+          <p style="margin:0"><strong>Score atual</strong>: configurável em <code>config_pesos.json</code>. Ver seção <a href="#score-logica">"Lógica do score"</a>.</p>
         </div>
         <div class="callout warn">
           <h3 style="margin-top:0">🔄 Desestruturado — colegas em curso</h3>
@@ -270,7 +361,7 @@
         <tbody>
           <tr><td><code>area_fm_id</code></td><td>int</td><td>✅</td><td>shapefile <code>fid</code> (2, 9, 10, 11, 12, 14, 19, 20)</td></tr>
           <tr><td><code>grid_cell</code></td><td>string</td><td>✅</td><td>identificador da célula (H3 res 9 ~150m OU grid lat/long 250m — decisão de time)</td></tr>
-          <tr><td><code>periodo</code></td><td>YYYY-MM ou YYYY-WW</td><td>✅</td><td>derivado de <code>ano</code>+<code>mes</code> de ocorrências (granularidade real do dataset)</td></tr>
+          <tr><td><code>periodo</code></td><td>YYYY-WW</td><td>✅</td><td>semana ISO. Score calculado em janela móvel de 8 semanas (config <code>janela_semanas</code>)</td></tr>
           <tr><td><code>n_roubo_transeunte</code></td><td>int</td><td></td><td>count ocorrências tipo 15 cuja geometria cai na célula no período</td></tr>
           <tr><td><code>n_roubo_celular</code></td><td>int</td><td></td><td>count ocorrências tipo celular na célula no período</td></tr>
           <tr><td><code>n_roubo_coletivo</code></td><td>int</td><td></td><td>count ocorrências em coletivo na célula no período</td></tr>
@@ -698,6 +789,9 @@
           <tr><td>12:30~</td><td>Integrada a <strong>análise qualitativa</strong> do colega (<code>docs/analise_qualitativa_ocorrencias.md</code>): vocabulário canônico de 60 IDs em 3 perspectivas (FATOR_AMBIENTAL · EVENTO_CRIMINAL · VULN_SOCIAL) + 7 overlaps FU↔DD mapeados.</td><td>Fundamento conceitual pra step 3 — LLM extraction tem template de 5 elementos pra extrair de cada relato. Overlaps são os hotspots reais do BINGO.</td></tr>
           <tr><td>12:30~</td><td>Schema da fact table ganha 4 novos campos: <code>overlap_cross_fonte</code>, <code>n_psr_severo</code>, <code>tipos_canonicos_ec</code>, <code>tipos_canonicos_fa</code>.</td><td>Materializa o vocab canônico na fact table sem quebrar o schema flat. Score BINGO ganha boost por overlap.</td></tr>
           <tr><td>12:30~</td><td>4 novas tabelas auxiliares: <code>vocab_tipo_ocorrencia</code>, <code>vocab_overlap_ov</code>, <code>fator_urbano_psr</code>, <code>relato_estruturado</code>.</td><td>Star schema clássico: fact stays flat, dimensão e qualitativo ricos em tabelas separadas.</td></tr>
+          <tr><td>13:00~</td><td>Motor BINGO evoluiu para <strong>semanal + ponderado por camada × categoria</strong> (config em <code>config_pesos.json</code>, código em <code>motor_bingo_semanal.py</code>).</td><td>Áreas FM viraram dinâmicas (recalculadas por semana), score paramétrizável sem refactor, animação no QGIS. Alinha briefing ("polígonos não-estáticos") e dá extensibilidade pra novas camadas.</td></tr>
+          <tr><td>13:00~</td><td>Período da fact table mudou de <code>YYYY-MM</code> para <code>YYYY-WW</code> + janela móvel de 8 semanas.</td><td>Granularidade do motor real. Mensal era proxy do mes/ano vazio em ocorrências; semana é a unidade operacional do CompStat (reunião terça).</td></tr>
+          <tr><td>13:00~</td><td>Pesos por camada: ocorrências=1.0, disque=0.6, fatores=0.4. Pesos por categoria: roubo transeunte=2.0, iluminação ruim=2.0, consumo drogas=0.5.</td><td>Codifica prioridades do CompStat (foco máximo em roubo a transeunte, iluminação ligada a noturno) em vez de média uniforme.</td></tr>
           <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
           <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
           <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>

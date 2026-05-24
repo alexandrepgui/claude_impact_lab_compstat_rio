@@ -47,9 +47,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: grid;
-  grid-template-columns: minmax(230px, auto) minmax(0, 1fr);
+  display: flex;
   align-items: center;
+  justify-content: start;
   gap: 24px;
   height: auto;
   min-height: 64px;
@@ -88,7 +88,8 @@ body {
   gap: 6px;
   min-width: 0;
   height: 46px;
-  align-self: end;
+  align-self: stretch;
+  margin-left: 24px;
 }
 
 .nav-item {
@@ -1250,8 +1251,8 @@ button:disabled {
 
   .app-sidebar {
     position: sticky;
-    grid-template-columns: 1fr;
-    align-items: start;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
     z-index: 10;
     height: auto;
@@ -1274,6 +1275,7 @@ button:disabled {
     display: flex;
     gap: 4px;
     height: 44px;
+    margin-left: 0;
     overflow-x: auto;
   }
 

@@ -219,33 +219,21 @@ async function loadDatasets() {
 function renderDatasets(data) {
   if (!els.datasetsTable || !els.datasetMetrics) return;
   const datasets = data.datasets || [];
-  const byKind = data.byKind || {};
-  const bySource = data.bySource || {};
 
   if (els.datasetsStatus) {
-    els.datasetsStatus.textContent = `${datasets.length} dataset(s) detectados.`;
+    els.datasetsStatus.textContent = `${Number(data.loaded || 0)} de ${Number(data.total || 0)} CSV(s) carregados.`;
   }
 
   els.datasetMetrics.innerHTML = `
     <article class="metric-card">
-      <span>Total</span>
+      <span>CSVs esperados</span>
       <strong>${Number(data.total || 0).toLocaleString("pt-BR")}</strong>
-      <small>${formatBytes(data.totalBytes || 0)}</small>
+      <small>arquivos principais</small>
     </article>
     <article class="metric-card ok">
-      <span>Tabulares</span>
-      <strong>${Number((byKind.csv || 0) + (byKind.xlsx || 0)).toLocaleString("pt-BR")}</strong>
-      <small>CSV/XLSX</small>
-    </article>
-    <article class="metric-card warn">
-      <span>Geoespaciais</span>
-      <strong>${Number(byKind.shp || 0).toLocaleString("pt-BR")}</strong>
-      <small>shapefiles</small>
-    </article>
-    <article class="metric-card">
-      <span>Fontes brutas</span>
-      <strong>${Number(bySource.raw || 0).toLocaleString("pt-BR")}</strong>
-      <small>dados, relints, sh_area_forca</small>
+      <span>Carregados</span>
+      <strong>${Number(data.loaded || 0).toLocaleString("pt-BR")}</strong>
+      <small>presentes no disco</small>
     </article>
   `;
 
@@ -257,22 +245,16 @@ function renderDatasets(data) {
   els.datasetsTable.innerHTML = `
     <div class="dataset-row dataset-row-head">
       <span>Dataset</span>
-      <span>Origem</span>
-      <span>Tipo</span>
-      <span>Tamanho</span>
-      <span>Modificado</span>
+      <span>Status</span>
     </div>
     ${datasets
       .map((item) => `
-        <article class="dataset-row">
+        <article class="dataset-row ${item.exists ? "loaded" : "missing"}">
           <div class="dataset-name">
             <strong title="${escapeHtml(item.path)}">${escapeHtml(item.name)}</strong>
             <code>${escapeHtml(item.path)}</code>
           </div>
-          <span>${escapeHtml(item.sourceLabel || item.source || "-")}</span>
-          <span>${escapeHtml(item.kindLabel || item.kind || "-")}${item.sidecarCount ? ` · ${item.sidecarCount} arquivos` : ""}</span>
-          <span>${formatBytes(item.bytes)}</span>
-          <span>${formatDateTime(item.mtime)}</span>
+          <span class="dataset-check">${item.exists ? "✓" : "—"}</span>
         </article>
       `)
       .join("")}

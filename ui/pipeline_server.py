@@ -79,21 +79,13 @@ STEP_HINTS = {
 
 # Diretorio onde os RELINTs .docx + PNGs de mapa sao gerados
 RELATORIOS_DIR = REPO_ROOT / "shapefiles_qgis" / "distribuicao_fm" / "relatorios_ia"
-DATASET_ROOTS = {
-    "dados": "raw",
-    "relints": "raw",
-    "sh_area_forca": "raw",
-    "shapefiles_qgis": "processed",
-}
-DATASET_FILES = {
-    "pipeline_audit.jsonl": "audit",
-    "relato_estruturado.jsonl": "processed",
-    "review_queue.json": "audit",
-    "score_ranking.json": "output",
-    "score_ranking.previous.json": "output",
-}
-DATASET_SUFFIXES = {".csv", ".xlsx", ".json", ".jsonl", ".shp", ".docx", ".parquet", ".geojson"}
-SHAPEFILE_SIDECARS = {".shp", ".shx", ".dbf", ".prj", ".cpg", ".qmd", ".qml", ".fix", ".sbn", ".sbx"}
+DATASET_CSVS = [
+    "dados/df_ocorrencias_tratado - Extração 1 .csv",
+    "dados/disk_denuncia.csv",
+    "dados/fatores_urbanos.csv",
+    "dados/cameras_areas_fm.csv",
+    "dados/outros dados/dominio_territorial - Extração 1.csv",
+]
 
 CURRENT_RUN: dict[str, Any] | None = None
 RUN_LOCK = threading.Lock()
@@ -343,88 +335,25 @@ def latest_score() -> dict[str, Any] | None:
     return _score_payload(SCORE_JSON)
 
 
-def dataset_source_label(source: str) -> str:
-    return {
-        "raw": "Fonte bruta",
-        "processed": "Processado",
-        "audit": "Auditoria",
-        "output": "Resultado",
-    }.get(source, source)
-
-
-def dataset_kind_label(kind: str) -> str:
-    return {
-        "csv": "CSV",
-        "xlsx": "Excel",
-        "json": "JSON",
-        "jsonl": "JSONL",
-        "shp": "Shapefile",
-        "docx": "Documento",
-        "parquet": "Parquet",
-        "geojson": "GeoJSON",
-    }.get(kind, kind.upper())
-
-
-def dataset_entry(path: Path, source: str) -> dict[str, Any]:
-    stat = path.stat()
-    suffix = path.suffix.lower()
-    sidecar_count = 0
-    total_bytes = stat.st_size
-    if suffix == ".shp":
-        for sidecar in path.parent.glob(path.stem + ".*"):
-            if sidecar.suffix.lower() in SHAPEFILE_SIDECARS and sidecar.is_file():
-                sidecar_count += 1
-                total_bytes += sidecar.stat().st_size if sidecar != path else 0
-    return {
-        "name": path.name,
-        "path": str(path.relative_to(REPO_ROOT)),
-        "kind": suffix.lstrip(".") or "file",
-        "kindLabel": dataset_kind_label(suffix.lstrip(".")),
-        "source": source,
-        "sourceLabel": dataset_source_label(source),
-        "bytes": total_bytes,
-        "mtime": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
-        "sidecarCount": sidecar_count if suffix == ".shp" else 0,
-    }
-
-
 def list_datasets() -> dict[str, Any]:
-    seen: set[Path] = set()
     datasets: list[dict[str, Any]] = []
-
-    for root_name, source in DATASET_ROOTS.items():
-        root = REPO_ROOT / root_name
-        if not root.exists():
-            continue
-        for path in root.rglob("*"):
-            if not path.is_file() or path.name.startswith("~$"):
-                continue
-            if path.suffix.lower() not in DATASET_SUFFIXES:
-                continue
-            if path.suffix.lower() in SHAPEFILE_SIDECARS and path.suffix.lower() != ".shp":
-                continue
-            seen.add(path.resolve())
-            datasets.append(dataset_entry(path, source))
-
-    for rel_path, source in DATASET_FILES.items():
+    for rel_path in DATASET_CSVS:
         path = REPO_ROOT / rel_path
-        if path.exists() and path.is_file() and path.resolve() not in seen:
-            datasets.append(dataset_entry(path, source))
-
-    datasets.sort(key=lambda item: (item["source"], item["kind"], item["path"]))
-    by_kind: dict[str, int] = {}
-    by_source: dict[str, int] = {}
-    total_bytes = 0
-    for item in datasets:
-        by_kind[item["kind"]] = by_kind.get(item["kind"], 0) + 1
-        by_source[item["source"]] = by_source.get(item["source"], 0) + 1
-        total_bytes += int(item["bytes"] or 0)
+        exists = path.exists() and path.is_file()
+        stat = path.stat() if exists else None
+        datasets.append(
+            {
+                "name": path.name,
+                "path": rel_path,
+                "exists": exists,
+                "bytes": stat.st_size if stat else 0,
+                "mtime": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat() if stat else None,
+            }
+        )
 
     return {
         "total": len(datasets),
-        "totalBytes": total_bytes,
-        "byKind": by_kind,
-        "bySource": by_source,
+        "loaded": sum(1 for item in datasets if item["exists"]),
         "datasets": datasets,
     }
 

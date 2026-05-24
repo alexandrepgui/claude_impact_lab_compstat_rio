@@ -100,18 +100,14 @@
   .meta-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; }
   .meta-item .k { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
   .meta-item .v { font-size: 1.02rem; font-weight: 600; margin-top: .2rem; }
-  .tbd-marker { color: var(--muted); font-style: italic; }
   .layer-stack { display: grid; gap: .7rem; margin: 1.2rem 0; }
   .layer { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; align-items: start; padding: .9rem 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); border-left: 4px solid var(--accent); }
   .layer.core { border-left-color: var(--core); }
-  .layer.plus { border-left-color: var(--plus); }
   .layer .badge { width: 60px; text-align: center; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding-top: .15rem; }
   .layer.core .badge { color: var(--core); }
-  .layer.plus .badge { color: var(--plus); }
   .layer h3 { margin: 0 0 .35rem; }
   .layer p { margin: 0; color: var(--text); }
   footer.page-foot { margin-top: 4rem; padding: 1.5rem 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .86rem; }
-  .input-slot { background: var(--tbd-soft); border: 1px dashed var(--tbd); border-radius: var(--radius); padding: .8rem 1rem; font-style: italic; color: var(--muted); margin: .6rem 0; }
   @media (max-width: 900px) {
     .page { display: block; }
     .sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -132,814 +128,181 @@
   <main>
     <header>
       <h1>CompStat Rio — Solução</h1>
-      <p class="sub">Group 14 · documento vivo da estratégia. Atualizado conforme decisões do time evoluem.</p>
+      <p class="sub">Group 14 · ImpactHub · Claude Impact Lab Rio 2026-05-24</p>
       <div class="meta-bar">
-        <div class="meta-item"><div class="k">Status</div><div class="v"><span class="pill core">Em construção</span></div></div>
-        <div class="meta-item"><div class="k">Foco</div><div class="v">Feijão com arroz</div></div>
+        <div class="meta-item"><div class="k">Tema</div><div class="v">Segurança Pública</div></div>
         <div class="meta-item"><div class="k">Deadline</div><div class="v">16:15 (firm)</div></div>
-        <div class="meta-item"><div class="k">Última edição</div><div class="v">2026-05-24 manhã</div></div>
+        <div class="meta-item"><div class="k">Cliente</div><div class="v">Secretaria-Geral CompStat</div></div>
+        <div class="meta-item"><div class="k">Status</div><div class="v"><span class="pill core">Pipeline pronta</span></div></div>
       </div>
     </header>
 
-    <section id="executivo">
+    <section id="resumo">
       <h2>Resumo executivo</h2>
-      <blockquote>
-        "Antes de fazermos os <em>plus</em> a gente tem que fazer bem o feijão com arroz. O objetivo principal é o BINGO. O BINGO é o cruzamento dos dados de forma bem feita e confiável; a intenção das áreas não é estática, é dinâmica e se move ao longo do tempo."
-      </blockquote>
+      <blockquote>"Antes de fazermos os plus a gente tem que fazer bem o feijão com arroz. O objetivo é o BINGO — cruzamento dos dados de forma bem feita e confiável. A intenção das áreas é dinâmica e se move ao longo do tempo."</blockquote>
       <div class="callout core">
-        <p style="margin:0"><strong>O que estamos construindo:</strong> pipeline ETL — foco em <strong>Transform</strong> com <em>human-in-the-loop</em> — que cruza 5 fontes do CompStat, detecta inconsistências e produz <strong>Relatórios Analíticos em <code>.doc</code></strong> por área FM. Substitui o relatório que a Duda monta à mão pra reunião de terça.</p>
+        <p style="margin:0"><strong>O que construímos:</strong> pipeline ETL <strong>100% agêntica</strong> (LLM decide tudo, humano só audita) que cruza 5 fontes de dados, gera um score <strong>BINGO</strong> por célula × semana e <strong>aloca dinamicamente os 600 agentes da Força Municipal</strong>. Output final = Relatórios Analíticos de Área em <code>.doc</code> (gabarito: os 8 RELINTs).</p>
       </div>
-      <div class="grid-3" style="margin-top:1rem">
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">E</span> Extract</h3>
-          <p style="margin:0">Dados já entregues no repo oficial. <strong>Não é gargalo.</strong></p>
-        </div>
-        <div class="callout core" style="position:relative">
-          <span class="pill core" style="position:absolute; top:.6rem; right:.6rem">FOCO</span>
-          <h3 style="margin-top:0"><span class="pill core">T</span> Transform</h3>
-          <p style="margin:0">Onde o trabalho está. Cruzamento + qualidade + score BINGO. <strong>Detalhe técnico abaixo.</strong></p>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">L</span> Load <span class="pill" style="background:var(--good); color:white; border-color:var(--good)">crítico</span></h3>
-          <p style="margin:0">O <code>.doc</code> É o produto que a Prefeitura consome. Anda em <strong>paralelo</strong> ao Transform.</p>
-        </div>
-      </div>
-      <h3 style="margin-top:1.8rem">Critério de "core pronto" (feijão com arroz)</h3>
+      <h3>Critério de "pronto" (feijão com arroz)</h3>
       <ul>
-        <li>✅ <strong>1 área tem relatório <code>.doc</code> end-to-end</strong> gerado pelo pipeline (sem retrabalho manual)</li>
-        <li>✅ Pipeline <strong>reproduzível</strong>: dados novos → relatório novo</li>
-        <li>✅ Camadas conectadas por <strong>geometria</strong>, não código AISP</li>
-        <li>✅ <strong>Sem hardcode</strong> de áreas — feed do shapefile parametrizado</li>
-        <li>✅ Saída faz sentido pro humano que valida (mentor Ramon)</li>
+        <li>✅ Pipeline reproduzível end-to-end (1 comando: <code>python pipeline.py</code>)</li>
+        <li>✅ Camadas conectadas por <strong>geometria</strong> (não código AISP)</li>
+        <li>✅ <strong>Sem hardcode</strong> de áreas — shapefile parametrizado, score recalcula por semana</li>
+        <li>✅ Toda decisão da IA <strong>logada</strong> em JSONL (consumível pela visualização web)</li>
+        <li>⏸ 1 área tem <code>.doc</code> end-to-end (Load step — deferido)</li>
       </ul>
-      <p style="margin-top:1rem; color:var(--muted); font-size:.95rem">Plus features (Twitter · BigQuery 1746 · novas fontes) ficam <a href="#plus-deferred">deferidas</a>. Foco aqui é o pipeline Transform abaixo.</p>
     </section>
 
-    <section id="score-logica">
-      <h2>Lógica do score — motor BINGO semanal (configurável)</h2>
-      <div class="callout core">
-        <p style="margin:0"><strong>Update 2026-05-24 ~13:00:</strong> motor evoluiu de "média uniforme × n_camadas/3" pra <strong>soma ponderada por camada × categoria com janela temporal móvel</strong>. Config em <code>shapefiles_qgis/config_pesos.json</code>, código em <code>shapefiles_qgis/motor_bingo_semanal.py</code>. Tudo parametrizável (não tem fórmula hardcoded no script).</p>
+    <section id="pipeline">
+      <h2>Pipeline em 5 steps</h2>
+      <p>Orquestrador <code>pipeline.py</code> roda os 5 steps em sequência. Cada step é um script independente em <code>pipeline_steps/sN_*.py</code>. Tudo logado em <code>pipeline_audit.jsonl</code>.</p>
+      <div class="layer-stack">
+        <div class="layer core">
+          <div class="badge">S1</div>
+          <div><h3>Load input files</h3><p>Verifica presença + volumes das 9 fontes. Sem transformação. Saída: log estruturado de cada arquivo.</p></div>
+        </div>
+        <div class="layer core">
+          <div class="badge">S2</div>
+          <div><h3>Automatic treatments</h3><p>Correções determinísticas: encoding (latin-1→UTF-8), axis swap em fatores, consolidação DD por <code>id_denuncia</code>, flag <code>dentro_rio</code>. Delega a <code>gerar_shapefiles.py</code>. Output: 6 shapefiles canônicos em <code>shapefiles_qgis/</code>.</p></div>
+        </div>
+        <div class="layer core">
+          <div class="badge">S3</div>
+          <div><h3>LLM extraction (agêntica)</h3><p>Claude Sonnet lê cada relato do <strong>Disque Denúncia</strong>, classifica no vocab canônico (~60 IDs), extrai estrutura (5 elementos: localização, sujeitos, atividade, secundárias, temporal). Modo auto: stub sem key, sample(5) com key, <code>--all</code> processa ~18k. Output: <code>relato_estruturado.jsonl</code>.</p></div>
+        </div>
+        <div class="layer core">
+          <div class="badge">S4</div>
+          <div><h3>Consolidate</h3><p>Roda os dois engines:<br>• <strong>v0</strong> (<code>analise_grade.py</code>) → grid 250m + 8 áreas FM estáticas<br>• <strong>v1</strong> (<code>motor_bingo_semanal.py</code>) → zonas semanais + alocação de 600 agentes</p></div>
+        </div>
+        <div class="layer core">
+          <div class="badge">S5</div>
+          <div><h3>Generate score</h3><p>Lê preferencialmente <code>zonas_semanais.shp</code> (v1) com fallback <code>areas_fm_risco.shp</code> (v0). Persiste ranking em <code>score_ranking.json</code>.</p></div>
+        </div>
       </div>
-
-      <h3>1. Estrutura do score</h3>
-      <p>Por <strong>célula × semana</strong>, o score é:</p>
-      <pre><code>bingo[célula, semana] = Σ (peso_camada × Σ (peso_categoria × n_eventos_normalizados))
-                                     ↑                ↑
-                            ocorrencias=1.0     dentro de cada camada,
-                            disque=0.6          categorias têm pesos próprios
-                            fatores=0.4         (default 1.0; alguns boost)</code></pre>
-      <p>Score normalizado por <strong>percentil 95</strong> dentro da janela pra reduzir efeito de outliers. Resultado: célula com sinal forte em 1 camada não atropela; valor alto exige <strong>convergência ponderada</strong>.</p>
-
-      <h3>2. Parâmetros configuráveis (config_pesos.json)</h3>
-      <table>
-        <thead><tr><th>Parâmetro</th><th>Valor atual</th><th>O que controla</th></tr></thead>
-        <tbody>
-          <tr><td><code>janela_semanas</code></td><td>8</td><td>Tamanho da janela móvel pro cálculo do score (8 semanas = ~2 meses)</td></tr>
-          <tr><td><code>grade_m</code></td><td>250</td><td>Aresta da célula (metros)</td></tr>
-          <tr><td><code>cobertura</code></td><td>0.50</td><td>Threshold de cobertura territorial pelos agentes na alocação semanal</td></tr>
-          <tr><td><code>min_share_zona</code></td><td>0.01</td><td>Share mínimo (1%) pra zona entrar na alocação — descarta ruído</td></tr>
-          <tr><td><code>n_agentes</code></td><td>600</td><td>Total de agentes FM disponíveis (do briefing)</td></tr>
-        </tbody>
-      </table>
-
-      <h3>3. Pesos por camada</h3>
-      <table>
-        <thead><tr><th>Camada</th><th>Peso global</th><th>Campo de categoria</th><th>Lógica</th></tr></thead>
-        <tbody>
-          <tr><td><strong>ocorrencias</strong></td><td>1.0</td><td><code>desc_delit</code></td><td>Quantitativo, é o "anchor" — eventos registrados pela PMERJ</td></tr>
-          <tr><td><strong>disque</strong></td><td>0.6</td><td><code>tipo_pr</code></td><td>Qualitativo, complementa mas tem menos peso (denúncias têm ruído + viés)</td></tr>
-          <tr><td><strong>fatores</strong></td><td>0.4</td><td><code>tp_ocorr</code></td><td>Contextual — condição que facilita, não evento. Peso menor porque condição sem evento ≠ urgência</td></tr>
-        </tbody>
-      </table>
-
-      <h3>4. Pesos por categoria (dentro de cada camada)</h3>
-      <p>Pesos default = 1.0. Alguns boost porque são prioridade explícita do CompStat (foco da FM):</p>
-      <table>
-        <thead><tr><th>Camada</th><th>Categoria</th><th>Peso</th><th>Por quê</th></tr></thead>
-        <tbody>
-          <tr><td>disque</td><td>ROUBO/FURTO A TRANSEUNTES</td><td>2.0</td><td>Foco máximo do CompStat (briefing)</td></tr>
-          <tr><td>disque</td><td>ROUBO A MOTORISTAS</td><td>1.5</td><td>Roubo de carga / segmento crítico</td></tr>
-          <tr><td>disque</td><td>ROUBO EM TRANSP COLETIVOS</td><td>1.5</td><td>Subset confirmado nas ocorrências</td></tr>
-          <tr><td>disque</td><td>CONSUMO DE DROGAS</td><td>0.5</td><td>Reduzido — denúncia comum mas não é foco operacional da FM</td></tr>
-          <tr><td>fatores</td><td>Área mal iluminada / pedestres</td><td>2.0</td><td>Ligação direta com roubo noturno</td></tr>
-          <tr><td>fatores</td><td>Vegetação encobrindo iluminação</td><td>1.5</td><td>Comlurb cobre poste → fator de iluminação amplificado</td></tr>
-          <tr><td>fatores</td><td>Comércio irregular obstr. visibilidade</td><td>1.5</td><td>Cria pontos cegos físicos pra roubo a transeunte</td></tr>
-        </tbody>
-      </table>
-
-      <h3>5. Janela temporal móvel (semanal)</h3>
-      <p>Score recalculado <strong>a cada semana</strong> usando a janela das 8 semanas anteriores. Vantagens:</p>
-      <ul>
-        <li><strong>Áreas dinâmicas:</strong> quando crime migra (FM aciona um perímetro, crime vaza pra adjacente), o score atualiza naturalmente — sem hardcode</li>
-        <li><strong>Sazonalidade:</strong> mês ruim em um ano não trava o score por anos</li>
-        <li><strong>Animação no QGIS:</strong> <code>visualizacao_semanal.html</code> mostra evolução temporal — judges + Prefeitura veem o "filme", não foto</li>
-      </ul>
-
-      <h3>6. Alocação dos 600 agentes (output operacional)</h3>
-      <p>Por semana, o motor escolhe as <strong>zonas ótimas de atuação da FM</strong> e distribui os 600 agentes proporcional ao score. Output em <code>shapefiles_qgis/distribuicao_fm/zonas_semanais.shp</code>. Cada feição = uma zona daquela semana com geometria recalculada, score agregado, nº de agentes alocados e semana de referência.</p>
-
-      <h3>7. Como o LLM (DD desestruturado) se pluga aqui</h3>
-      <p>O motor lê DD pelo campo <code>tipo_pr</code>. Hoje esse campo já vem do CSV plano (com só 2 classes top). Quando step 3 (LLM extraction) terminar:</p>
-      <ul>
-        <li>LLM classifica cada relato em um <code>id_canonico</code> do vocab</li>
-        <li>Mapeia <code>id_canonico</code> → <code>tipo_pr</code> consistente (ou substitui <code>tipo_pr</code> pelo id_canonico direto)</li>
-        <li>Motor não muda — só lê dado mais rico</li>
-        <li>Pesos por categoria ganham granularidade (em vez de só "CONSUMO DE DROGAS", separa "consumo em cena pública crônica" vs "consumo eventual")</li>
-      </ul>
-
-      <h3>8. Extensibilidade — adicionar nova camada</h3>
-      <p>O motor é <strong>plug-in</strong> (sem refactor). Para adicionar uma camada nova (ex.: 1746 BigQuery, Twitter):</p>
-      <ol>
-        <li>Gera shapefile de pontos da camada em <code>shapefiles_qgis/&lt;nova_camada&gt;/</code></li>
-        <li>Acrescenta entrada em <code>LAYER_SPECS</code> do motor (path, campo de data, campo de categoria, se temporal)</li>
-        <li>Acrescenta bloco em <code>config_pesos.json</code> com peso da camada + pesos por categoria</li>
-        <li>Roda <code>python motor_bingo_semanal.py</code></li>
-      </ol>
-      <p style="margin-top:.6rem; color:var(--muted); font-size:.9rem">Padrão consistente com o princípio "feijão com arroz primeiro": novas fontes (plus) entram sem mexer no motor.</p>
+      <p style="color:var(--muted); font-size:.9rem">CLI flags: <code>--dry-run</code> · <code>--only N</code> · <code>--from N</code> · <code>--skip N</code></p>
     </section>
 
-    <section id="fontes-estruturado-vs-nao">
-      <h2>Fontes: estruturado vs desestruturado — onde o LLM atua</h2>
-      <p>Nem toda fonte precisa de LLM. Critério: tem <strong>texto livre</strong> ou narrativa que precisa ser interpretada? Sim → LLM. Não → tratamento programático determinístico.</p>
+    <section id="score">
+      <h2>Lógica do score (BINGO)</h2>
+      <p>Por <strong>célula × semana</strong>, em janela móvel de <strong>8 semanas</strong>. Premia <em>coincidência</em>: célula com sinal forte em 1 camada não vence; valor alto exige convergência ponderada das 3 fontes.</p>
+      <pre><code>bingo[célula, semana] = Σ peso_camada × Σ (peso_categoria × n_normalizado_p95)</code></pre>
+      <p>Tudo em <code>shapefiles_qgis/config_pesos.json</code> (sem código hardcoded):</p>
       <table>
-        <thead><tr><th style="width:20%">Fonte</th><th style="width:18%">Tipo</th><th style="width:25%">Tratamento</th><th>Status no pipeline</th></tr></thead>
+        <thead><tr><th>Camada</th><th>Peso</th><th>Categorias com boost</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>Ocorrências</strong> <br><code>df_ocorrencias_tratado</code></td>
-            <td>Estruturado</td>
-            <td>S2 — programático. Campos <code>delito</code>, <code>desc_delito</code>, <code>aisp</code>, lat/long já vêm categorizados pela PMERJ.</td>
-            <td>✅ S2 produz <code>ocorrencias.shp</code></td>
-          </tr>
-          <tr style="background:var(--core-soft)">
-            <td><strong>Disque Denúncia</strong> <br><code>disk_denuncia</code> · <code>relato_redacted</code></td>
-            <td><strong>Desestruturado</strong> — texto livre 254 chars</td>
-            <td>S2 trata CSV (encoding, separador, axis). <strong>S3 LLM extrai</strong> JSON estruturado de cada relato.</td>
-            <td>✅ S3 implementado (auto-detect, sample default 5)</td>
-          </tr>
-          <tr style="background:var(--plus-soft)">
-            <td><strong>RELINTs</strong> <br><code>relints/*.docx</code></td>
-            <td><strong>NÃO é input</strong> — é <strong>gabarito do output</strong> que vamos gerar</td>
-            <td>8 RELINTs (1 por área FM) definem a estrutura do nosso <code>.doc</code> final. Servem como template + ground truth pra validação.</td>
-            <td>✓ Referência consultada offline. Não passa por LLM no pipeline.</td>
-          </tr>
-          <tr>
-            <td><strong>Fatores urbanos</strong> <br><code>fatores_urbanos.csv</code></td>
-            <td>Estruturado</td>
-            <td>S2 — corrige axis invertido, mantém categoria + órgão responsável.</td>
-            <td>✅ S2 produz <code>fatores_urbanos.shp</code></td>
-          </tr>
-          <tr>
-            <td><strong>Câmeras</strong> <br><code>cameras_areas_fm.csv</code></td>
-            <td>Estruturado</td>
-            <td>S2 — só geo + nome da área.</td>
-            <td>✅ S2 produz <code>cameras.shp</code></td>
-          </tr>
-          <tr>
-            <td><strong>Áreas FM</strong> <br><code>sh_area_forca/*.shp</code></td>
-            <td>Estruturado (shapefile)</td>
-            <td>S2 lê direto. Define o "esqueleto territorial".</td>
-            <td>✅ Pronto</td>
-          </tr>
-          <tr>
-            <td><strong>Domínio territorial</strong> <br><code>dominio_territorial</code></td>
-            <td>Estruturado</td>
-            <td>S2 — filtrar bbox município. <em>Não entra no score</em> (sensível).</td>
-            <td>✅ Pronto</td>
-          </tr>
-          <tr>
-            <td><strong>CPSR</strong> <br><code>CPSR_2020_2022_2024.xlsx</code></td>
-            <td>Estruturado (Excel)</td>
-            <td>S2 — XLSX → SHP, 3 anos.</td>
-            <td>✅ Pronto</td>
-          </tr>
+          <tr><td><strong>ocorrencias</strong> (anchor, PMERJ)</td><td>1.0</td><td>Todos roubos = 1.0 (default)</td></tr>
+          <tr><td><strong>disque</strong> (qualitativo)</td><td>0.6</td><td>Roubo a transeunte = <strong>2.0</strong> · Roubo motorista/coletivo = 1.5 · Consumo drogas = 0.5</td></tr>
+          <tr><td><strong>fatores</strong> (CPTED)</td><td>0.4</td><td>Iluminação ruim com pedestres = <strong>2.0</strong> · Vegetação encobrindo = 1.5 · Comércio irregular = 1.5</td></tr>
         </tbody>
       </table>
-      <div class="callout">
-        <h3 style="margin-top:0">📄 RELINTs = gabarito do output, não input</h3>
-        <p style="margin:0">Os 8 RELINTs (RI_010..RI_017) <strong>não entram na pipeline como input</strong>. Eles são o <strong>template do .doc final</strong> que nossa solução vai gerar (Load step) — estrutura, tom, seções esperadas, profundidade analítica. Servem também como ground truth: depois do pipeline rodar, podemos comparar nosso .doc da área X com o RI_0XX correspondente pra validar qualidade.</p>
-      </div>
+      <p><strong>Outputs por semana:</strong> <code>zonas_semanais.shp</code> (geometria recalculada + score + nº de agentes alocados) e <code>visualizacao_semanal.html</code> (mapa animado QGIS — judges veem o "filme", não foto).</p>
+      <p style="color:var(--muted); font-size:.9rem"><strong>Extensibilidade:</strong> nova camada (Twitter, 1746) entra em 4 passos sem refactor — gera shapefile + adiciona <code>LAYER_SPECS</code> + bloco em <code>config_pesos.json</code> + roda motor.</p>
+    </section>
+
+    <section id="fontes">
+      <h2>Fontes de dados</h2>
+      <p>Critério: <strong>texto livre → LLM (S3). Estruturado → S2 só.</strong></p>
+      <table>
+        <thead><tr><th>Fonte</th><th>Tipo</th><th>Tratamento</th></tr></thead>
+        <tbody>
+          <tr><td>Ocorrências (PMERJ)</td><td>Estruturado</td><td>S2 — <code>desc_delito</code> já categorizado</td></tr>
+          <tr style="background:var(--core-soft)"><td><strong>Disque Denúncia</strong> · campo <code>relato_redacted</code></td><td><strong>Texto livre</strong></td><td>S2 + <strong>S3 LLM extrai JSON estruturado</strong> ✓</td></tr>
+          <tr><td>Fatores urbanos</td><td>Estruturado</td><td>S2 — corrige axis, mantém órgão responsável</td></tr>
+          <tr><td>Câmeras CIVITAS/COR</td><td>Estruturado</td><td>S2</td></tr>
+          <tr><td>Áreas FM (shapefile)</td><td>Estruturado</td><td>S2 — esqueleto territorial</td></tr>
+          <tr><td>Domínio territorial</td><td>Estruturado</td><td>S2 — sensível, não entra no score</td></tr>
+          <tr><td>CPSR (Pop. situação rua)</td><td>Estruturado XLSX</td><td>S2</td></tr>
+          <tr style="background:var(--plus-soft)"><td><strong>RELINTs</strong> · 8 .docx</td><td><strong>OUTPUT, não input</strong></td><td>Gabarito do <code>.doc</code> final + ground truth de validação</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <section id="logging">
-      <h2>Logging & observabilidade — pipeline pra visualização web</h2>
-      <div class="callout core">
-        <p style="margin:0"><strong>Regra:</strong> tudo que acontece na pipeline gera evento estruturado no <code>pipeline_audit.jsonl</code>. O time de visualização web consome esse arquivo (tail ou full read) sem precisar parsear stdout.</p>
-      </div>
-
+      <h2>Logging & observabilidade</h2>
+      <p>Toda decisão da pipeline emite evento estruturado em <code>pipeline_audit.jsonl</code>. Visualização web consome por tail (sem parsear stdout).</p>
       <h3>Schema do evento (estável)</h3>
-      <pre><code>{
-  "ts":    "2026-05-24T13:42:11+00:00",  // ISO8601 UTC
-  "event": "s3_llm_extracted",            // snake_case
-  "level": "OK",                          // INFO | OK | WARN | ERR
-  "data":  { "id_denun": "...", "atividade_principal": "DRG-003", "confidence": 0.85 }
-}</code></pre>
-
-      <h3>Eventos emitidos por step</h3>
-      <table>
-        <thead><tr><th style="width:18%">Step</th><th>Eventos típicos</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>Orchestrator</strong> <br>(pipeline.py)</td>
-            <td><code>pipeline_start</code> · <code>pre_check_ok|failed</code> · <code>step_N_start</code> · <code>step_N_done|failed|missing</code> · <code>pipeline_end|aborted</code></td>
-          </tr>
-          <tr>
-            <td><strong>S1 — Load</strong></td>
-            <td><code>s1_check_start</code> · <code>s1_check_file</code> (por arquivo, com size_kb) · <code>s1_done</code> (n_present, n_missing, total_mb)</td>
-          </tr>
-          <tr>
-            <td><strong>S2 — Auto</strong></td>
-            <td><code>s2_delegate_start</code> · <code>s2_delegate_failed</code> · <code>s2_done</code> (shapefiles_produced)</td>
-          </tr>
-          <tr>
-            <td><strong>S3 — LLM</strong></td>
-            <td><code>s3_mode_detected</code> · <code>s3_dd_loaded</code> · <code>s3_llm_configured</code> · <code>s3_llm_extracted</code> (por denúncia, com confidence) · <code>s3_llm_low_confidence</code> · <code>s3_llm_extraction_failed</code> · <code>s3_progress</code> (a cada 5 itens) · <code>s3_done</code></td>
-          </tr>
-          <tr>
-            <td><strong>S4 — Consolidate</strong></td>
-            <td><code>s4_v0_start|done|failed</code> · <code>s4_v1_start|done|failed</code> · <code>s4_done</code> (primary_source)</td>
-          </tr>
-          <tr>
-            <td><strong>S5 — Score</strong></td>
-            <td><code>s5_source_selected</code> · <code>s5_ranking_entry</code> (por linha do top 20) · <code>s5_done</code> (top_score, top_name)</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>API pros steps (1 import só)</h3>
+      <pre><code>{"ts": "iso8601-utc", "event": "snake_case", "level": "INFO|OK|WARN|ERR", "data": {...}}</code></pre>
+      <h3>Eventos típicos por step</h3>
+      <ul>
+        <li><strong>Orchestrator:</strong> <code>pipeline_start</code> · <code>step_N_start|done|failed</code> · <code>pipeline_end</code></li>
+        <li><strong>S1:</strong> <code>s1_check_file</code> (por arquivo) · <code>s1_done</code></li>
+        <li><strong>S2:</strong> <code>s2_delegate_start|done</code></li>
+        <li><strong>S3:</strong> <code>s3_mode_detected</code> · <code>s3_llm_extracted</code> (por denúncia c/ confidence) · <code>s3_llm_low_confidence</code> · <code>s3_progress</code></li>
+        <li><strong>S4:</strong> <code>s4_v0_start|done</code> · <code>s4_v1_start|done</code> · <code>s4_done</code> (primary_source)</li>
+        <li><strong>S5:</strong> <code>s5_source_selected</code> · <code>s5_ranking_entry</code> · <code>s5_done</code></li>
+      </ul>
+      <h3>API pros steps</h3>
       <pre><code>from pipeline_steps._audit import log
-
-log("s1_done", {"n_present": 9, "total_mb": 12.4}, level="OK")
-log("s3_llm_low_confidence", {"id_denun": "X", "confidence": 0.45},
-    level="WARN", echo=False)  # quiet — só audit, não polui console</code></pre>
-
-      <h3>Pra visualização web</h3>
-      <ul>
-        <li><strong>Tail</strong> o arquivo <code>pipeline_audit.jsonl</code> — uma linha por evento, parse com <code>JSON.parse(line)</code></li>
-        <li><strong>Filtros úteis</strong>: <code>event.startsWith('sN_')</code> pra ver só um step · <code>level=ERR</code> pra falhas · <code>data.confidence &lt; 0.6</code> pra fila humana</li>
-        <li><strong>Progress bar</strong>: pega eventos <code>s3_progress</code> com <code>data.done / data.total</code></li>
-        <li><strong>Heatmap de eventos por minuto</strong>: bucketize por <code>ts</code></li>
-        <li><strong>Detalhe expansível</strong>: cada linha em UI pode expandir pra ver <code>data</code> completo</li>
-      </ul>
+log("s3_llm_extracted", {"id_denun": "X", "confidence": 0.85}, level="OK")</code></pre>
     </section>
 
-    <section id="transform-pipeline">
-      <h2>Pipeline Transform — design detalhado</h2>
+    <section id="filosofia">
+      <h2>Filosofia: LLM-first, humano só audita</h2>
       <div class="callout core">
-        <p style="margin:0"><strong>Princípio: LLM-first, humano só audita.</strong> Pipeline 100% <em>automatizada e agêntica</em> — a IA decide TUDO (extração + correção + classificação + resolução de conflitos). O humano <strong>não bloqueia</strong> a pipeline; ele <strong>audita depois</strong>, lendo o <code>pipeline_audit.jsonl</code>. Cada decisão da IA fica logada com confidence + rationale → revisão pós-hoc identifica padrões problemáticos. Resultado: pipeline roda end-to-end sem intervenção, decisões rastreáveis.</p>
+        <p style="margin:0"><strong>Pipeline 100% agêntica.</strong> A IA decide tudo (extração, correção, classificação, conflitos). O humano <strong>não bloqueia</strong> — audita pós-hoc lendo o log JSONL.</p>
       </div>
-
-      <h3>Estado atual (12:00)</h3>
-      <div class="grid">
-        <div class="callout good">
-          <h3 style="margin-top:0">✅ Estruturado — Alexandre + time (entregue)</h3>
-          <p>Em <code>shapefiles_qgis/</code>:</p>
-          <ul style="margin:.4rem 0">
-            <li><code>gerar_shapefiles.py</code> — shapefiles tratados das 5 fontes (axis swap, encoding, etc.)</li>
-            <li><code>analise_grade.py</code> — grade_risco.shp v0 (250m, 7534 células) + areas_fm_risco.shp</li>
-            <li><strong><code>motor_bingo_semanal.py</code></strong> — motor evoluído, score ponderado por camada × categoria em janela móvel de 8 semanas</li>
-            <li><strong><code>config_pesos.json</code></strong> — todos os pesos parametrizáveis sem mexer no código</li>
-            <li><code>distribuicao_fm/zonas_semanais.shp</code> — zonas FM recalculadas por semana + alocação dos 600 agentes</li>
-            <li><code>visualizacao_semanal.html</code> — mapa animado da evolução temporal</li>
-          </ul>
-          <p style="margin:0"><strong>Score atual</strong>: configurável em <code>config_pesos.json</code>. Ver seção <a href="#score-logica">"Lógica do score"</a>.</p>
-        </div>
-        <div class="callout warn">
-          <h3 style="margin-top:0">🔄 Desestruturado — colegas em curso</h3>
-          <p>Em paralelo: detectar inconsistências em <strong>DD relatos + RELINTs (.docx)</strong>. Output esperado: novas camadas/contagens (modus operandi, horário, recepção, etc.) que viram <strong>nova camada de "ocorrência"</strong> na fact table → <strong>recompute do score (v1)</strong>.</p>
-          <p style="margin:0"><strong>Critério "transform done":</strong> pipeline detecta + flagga inconsistências em todas as bases · trata via IA agêntica OU humano · re-score com nova camada.</p>
-        </div>
-      </div>
-      <div class="callout">
-        <strong>Load (.doc generator):</strong> deferido. Não é foco agora. Entra quando score v1 estiver pronto.
-      </div>
-
-      <h3>1. Fluxo da pipeline (visão de alto nível)</h3>
-      <div class="layer-stack">
-        <div class="layer core">
-          <div class="badge">P1</div>
-          <div><h3>Load + Normalize (programático)</h3><p>Ler cada fonte com seus encodings/separadores corretos. Padronizar CRS (WGS84), corrigir eixos invertidos (fatores_urbanos), renomear colunas pro schema canônico.</p></div>
-        </div>
-        <div class="layer">
-          <div class="badge">P2</div>
-          <div><h3>Detect inconsistências (rule engine + LLM)</h3><p>Rodar bateria de regras (geo bbox, completude, cross-source). LLM judga casos ambíguos. Output: lista de inconsistências com severidade + sugestão de correção.</p></div>
-        </div>
-        <div class="layer">
-          <div class="badge">P3</div>
-          <div><h3>Resolve (auto-fix OU fila humana)</h3><p>Se confiança alta + correção segura → auto-fix com log. Se ambíguo ou destrutivo → fila pra humano decidir. Pipeline pausa pra essa área até resolução.</p></div>
-        </div>
-        <div class="layer core">
-          <div class="badge">P4</div>
-          <div><h3>Enrich (programático + LLM)</h3><p>Geo-intersect tudo com os polígonos FM. <strong>LLM extrai padrões</strong> de DD relatos + RELINTs (modus operandi, rotas fuga, recepção, horários, controle territorial). Filtra fatores urbanos pelos que importam pra dinâmica.</p></div>
-        </div>
-        <div class="layer core">
-          <div class="badge">P5</div>
-          <div><h3>Consolidate (programático)</h3><p>Construir "área-snapshot" — registro único por (área FM × período) com todas as camadas integradas. Esse é o input pro score do BINGO.</p></div>
-        </div>
-        <div class="layer">
-          <div class="badge">P6</div>
-          <div><h3>Audit trail (sempre)</h3><p>Cada passo escreve: inconsistências detectadas, decisões tomadas (auto vs humano), confidence scores, timestamps. Humano pode reabrir e re-rodar.</p></div>
-        </div>
-      </div>
-
-      <h3>2. Linguagem unificada — schema tabular (star schema) + vocabulário canônico</h3>
-      <div class="callout core">
-        <p style="margin:0"><strong>Update 2026-05-24 ~12:30:</strong> integrado o trabalho de análise qualitativa do colega (ver <a href="analise_qualitativa_ocorrencias.md">docs/analise_qualitativa_ocorrencias.md</a>). Vocabulário canônico de <strong>3 perspectivas</strong> + ~60 IDs canônicos passa a ser parte do schema. Os <strong>7 pontos de sobreposição</strong> FU↔DD mapeados (OV-01 a OV-07) são <strong>os hotspots do BINGO por excelência</strong> — onde condição ambiental e evento criminal coincidem geograficamente.</p>
-      </div>
-      <p>A base consolidada é <strong>uma fact table flat</strong> com PK composta <code>(area_fm_id, grid_cell, periodo)</code>. Cada linha = uma célula de uma área em um período. Colunas são contagens por tipo de ocorrência + métricas derivadas. Qualitativo (dinâmica de LLM, RELINTs) e referência (vocab canônico + matriz fator×órgão) entram como <strong>tabelas auxiliares</strong> joinadas por essas chaves.</p>
-
-      <h4>Vocabulário canônico (3 perspectivas)</h4>
-      <p>Toda entrada do vocab carrega um <code>tipo_perspectiva</code> que define a lógica de classificação:</p>
-      <div class="grid-3">
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">FA</span> FATOR_AMBIENTAL</h3>
-          <p>Condição física do espaço que <em>facilita</em> crime. Lógica <strong>CPTED</strong> (prevenção pelo design). Origem: <code>fatores_urbanos.csv</code> (17 tipos canônicos prefixo <code>INF-*</code>).</p>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">EC</span> EVENTO_CRIMINAL</h3>
-          <p>Ato criminal denunciado ou registrado. Lógica <strong>law enforcement</strong>. Origem: <code>disk_denuncia.csv</code> (assuntos.*) + ocorrências. ~40 tipos canônicos (VIO-*, PAT-*, DRG-*, ARM-*, etc.).</p>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">VS</span> VULNERABILIDADE_SOCIAL</h3>
-          <p>Condição de vulnerabilidade de pessoas. Origem: FU tipo 19 (PSR) + CPSR + DD classes específicas. Tipos canônicos prefixo <code>VSO-*</code>.</p>
-        </div>
-      </div>
-      <p>Os 7 pontos de sobreposição entre as duas taxonomias (FU vs DD) representam onde <strong>condição ambiental + evento criminal existem no mesmo espaço</strong> — exatamente os hotspots de maior valor analítico pro CompStat:</p>
+      <p>Matriz por tipo de inconsistência:</p>
       <table>
-        <thead><tr><th style="width:14%">Overlap</th><th>Fator urbano</th><th>Evento criminal</th></tr></thead>
+        <thead><tr><th>Tipo</th><th>IA decide</th><th>Auditoria humana</th></tr></thead>
         <tbody>
-          <tr><td><code>OV-01</code></td><td>Cena de uso de drogas (FU 20)</td><td>Consumo de drogas (DD 12/84)</td></tr>
-          <tr><td><code>OV-02</code></td><td>Pessoas em situação de rua (FU 19)</td><td>PSR contextualizada em DD 1/2/12</td></tr>
-          <tr><td><code>OV-03</code></td><td>Estacionamento irregular (FU 15)</td><td>Estacionamento irregular (DD 6/52)</td></tr>
-          <tr><td><code>OV-04</code></td><td>Motos no passeio (FU 23)</td><td>Direção perigosa (DD 6/51)</td></tr>
-          <tr><td><code>OV-05</code></td><td>Ponto de ônibus vandalizado (FU 26)</td><td>Vandalismo (DD 5/48)</td></tr>
-          <tr><td><code>OV-06</code></td><td>Lixo/entulho (FU 6, 28)</td><td>Lixo acumulado (DD 10/77)</td></tr>
-          <tr><td><code>OV-07</code></td><td>Comércio irregular (FU 14)</td><td>Est. sem alvará (DD 8/66)</td></tr>
+          <tr><td>Encoding / axis swap / fallback temporal / filtro bbox</td><td>✅ auto determinístico</td><td>opcional</td></tr>
+          <tr><td>DD multi-row, geo distante do bairro, padrão LLM low-confidence</td><td>✅ LLM decide com rationale logado</td><td>recomendada</td></tr>
+          <tr><td>Sensibilidade política, áreas extras sem RELINT, zero ocorrências em área ativa</td><td>✅ LLM aplica framing + flag</td><td><strong>obrigatória</strong></td></tr>
         </tbody>
       </table>
-      <p><strong>No score BINGO</strong>: célula com pelo menos 1 overlap ativo recebe boost — onde FU e DD se encontram, prioridade máxima.</p>
-
-      <h4>Fact table principal: <code>area_grid_periodo</code></h4>
-      <div class="scroll-x">
-      <table>
-        <thead><tr><th>Coluna</th><th>Tipo</th><th>PK?</th><th>Origem / cálculo</th></tr></thead>
-        <tbody>
-          <tr><td><code>area_fm_id</code></td><td>int</td><td>✅</td><td>shapefile <code>fid</code> (2, 9, 10, 11, 12, 14, 19, 20)</td></tr>
-          <tr><td><code>grid_cell</code></td><td>string</td><td>✅</td><td>identificador da célula (H3 res 9 ~150m OU grid lat/long 250m — decisão de time)</td></tr>
-          <tr><td><code>periodo</code></td><td>YYYY-WW</td><td>✅</td><td>semana ISO. Score calculado em janela móvel de 8 semanas (config <code>janela_semanas</code>)</td></tr>
-          <tr><td><code>n_roubo_transeunte</code></td><td>int</td><td></td><td>count ocorrências tipo 15 cuja geometria cai na célula no período</td></tr>
-          <tr><td><code>n_roubo_celular</code></td><td>int</td><td></td><td>count ocorrências tipo celular na célula no período</td></tr>
-          <tr><td><code>n_roubo_coletivo</code></td><td>int</td><td></td><td>count ocorrências em coletivo na célula no período</td></tr>
-          <tr><td><code>n_total_ocorrencias</code></td><td>int</td><td></td><td>soma dos 3 acima</td></tr>
-          <tr><td><code>n_denuncia_drogas</code></td><td>int</td><td></td><td>count DD classe SUBSTÂNCIAS ENTORPECENTES (após agregar por id_denuncia)</td></tr>
-          <tr><td><code>n_denuncia_patrimonio</code></td><td>int</td><td></td><td>count DD classe CRIMES CONTRA O PATRIMÔNIO</td></tr>
-          <tr><td><code>n_fatores_comlurb</code></td><td>int</td><td></td><td>count fatores na célula com órgão Comlurb</td></tr>
-          <tr><td><code>n_fatores_rioluz</code></td><td>int</td><td></td><td>count fatores RioLuz</td></tr>
-          <tr><td><code>n_fatores_seop</code></td><td>int</td><td></td><td>count fatores SEOP</td></tr>
-          <tr><td><code>n_fatores_smas</code></td><td>int</td><td></td><td>count fatores SMAS</td></tr>
-          <tr><td><code>n_fatores_seconserva</code></td><td>int</td><td></td><td>count SECONSERVA</td></tr>
-          <tr><td><code>n_fatores_outros</code></td><td>int</td><td></td><td>count CET-Rio + GM-Rio + SMTR somados</td></tr>
-          <tr><td><code>n_cameras</code></td><td>int</td><td></td><td>count câmeras CIVITAS/COR dentro da célula</td></tr>
-          <tr><td><code>has_dinamica_relevante</code></td><td>bool</td><td></td><td>true se LLM extraiu padrão pra área (join com tabela <code>dinamica_padroes</code>)</td></tr>
-          <tr><td><code>periodo_predominante</code></td><td>enum</td><td></td><td>diurno / noturno / madrugada (extraído da dinâmica)</td></tr>
-          <tr><td><code>bingo_score</code></td><td>float [0-1]</td><td></td><td>calculado a partir de (mancha × dinâmica × fator) — fórmula a definir</td></tr>
-          <tr><td><code>confidence</code></td><td>float [0-1]</td><td></td><td>confiança agregada das camadas</td></tr>
-          <tr><td><code>pendencias_revisao</code></td><td>int</td><td></td><td>contador de inconsistências não resolvidas que afetam essa célula</td></tr>
-          <tr style="background:var(--core-soft)"><td><code>overlap_cross_fonte</code></td><td>bool</td><td></td><td><strong>NOVO</strong> Flag: célula tem ao menos 1 dos 7 pares OV-01..OV-07 (FU + DD do mesmo fenômeno). Boost no BINGO.</td></tr>
-          <tr style="background:var(--core-soft)"><td><code>n_psr_severo</code></td><td>int</td><td></td><td><strong>NOVO</strong> Contagem de registros PSR (FU 19) com <code>score_severidade_psr ≥ 4</code> nessa célula (moradia + crônica + drogas).</td></tr>
-          <tr style="background:var(--core-soft)"><td><code>tipos_canonicos_ec</code></td><td>list[string]</td><td></td><td><strong>NOVO</strong> Lista de <code>id_canonico</code> (perspectiva EVENTO_CRIMINAL) ativos na célula no período.</td></tr>
-          <tr style="background:var(--core-soft)"><td><code>tipos_canonicos_fa</code></td><td>list[string]</td><td></td><td><strong>NOVO</strong> Lista de <code>id_canonico</code> (perspectiva FATOR_AMBIENTAL) ativos na célula.</td></tr>
-        </tbody>
-      </table>
-      </div>
-
-      <h4>Tabelas auxiliares (joinadas por PK ou parte dela)</h4>
-      <div class="scroll-x">
-      <table>
-        <thead><tr><th>Tabela</th><th>PK</th><th>Conteúdo</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><code>area_fm_meta</code></td>
-            <td>area_fm_id</td>
-            <td>nome, polígono (geometria), RELINT associado (RI_010..RI_017), n_cameras_total</td>
-          </tr>
-          <tr style="background:var(--core-soft)">
-            <td><code>vocab_tipo_ocorrencia</code> <strong>NOVO</strong></td>
-            <td>id_canonico</td>
-            <td>categoria, subcategoria, tipo canônico, <code>tipo_perspectiva</code> (FA/EC/VS), descricao_tecnica_agente (movido de <code>ocorrencia_informacao</code>), origem(s) (FU id, DD class/tipo). ~60 entradas mapeadas no MD do colega.</td>
-          </tr>
-          <tr style="background:var(--core-soft)">
-            <td><code>vocab_overlap_ov</code> <strong>NOVO</strong></td>
-            <td>ov_id (OV-01..OV-07)</td>
-            <td>par canônico FU↔DD, fator urbano (id + tipo), evento criminal (DD class/tipo), tipo de sobreposição (Exata/Alta/Contextual/Fraca). Usado pelo flag <code>overlap_cross_fonte</code>.</td>
-          </tr>
-          <tr style="background:var(--core-soft)">
-            <td><code>fator_urbano_psr</code> <strong>NOVO</strong></td>
-            <td>(area_fm_id, grid_cell, fator_id)</td>
-            <td>Subset de <code>fatores_urbanos_detalhe</code> só pra tipo 19 (PSR), com <code>score_severidade_psr</code> computado dos subcampos (ocupacao × frequencia × drogas × tipo_pessoa).</td>
-          </tr>
-          <tr style="background:var(--core-soft)">
-            <td><code>relato_estruturado</code> <strong>NOVO</strong></td>
-            <td>id_denuncia</td>
-            <td>Saída JSON da extração LLM sobre <code>relato_redacted</code> seguindo template de 5 elementos (locação, sujeitos, atividade principal, atividades secundárias, temporalidade, indicadores de risco). Confidence por campo.</td>
-          </tr>
-          <tr>
-            <td><code>dinamica_padroes</code></td>
-            <td>(area_fm_id, periodo)</td>
-            <td>texto extraído por LLM: modus_operandi, rotas_fuga, pontos_recepcao, horario_pico, controle_territorial. Confidence por campo.</td>
-          </tr>
-          <tr>
-            <td><code>fatores_urbanos_detalhe</code></td>
-            <td>(area_fm_id, grid_cell, fator_id)</td>
-            <td>denormalização do CSV fatores_urbanos: cada fator com lat/long, tipo, órgão, logradouro, observação. Útil pro plano de ação por órgão no .doc.</td>
-          </tr>
-          <tr>
-            <td><code>inconsistencias_log</code></td>
-            <td>(timestamp, rule_id)</td>
-            <td>audit trail: regra, registro afetado, decisão (auto/humano), correção aplicada, confidence.</td>
-          </tr>
-          <tr>
-            <td><code>relint_estruturado</code></td>
-            <td>area_fm_id</td>
-            <td>parse do .docx → estrutura: descrição área, fatores identificados, dinâmica, recomendações. Confidence por seção.</td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-
-      <div class="callout warn">
-        <strong>Decisões a fechar antes de implementar:</strong>
-        <ul style="margin-bottom:0">
-          <li><strong>Granularidade do grid</strong>: H3 res 9 (~150m hex) ou grid quadrado 250m? H3 é padrão pra urbano + lib pronta (<code>h3-py</code>), grid quadrado é mais simples.</li>
-          <li><strong>Período</strong>: mensal (YYYY-MM) é seguro dado que <code>data</code>/<code>hora</code> estão vazios no dataset; semanal só se viabilizar.</li>
-          <li><strong>Tipos de ocorrência</strong>: hoje 3 colunas (transeunte/celular/coletivo). Se aparecerem mais subtipos no <code>desc_delito</code>, adicionar coluna ou normalizar.</li>
-          <li><strong>Score BINGO</strong>: fórmula candidata = <code>norm(n_total_ocorrencias) × has_dinamica_relevante × norm(n_fatores_relevantes)</code> com pesos. Validar com mentor.</li>
-        </ul>
-      </div>
-
-      <div class="callout core">
-        <strong>Por que essa estrutura:</strong> SQL/pandas simples, fácil pro mentor + Prefeitura entenderem, time series por célula sai grátis, heatmap visualiza direto. Qualitativo (LLM) vive em tabelas separadas joinadas pela PK — não polui a fact table.
-      </div>
-
-      <h3>3. Por fonte — contribuição + tipo de análise</h3>
-      <div class="scroll-x">
-      <table>
-        <thead><tr><th>Fonte</th><th>Contribui</th><th>Análise programática</th><th>Análise LLM</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><code>df_ocorrencias_tratado</code></td>
-            <td>Mancha criminal (quantitativa)</td>
-            <td>Geo-intersect com polígono FM · agregação por mês/ano · contagens por tipo (transeunte/celular/coletivo)</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td><code>disk_denuncia</code></td>
-            <td>Dinâmica criminal (qualitativa)</td>
-            <td>Agregar por <code>id_denuncia</code> · geo-intersect · filtrar bairros relevantes</td>
-            <td><strong>Sim — extrair de <code>relato_redacted</code></strong>: modus operandi · rotas fuga · pontos recepção · horários · controle territorial · tipo de arma</td>
-          </tr>
-          <tr>
-            <td><code>relints/*.docx</code></td>
-            <td>Inteligência por área (gabarito)</td>
-            <td>Extrair texto do .docx · ler estrutura</td>
-            <td><strong>Sim — parse semântico</strong>: identificar padrões, órgão references, recomendações já feitas; comparar com nossa extração de DD</td>
-          </tr>
-          <tr>
-            <td><code>fatores_urbanos</code></td>
-            <td>Fator urbano + órgão responsável</td>
-            <td>Corrigir eixos invertidos · geo-intersect · agrupar por tipo/órgão</td>
-            <td><strong>Sim — filtrar pela dinâmica</strong>: dado o padrão extraído de DD/RELINT, quais fatores são relevantes? (ex.: iluminação só importa se dinâmica é noturna)</td>
-          </tr>
-          <tr>
-            <td><code>cameras_areas_fm</code></td>
-            <td>Cobertura CIVITAS/COR</td>
-            <td>Agregar por área · identificar pontos cegos (geo-distance vs ocorrências)</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td>shapefile FM</td>
-            <td>Boundary canônico</td>
-            <td>Load via geopandas · WGS84 · ground truth de "área"</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td><code>dominio_territorial</code></td>
-            <td>Contexto faccional</td>
-            <td>Filtrar bbox município · geo-intersect com áreas FM</td>
-            <td><strong>Talvez — interpretação cuidadosa</strong>: relacionar facção dominante com rotas fuga extraídas (dado sensível, não usar como ação direta)</td>
-          </tr>
-          <tr>
-            <td>CPSR (Censo PSR)</td>
-            <td>Enriquece fator "Pessoa em Situação de Rua"</td>
-            <td>Agregar por área + ano · juntar com <code>fatores_urbanos</code> categoria PSR</td>
-            <td>—</td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-
-      <h3>4. Detecção de inconsistências — regras + julgamento LLM</h3>
-      <p>Duas camadas:</p>
-      <div class="grid">
-        <div class="callout">
-          <h3 style="margin-top:0">Regras programáticas (rápidas, determinísticas)</h3>
-          <ul>
-            <li>Geo: lat/long fora do bbox município RJ</li>
-            <li>Geo: coordenadas suspeitas de inversão (compare range)</li>
-            <li>Completude: campo obrigatório ausente / vazio</li>
-            <li>Encoding: caracteres inválidos em texto</li>
-            <li>Cross-source: bairro do registro não existe na lista canônica</li>
-            <li>Cross-source: câmera em área que não está no shapefile (Lauro Müller, Bangu)</li>
-            <li>Volume: zero ocorrências em área conhecidamente ativa</li>
-            <li>Temporal: data fora do período esperado</li>
-            <li>Duplicidade: mesma denúncia, geo diferente</li>
-          </ul>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0">Julgamento LLM (slow, contextual)</h3>
-          <ul>
-            <li>Conteúdo do RELINT consistente com padrões que extraímos de DD?</li>
-            <li>Denúncia diz que ocorre no bairro X mas relato menciona bairro Y</li>
-            <li>Padrão extraído de DD é generalizado o suficiente pra área? (overfitting de poucas amostras)</li>
-            <li>Confidence da extração abaixo do threshold</li>
-            <li>Recomendação contradiz exemplo do RELINT</li>
-          </ul>
-        </div>
-      </div>
-
-      <h3>5. Matriz IA-decide vs humano-audita</h3>
-      <div class="callout core">
-        <p style="margin:0"><strong>Update arquitetural:</strong> Mudamos o modelo. Antes era "auto pra trivial · humano decide pra ambíguo". Agora é <strong>"LLM decide tudo + flag pra auditoria pós-hoc"</strong>. Nada bloqueia a pipeline. O humano lê o audit log depois — não no caminho crítico.</p>
-      </div>
-      <div class="scroll-x">
-      <table>
-        <thead><tr><th>Inconsistência</th><th>Auto (IA)</th><th>Humano</th><th>Por quê</th></tr></thead>
-        <tbody>
-          <tr><td>Encoding latin-1 em DD</td><td>✅ auto</td><td>auditoria opcional</td><td>Correção determinística aplicada · log do antes/depois</td></tr>
-          <tr><td>Eixos invertidos em fatores</td><td>✅ auto</td><td>auditoria opcional</td><td>Range check + swap · log "x→lat, y→long"</td></tr>
-          <tr><td>Data/hora vazias em ocorrências</td><td>✅ auto</td><td>auditoria opcional</td><td>Fallback mes/ano · log com contagem de vazios</td></tr>
-          <tr><td>Domínio territorial fora bbox município</td><td>✅ auto</td><td>auditoria opcional</td><td>Filtro bbox · log dos N descartados</td></tr>
-          <tr><td>DD multi-row por denúncia</td><td>✅ auto</td><td>auditoria opcional</td><td>Agrega por id_denuncia · log da consolidação</td></tr>
-          <tr><td>Câmeras área "Lauro Müller" sem RELINT</td><td>✅ LLM decide</td><td>auditoria <strong>recomendada</strong></td><td>LLM avalia se inclui/exclui + rationale · flag pra spot-check humano</td></tr>
-          <tr><td>Geo point longe do bairro listado</td><td>✅ LLM decide</td><td>auditoria <strong>recomendada</strong> se &gt; 1km</td><td>LLM decide manter/corrigir/descartar · log com magnitude e decisão</td></tr>
-          <tr><td>Padrão LLM com confidence &lt; threshold</td><td>✅ LLM decide</td><td>auditoria <strong>recomendada</strong></td><td>LLM tenta interpretação alternativa · marca como needs_audit no jsonl</td></tr>
-          <tr><td>RELINT discorda da extração DD</td><td>✅ LLM reconcilia</td><td>auditoria opcional</td><td>LLM resolve conflito qualitativo · log do raciocínio</td></tr>
-          <tr><td>Zero ocorrências em área ativa</td><td>✅ LLM diagnostica</td><td>auditoria <strong>recomendada</strong></td><td>LLM identifica causa provável (dado faltando, área sem operação, etc.)</td></tr>
-          <tr><td>Recomendação ofende sensibilidade política</td><td>✅ LLM auto-modera</td><td>auditoria <strong>obrigatória</strong></td><td>LLM aplica framing oficial · flag forte pra humano confirmar tom</td></tr>
-        </tbody>
-      </table>
-      </div>
-
-      <h3>6. Auditoria — como humano inspeciona</h3>
-      <ul>
-        <li>Cada registro consolidado vem com <code>confidence</code> por camada + <code>source_log</code> (de onde veio cada peça)</li>
-        <li>Decisões automáticas geram entrada em <code>audit.jsonl</code>: <code>{timestamp, rule, before, after, confidence}</code></li>
-        <li>Decisões humanas vão pra mesma log com <code>actor=human</code> + <code>reason</code></li>
-        <li>Pipeline reproduzível: rodar com mesmo input + mesmas decisões = mesmo output</li>
-        <li>UI mínima de revisão: listar pendências por severidade · ação inline (aceitar sugestão IA · corrigir manual · marcar como aceito-com-flag)</li>
-      </ul>
-
-      <h3>7. Implicações pro time</h3>
-      <div class="callout warn">
-        <ul style="margin:0">
-          <li><strong>Não começar a calcular score</strong> antes da base consolidada estar pronta — score em base inconsistente é veneno</li>
-          <li><strong>Logs de auditoria são parte da entrega</strong> — Prefeitura precisa saber por que cada conclusão foi tirada</li>
-          <li><strong>Threshold de confiança parametrizável</strong> — não hardcode 0.6, deixe operador ajustar</li>
-          <li><strong>LLM extraction de DD é a parte mais imprevisível</strong> — começar por aí pra calibrar prompts e ter buffer de tempo</li>
-          <li>"Auditável por humano" não significa "humano revisa tudo" — significa que <em>pode</em> revisar quando quiser</li>
-        </ul>
-      </div>
     </section>
 
-    <section id="plus-deferred">
-      <h2><span class="pill plus">Plus</span> Features deferidas (pós-core)</h2>
-      <p>Só entram após pelo menos 1 área ter relatório <code>.doc</code> end-to-end. Listadas aqui como roadmap; <strong>não escopear hoje</strong>.</p>
-      <div class="grid">
-        <div class="callout plus">
-          <h3 style="margin-top:0">Detecção de inconsistências + revisão (promovido)</h3>
-          <p>Originalmente era "plus 1". Promovido pro core como passos P2+P3 da pipeline Transform. Detalhe em <a href="#transform-pipeline">Pipeline Transform</a>.</p>
-        </div>
-        <div class="callout plus">
-          <h3 style="margin-top:0">Twitter / X (Desafio Extra 1)</h3>
-          <p>Adapter pra menções públicas → geocoded → dinâmica criminal. Twitter API tem fricção (rate limit, auth) → 2-3h só pra setup. Não tocar antes do core.</p>
-        </div>
-        <div class="callout plus">
-          <h3 style="margin-top:0">1746 BigQuery (validação cruzada)</h3>
-          <p>Como camada de validação de fatores urbanos. Chamados "poste apagado" cross-reference com iluminação deficiente. Plug-in adapter.</p>
-        </div>
-        <div class="callout plus">
-          <h3 style="margin-top:0">Outras fontes públicas</h3>
-          <p>Clima · Mobilidade (Uber, BRT) · Eventos (Maracanã, COR Eventos). Cada um = novo adapter. Tempo &gt;&gt; valor agora.</p>
-        </div>
-      </div>
+    <section id="status">
+      <h2>Status atual & próximos passos</h2>
+      <table>
+        <thead><tr><th>Componente</th><th>Status</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td>pipeline.py orquestrador + 5 steps</td><td><span class="pill good">✓ Pronto</span></td><td>Caio (PM/Eng)</td></tr>
+          <tr><td>S1 Load · S2 Auto treatments</td><td><span class="pill good">✓ Pronto</span></td><td>Alexandre</td></tr>
+          <tr><td>S3 LLM extraction (DD)</td><td><span class="pill good">✓ Pronto</span></td><td>Eu (scaffolded, devs iteram)</td></tr>
+          <tr><td>S4 Consolidate (v0 + v1)</td><td><span class="pill good">✓ Pronto</span></td><td>Alexandre + Vinicius</td></tr>
+          <tr><td>S5 Score reader (v1-first)</td><td><span class="pill good">✓ Pronto</span></td><td>Eu</td></tr>
+          <tr><td>Audit log JSONL (web-ready)</td><td><span class="pill good">✓ Pronto</span></td><td>Eu</td></tr>
+          <tr><td>API key setup (.env + helper)</td><td><span class="pill good">✓ Pronto</span></td><td>Eu</td></tr>
+          <tr><td>Vocab canônico (~60 IDs)</td><td><span class="pill tbd">⏸ 30/60 hoje</span></td><td>Dev expande do MD</td></tr>
+          <tr><td>Load (.doc generator)</td><td><span class="pill tbd">⏸ Deferido</span></td><td>—</td></tr>
+          <tr><td>Visualização web</td><td><span class="pill" style="background:var(--accent);color:white;border-color:var(--accent)">🔄 Em curso</span></td><td>Outro time</td></tr>
+          <tr><td>Vídeo demo 60s</td><td><span class="pill tbd">⏸ Pendente</span></td><td>Time grava</td></tr>
+          <tr><td>Mentor sync (anti-DQ)</td><td><span class="pill tbd">⏸ Pendente</span></td><td>Caio</td></tr>
+        </tbody>
+      </table>
     </section>
 
-    <section id="nao-fazemos">
-      <h2>O que <em>não</em> fazemos (até o core estar pronto)</h2>
+    <section id="escopo">
+      <h2>Escopo: o que NÃO fazemos (hoje)</h2>
       <ul>
-        <li>❌ Adapter Twitter / scraping de redes sociais</li>
+        <li>❌ Adapter Twitter / scraping de redes sociais (Desafio Extra 1 — deferido)</li>
         <li>❌ Dashboard interativo bonito (output oficial é <code>.doc</code>)</li>
-        <li>❌ ML model treinado do zero — usar Claude pra síntese qualitativa, não pra classificação supervisionada</li>
-        <li>❌ Análise de domínio territorial faccional como feature (alto risco político, baixo valor pro BINGO)</li>
-        <li>❌ Cobertura das 22 áreas (só 8 têm dados — focar nelas)</li>
-        <li>❌ Censo PSR como camada principal (é só 1 dos 20 fatores, não trate como protagonista)</li>
+        <li>❌ ML model treinado do zero (Claude faz síntese qualitativa)</li>
+        <li>❌ 1746 BigQuery (camada de validação — deferida)</li>
+        <li>❌ Análise de domínio territorial faccional como feature (sensível)</li>
+        <li>❌ Cobertura das 22 áreas (só 8 têm dados)</li>
       </ul>
     </section>
 
-    <section id="plano-execucao">
-      <h2>Plano de execução — divisão de trabalho</h2>
-      <div class="callout core">
-        <p style="margin:0"><strong>Caminho crítico:</strong> a <strong>LLM extraction de Disque Denúncia</strong> (P4) é o passo mais imprevisível — pode levar 90+ min de iteração de prompt. <strong>Começar primeiro</strong> em paralelo a tudo. Quem pegar isso libera os outros pra rodar consolidação cedo.</p>
-      </div>
-
-      <h3>1. Decisões a tomar AGORA (antes do code)</h3>
+    <section id="decisoes">
+      <h2>Decisões críticas</h2>
       <table>
-        <thead><tr><th style="width:30%">Decisão</th><th>Sugestão / opções</th><th style="width:18%">Owner</th></tr></thead>
+        <thead><tr><th style="width:18%">Decisão</th><th>Por quê</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>Stack técnica</strong></td>
-            <td>Python + pandas/geopandas + python-docx + Anthropic SDK. UI mínima: Streamlit (rápido) ou só CLI. Não usar framework pesado.</td>
-            <td class="tbd-marker">Tech lead</td>
-          </tr>
-          <tr>
-            <td><strong>Áreas pro demo</strong></td>
-            <td>1 forte (RI_017 Pres. Vargas — 230 câmeras + narrativa Uruguaiana do README) + idealmente 1 segunda (RI_010 Rodoviária — 310 câmeras + alto fluxo). Pipeline tem que rodar pras 8 mas só validamos 1-2 com cuidado.</td>
-            <td class="tbd-marker">Time</td>
-          </tr>
-          <tr>
-            <td><strong>Threshold de confiança</strong></td>
-            <td>Default 0.6. Abaixo = fila humana. Parametrizável.</td>
-            <td class="tbd-marker">Tech lead</td>
-          </tr>
-          <tr>
-            <td><strong>Modelo Claude default</strong></td>
-            <td>Sonnet (econômico, $70/pessoa não dura com Opus). Opus pontual em prompts críticos.</td>
-            <td>Time</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>2. Tracks paralelos — estado atual (12:00)</h3>
-      <div class="grid">
-        <div class="callout good">
-          <h3 style="margin-top:0"><span class="pill" style="background:var(--good);color:white;border-color:var(--good)">A ✅</span> Estruturado — Alexandre</h3>
-          <ul style="margin-bottom:0">
-            <li>✅ P1 Loaders + normalize (shapefiles_qgis/)</li>
-            <li>✅ P2 Tratamento básico (axis swap, dentro_rio, coord_fix, DD consolidação por id_denuncia)</li>
-            <li>✅ P4 Geo-intersect via shapefile FM</li>
-            <li>✅ P5 grade_risco.shp (250m, fact table de fato) + areas_fm_risco.shp</li>
-            <li>✅ Score v0 calculado: ranking Pres. Vargas → Campo Grande</li>
-          </ul>
-          <p style="margin-top:.6rem"><strong>Próximo:</strong> integrar saída de Track B → recompute score v1</p>
-        </div>
-        <div class="callout warn">
-          <h3 style="margin-top:0"><span class="pill" style="background:var(--warn);color:white;border-color:var(--warn)">B 🔄</span> Desestruturado — colegas em curso</h3>
-          <ul style="margin-bottom:0">
-            <li>✅ <strong>Análise qualitativa entregue</strong> (<a href="analise_qualitativa_ocorrencias.md">analise_qualitativa_ocorrencias.md</a>): vocabulário canônico de 60 IDs em 3 perspectivas + 7 overlaps mapeados</li>
-            <li>🔄 Construir <code>vocab_tipo_ocorrencia</code> seed table com os ~60 IDs</li>
-            <li>🔄 Detectar inconsistências em <strong>DD relatos</strong> usando template de 5 elementos</li>
-            <li>🔄 Detectar inconsistências em <strong>RELINTs .docx</strong> (8 arquivos)</li>
-            <li>🔄 LLM extraction estruturada de <code>relato_redacted</code> → JSON com sujeitos, atividade, temporalidade</li>
-            <li>🔄 Computar <code>score_severidade_psr</code> (subcampos do FU tipo 19)</li>
-            <li>🔄 Computar flag <code>overlap_cross_fonte</code> (OV-01..OV-07 ativos por célula)</li>
-            <li>🔄 Tratamento de inconsistências: agente IA (auto) ou humano (queue), conforme confiança</li>
-          </ul>
-          <p style="margin-top:.6rem"><strong>Owner:</strong> colegas do time (em curso). <strong>Critério done:</strong> tabelas vocab + flags + relato_estruturado alimentando recompute do score.</p>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">C ⏸</span> Load (.doc) — deferido</h3>
-          <ul style="margin-bottom:0">
-            <li>⏸ Não é foco agora</li>
-            <li>Entra quando score v1 (com unstructured) estiver pronto</li>
-            <li>Template do anexo do briefing PDF → reservar pra leitura quando virar foco</li>
-          </ul>
-        </div>
-        <div class="callout">
-          <h3 style="margin-top:0"><span class="pill">D</span> PM — Caio</h3>
-          <ul style="margin-bottom:0">
-            <li>🎯 <strong>Mentor sync c/ Ramon</strong> — apresentar risco v0 + plano de unstructured. Pergunta-chave: <em>"fórmula `media × n_camadas/3` faz sentido ou ponderam diferente?"</em></li>
-            <li>🎯 <strong>Acompanhar devs</strong> — quem tá em DD vs RELINTs, evitar duplicação, desbloquear</li>
-            <li>Scope guard (cortar features além do core)</li>
-            <li>Manter solution.html + decision log atualizados</li>
-            <li>Pré-leitura template .doc do briefing PDF (pra quando Track C ativar)</li>
-          </ul>
-        </div>
-      </div>
-
-      <h3>3. Sprints + janelas de tempo</h3>
-      <table>
-        <thead><tr><th style="width:18%">Janela</th><th>Sprint</th><th>Critério de pronto</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>Agora–12:00</strong></td>
-            <td><strong>Sprint 0 + 1</strong>: Setup + Pipeline P1+P2 + LLM extraction <em>primeiro draft</em></td>
-            <td>
-              • A: Loaders + normalize funcionando pras 5 fontes principais<br>
-              • A: Rule engine c/ 5+ regras detectando inconsistências conhecidas<br>
-              • B: Primeira extração LLM de DD relatos (mesmo que rough)<br>
-              • C: Template .doc parseado + skeleton do gerador<br>
-              • D: Mentor sync c/ Ramon (mostrar abordagem)
-            </td>
-          </tr>
-          <tr>
-            <td><strong>12:00–14:00</strong></td>
-            <td><strong>Sprint 2</strong>: Pipeline P3+P4+P5 completos, primeiro .doc gerado</td>
-            <td>
-              • A: P3 auto-fix + P4 geo-enrichment + P5 area-snapshot pronto<br>
-              • B: Prompts calibrados, extração consistente pra 1 área (RI_017)<br>
-              • C: Gerador .doc produz output preliminar pra RI_017<br>
-              • D: Comparar nosso .doc com RELINT real (RI_017_2026_Presidente_Vargas)
-            </td>
-          </tr>
-          <tr>
-            <td><strong>14:00–15:30</strong></td>
-            <td><strong>Sprint 3</strong>: BINGO score + extensão pra 2ª área + polish</td>
-            <td>
-              • A: BINGO score calculado, sensato vs RELINT ground truth<br>
-              • B: Extender extração pra RI_010 (Rodoviária)<br>
-              • C: .doc polish — figuras, formatação fiel ao template<br>
-              • D: Mentor checkpoint final + vídeo demo 60s
-            </td>
-          </tr>
-          <tr>
-            <td><strong>15:30–16:00</strong></td>
-            <td><strong>Sprint 4</strong>: Lockdown + README + dry-run</td>
-            <td>
-              • D: README do repo time completo (8 campos: nome, membros, tema, resumo, arquitetura, links, vídeo)<br>
-              • Todos: dry-run de execução do README ("clone → roda → produz .doc")<br>
-              • Todos: vídeo 60s revisto<br>
-              • <strong>NÃO adicionar features depois das 15:30</strong>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>16:00–16:15</strong></td>
-            <td><strong>Push final</strong></td>
-            <td>Buffer de 15 min. Push, verificar GitHub, confirmar artefatos visíveis.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>4. Dependências entre tasks</h3>
-      <ul>
-        <li><strong>P1 Loaders</strong> → bloqueia <strong>tudo o resto</strong>. Fazer primeiro / em paralelo a B (que pode mockear input).</li>
-        <li><strong>Geo CRS unificado</strong> (em P1) → bloqueia P4 geo-intersect</li>
-        <li><strong>P4 LLM extraction</strong> → bloqueia <strong>P5 consolidate</strong> (dinâmica precisa estar pronta antes do snapshot)</li>
-        <li><strong>P5 area-snapshot</strong> → bloqueia <strong>BINGO score</strong> e <strong>.doc generator</strong></li>
-        <li><strong>Template .doc estudado</strong> → blloqueia gerador (track C pode começar em paralelo)</li>
-      </ul>
-
-      <div class="callout warn">
-        <strong>Riscos abertos:</strong>
-        <ul style="margin-bottom:0">
-          <li>LLM extraction de DD pode dar resultados ruins → ter fallback (extrair só keywords)</li>
-          <li>RELINTs em <code>Cópia de RI_*</code> — verificar que parse não bate em arquivos duplicados</li>
-          <li>Vídeo demo 60s leva mais tempo que parece (~30 min) → reservar Sprint 4</li>
-          <li>Push final pode bater em hooks/checks do repo — testar push placebo às 15:45</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="decision-log">
-      <h2>Decision log</h2>
-      <p>Log append-only de decisões do time. Stamp HH:MM — decisão — por quê.</p>
-      <table>
-        <thead><tr><th style="width:80px">Hora</th><th>Decisão</th><th>Por quê</th></tr></thead>
-        <tbody>
-          <tr><td>10:30~</td><td>Core = BINGO confiável e dinâmico. Plus = inconsistências + Twitter (deferred).</td><td>Feijão com arroz primeiro. Plus sem core = nota baixa em Impacto Real.</td></tr>
-          <tr><td>10:30~</td><td>Áreas tratadas como dinâmicas (não hardcode).</td><td>Briefing explícito: crime migra quando FM aciona.</td></tr>
-          <tr><td>10:30~</td><td>Output oficial = <code>.doc</code> (não dashboard).</td><td>README oficial pede <code>.doc</code>. Substituir o relatório manual da Duda.</td></tr>
-          <tr><td>10:45~</td><td>Estratégia framada como ETL. Transform é o gargalo, não Extract.</td><td>Dados já entregues — o problema real é cruzar fontes distintas com qualidade. Plus features se encaixam em E ou L depois.</td></tr>
-          <tr><td>10:50~</td><td>Load reclassificado como crítico (paralelo ao Transform), não "direto".</td><td>O <code>.doc</code> É o produto que a Prefeitura consome — qualidade de Load determina Impacto Real (40 pts). Transform sem Load bom = análise órfã.</td></tr>
-          <tr><td>11:00~</td><td>Pipeline Transform desenhada em 6 passos (load→detect→resolve→enrich→consolidate→audit).</td><td>Inconsistências promovidas pro core (não plus). Saída = "área-snapshot" canônica que alimenta o BINGO score.</td></tr>
-          <tr><td>11:00~</td><td>Linguagem unificada = registro "área-snapshot" por (área × período).</td><td>Schema único pra todas as camadas — facilita auditoria, reuso, e regeneração quando shapefile muda.</td></tr>
-          <tr><td>11:30~</td><td>Plano de execução em 4 tracks paralelos (Data Eng, LLM, Output, PM).</td><td>Caminho crítico = LLM extraction de DD (90+ min imprevisível). Pode-se cortar 3-4h em paralelo se cada track for executado por owner dedicado.</td></tr>
-          <tr><td>11:30~</td><td>Solution.html podado: removida "Áreas dinâmicas" (já no Pipeline) e Plus 1/Plus 2 expandidos viraram callout único.</td><td>Foco em accionabilidade. Documento de estratégia + execução, não enciclopédia.</td></tr>
-          <tr><td>12:30~</td><td>Integrada a <strong>análise qualitativa</strong> do colega (<code>docs/analise_qualitativa_ocorrencias.md</code>): vocabulário canônico de 60 IDs em 3 perspectivas (FATOR_AMBIENTAL · EVENTO_CRIMINAL · VULN_SOCIAL) + 7 overlaps FU↔DD mapeados.</td><td>Fundamento conceitual pra step 3 — LLM extraction tem template de 5 elementos pra extrair de cada relato. Overlaps são os hotspots reais do BINGO.</td></tr>
-          <tr><td>12:30~</td><td>Schema da fact table ganha 4 novos campos: <code>overlap_cross_fonte</code>, <code>n_psr_severo</code>, <code>tipos_canonicos_ec</code>, <code>tipos_canonicos_fa</code>.</td><td>Materializa o vocab canônico na fact table sem quebrar o schema flat. Score BINGO ganha boost por overlap.</td></tr>
-          <tr><td>12:30~</td><td>4 novas tabelas auxiliares: <code>vocab_tipo_ocorrencia</code>, <code>vocab_overlap_ov</code>, <code>fator_urbano_psr</code>, <code>relato_estruturado</code>.</td><td>Star schema clássico: fact stays flat, dimensão e qualitativo ricos em tabelas separadas.</td></tr>
-          <tr><td>13:00~</td><td>Motor BINGO evoluiu para <strong>semanal + ponderado por camada × categoria</strong> (config em <code>config_pesos.json</code>, código em <code>motor_bingo_semanal.py</code>).</td><td>Áreas FM viraram dinâmicas (recalculadas por semana), score paramétrizável sem refactor, animação no QGIS. Alinha briefing ("polígonos não-estáticos") e dá extensibilidade pra novas camadas.</td></tr>
-          <tr><td>13:00~</td><td>Período da fact table mudou de <code>YYYY-MM</code> para <code>YYYY-WW</code> + janela móvel de 8 semanas.</td><td>Granularidade do motor real. Mensal era proxy do mes/ano vazio em ocorrências; semana é a unidade operacional do CompStat (reunião terça).</td></tr>
-          <tr><td>13:00~</td><td>Pesos por camada: ocorrências=1.0, disque=0.6, fatores=0.4. Pesos por categoria: roubo transeunte=2.0, iluminação ruim=2.0, consumo drogas=0.5.</td><td>Codifica prioridades do CompStat (foco máximo em roubo a transeunte, iluminação ligada a noturno) em vez de média uniforme.</td></tr>
-          <tr><td>13:30~</td><td>Pipeline fechada: S3 LLM extraction real (auto-detect API key, sample 5 default, vocab 30 IDs) · S4 v0+v1 (analise_grade + motor_bingo_semanal) · S5 v1-first com fallback v0.</td><td>End-to-end runnable. <code>python pipeline.py</code> sem args funciona. Time pode iterar nos pesos do config_pesos.json sem mexer no código.</td></tr>
-          <tr><td>14:00~</td><td>Esclarecido: <strong>S3 processa só DD</strong> (texto livre). Ocorrências/fatores/câmeras são estruturados (S2 só).</td><td>"Desestruturado" no sentido pipeline ≠ "qualquer texto". DD tem free text por denúncia.</td></tr>
-          <tr><td>14:15~</td><td>Correção: <strong>RELINTs são OUTPUT, não input</strong>. Gabarito do .doc final que vamos gerar (Load), não fonte de dados qualitativos pra ingerir.</td><td>Eu havia categorizado RELINTs como "desestruturado pra LLM ingerir" — errado. Eles definem a forma do output, não alimentam o score.</td></tr>
-          <tr><td>14:30~</td><td>Logging estruturado: criado <code>pipeline_steps/_audit.py</code> com schema JSONL estável. Todos os steps emitem eventos consumíveis pela visualização web.</td><td>Visualização web é trabalho paralelo do time. Padronizar evento (ts, event, level, data) é o contrato pra integração — web só tail no arquivo, sem parsear stdout.</td></tr>
-          <tr><td>14:45~</td><td>Mudança de filosofia: <strong>LLM decide tudo</strong>, humano <strong>não bloqueia</strong>, só audita pós-hoc. Matriz reescrita.</td><td>Antes existia "humano decide pra ambíguo" — bloqueava pipeline. Agora 100% agêntica: cada decisão da IA fica logada com rationale + confidence, humano lê audit log depois sem caminho crítico.</td></tr>
-          <tr><td>11:45~</td><td>TLDR + Princípio + Visão ETL + Core BINGO 5-layer comprimidos em "Resumo executivo".</td><td>Tudo que vem antes do Pipeline Transform é contexto de alto nível — apresentação executiva. O detalhe técnico (que importa pra desenvolver) começa em Pipeline Transform.</td></tr>
-          <tr><td>12:00~</td><td>Schema da base consolidada definido como <strong>fact table tabular flat</strong>: PK (area_fm_id, grid_cell, periodo) + contagens por tipo. Qualitativo em tabelas auxiliares.</td><td>SQL/pandas-friendly, fácil pra mentor + Prefeitura, time series + heatmap grátis. Star schema clássico — fato granular + dimensões.</td></tr>
-          <tr><td>12:15~</td><td>Risco do Alexandre = <strong>BINGO v0</strong> (camada estruturada do P5). Não é o BINGO final.</td><td>Branch quantitativa pronta. Falta unstructured pra ser BINGO v1.</td></tr>
-          <tr><td>12:15~</td><td>Unstructured output (colegas em curso) = <strong>nova camada de contagem</strong> que entra na fact table → recompute do score.</td><td>Arquitetura A do grill: layers feed score (não narrativa solta). DD/RELINTs viram dimensões mensuráveis.</td></tr>
-          <tr><td>12:15~</td><td>Load (.doc) <strong>deferido</strong> — não é foco agora.</td><td>Time decidiu focar 100% em Transform até score v1. Load entra como sprint dedicado depois.</td></tr>
-          <tr><td>12:15~</td><td>"Transform done" = pipeline detecta + flagga + resolve (humano OU agente IA) em todas as bases.</td><td>Critério operacional, não validação de score. Score validação é separado, c/ mentor.</td></tr>
-          <tr><td>12:15~</td><td>Caio (PM) foco = mentor sync + acompanhar devs (não Load).</td><td>Mentor pode mudar fórmula antes de virar pedra. Acompanhar devs evita duplicação DD vs RELINTs.</td></tr>
-          <tr><td class="tbd-marker">TBD</td><td>Stack técnica</td><td>—</td></tr>
-          <tr><td class="tbd-marker">TBD</td><td>Área pra demo</td><td>—</td></tr>
+          <tr><td><strong>Schema fact table flat</strong> (area × grid × semana)</td><td>SQL/pandas-friendly, time series + heatmap grátis, fácil pra mentor e Prefeitura entenderem.</td></tr>
+          <tr><td><strong>Grid 250m + janela 8 semanas</strong></td><td>Granularidade urbana real (quadra) + janela operacional do CompStat (reunião terça).</td></tr>
+          <tr><td><strong>Áreas FM dinâmicas</strong> (motor_bingo_semanal)</td><td>Briefing diz "polígonos não estáticos". Recompute por semana adapta a migração do crime.</td></tr>
+          <tr><td><strong>Score = soma ponderada</strong> (não média uniforme)</td><td>Codifica prioridades do CompStat (roubo a transeunte 2.0, iluminação 2.0). Tunável sem código.</td></tr>
+          <tr><td><strong>Output = <code>.doc</code></strong></td><td>Briefing pediu. Substitui o relatório manual da Duda. RELINTs são o gabarito.</td></tr>
+          <tr><td><strong>LLM-first, humano só audita</strong></td><td>Pipeline 100% agêntica. Humano não bloqueia caminho crítico — audita pós-hoc via JSONL.</td></tr>
+          <tr><td><strong>S3 processa só DD</strong>, não RELINTs</td><td>DD tem texto livre por denúncia (input qualitativo). RELINTs são OUTPUT template.</td></tr>
         </tbody>
       </table>
     </section>
 
     <footer class="page-foot">
-      <p>Documento vivo · atualizar conforme decisões do time evoluem · sibling: <code>docs/project-brief.html</code> (contexto do problema).</p>
-      <p>Group 14 · Claude Impact Lab Rio 2026 · Deadline GitHub: <strong>16:15</strong></p>
+      <p>Documento vivo · sibling: <code>docs/project-brief.html</code> (contexto do problema)</p>
+      <p>Group 14 · Claude Impact Lab Rio 2026 · Deadline: <strong>16:15</strong></p>
     </footer>
   </main>
 </div>
